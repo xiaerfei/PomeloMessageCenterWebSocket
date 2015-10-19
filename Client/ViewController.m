@@ -10,7 +10,7 @@
 #import "LoginAPICmd.h"
 #import "RYChatManager.h"
 
-@interface ViewController () <APICmdApiCallBackDelegate ,RYChatManagerDelegate>
+@interface ViewController () <APICmdApiCallBackDelegate ,RYGateManagerDelegate, RYConnectorManagerDelegate>
 
 @property (nonatomic, copy) NSString *hostStr;
 @property (nonatomic, copy) NSString *portStr;
@@ -52,12 +52,13 @@
     
     [self.loginAPICmd loadData];
     
-    [RYChatManager shareManager].delegate = self;
+    [RYChatManager shareManager].gateDelegate = self;
+    [RYChatManager shareManager].connectorDelegate = self;
     
     //客户端client初始化
     self.client = [[RYChatManager shareManager] client];
     
-//
+
 //    [client onRoute:@"gate.gateHandler.queryEntry" withCallback:^(id arg) {
 //
 //        NSLog(@"%@",arg);
@@ -106,37 +107,19 @@
 
 - (void)connectToGateSuccess:(id)data {
     
-    NSDictionary *dict = (NSDictionary *)data;
+}
+
+- (void)connectToGateFailure:(id)error {
     
-    self.hostStr = dict[@"host"];
-    self.portStr = dict[@"port"];
+}
+
+#pragma mark RYConnectorManagerDelegate
+
+- (void)connectToConnectorSuccess:(id)data {
     
-    if ([[NSString stringWithFormat:@"%@",dict[@"code"]] isEqualToString:@"200"]) {
-        
-        //连接服务器成功
-        //服务器返回需要连接的连接服务器
-        
-        /*
-         {
-         code = 200;
-         host = "192.168.253.35";
-         port = 3052;
-         }
-         */
-        
-        //TODO: 继续完善目的：接口简便实用
-        
-        [self.client connectToHost:self.hostStr onPort:self.portStr withCallback:^(id arg) {
-            
-            [self.client requestWithRoute:@"connector.entryHandler.init" andParams:@{@"token": self.tokenStr} andCallback:^(id arg) {
-                NSLog(@"%@",arg);
-                [self.client disconnect];
-                
-            }];
-            
-        }];
-        
-    }
+}
+
+- (void)connectToConnectorFailure:(id)error {
     
 }
 
@@ -154,7 +137,7 @@
 
 - (void)connect{
     
-    [[RYChatManager shareManager] connectToGateServer];
+    [[RYChatManager shareManager] connectToConnectorServer];
     
 }
 

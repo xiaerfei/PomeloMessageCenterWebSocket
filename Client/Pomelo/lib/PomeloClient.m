@@ -641,12 +641,12 @@
 #if DEBUG == 1
             NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil];
             NSString *jsonStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-//            NSLog(@"%@",jsonStr);
+            NSLog(@"%@",jsonStr);
 #endif
             [_logs addObject:dict];
         }else{
 #if DEBUG == 1
-//            NSLog(@"%@",keyString);
+            NSLog(@"%@",keyString);
 #endif
             [_logs addObject:keyString];
         }
