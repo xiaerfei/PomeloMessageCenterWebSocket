@@ -8,9 +8,9 @@
 
 #import "ViewController.h"
 #import "LoginAPICmd.h"
-#import "RYChatManager.h"
+#import "RYChatHandler.h"
 
-@interface ViewController () <APICmdApiCallBackDelegate ,RYGateManagerDelegate, RYConnectorManagerDelegate>
+@interface ViewController () <APICmdApiCallBackDelegate ,RYGateHandlerDelegate, RYConnectorHandlerDelegate,PomeloClientDelegate>
 
 @property (nonatomic, copy) NSString *hostStr;
 @property (nonatomic, copy) NSString *portStr;
@@ -20,7 +20,7 @@
 
 @property (nonatomic, strong) LoginAPICmd *loginAPICmd;
 
-@property (nonatomic, strong) PomeloClient *client;
+@property (nonatomic, strong) RYChatHandler *RYChatHandler;
 
 @end
 
@@ -51,20 +51,6 @@
 - (void)configData {
     
     [self.loginAPICmd loadData];
-    
-    [RYChatManager shareManager].gateDelegate = self;
-    [RYChatManager shareManager].connectorDelegate = self;
-    
-    //客户端client初始化
-    self.client = [[RYChatManager shareManager] client];
-    
-
-//    [client onRoute:@"gate.gateHandler.queryEntry" withCallback:^(id arg) {
-//
-//        NSLog(@"%@",arg);
-//
-//    }];
-    
 }
 
 - (void)configUI {
@@ -103,6 +89,13 @@
     NSLog(@"error = %@",error);
 }
 
+#pragma mark PomeloClientDelegate
+
+//断开连接
+- (void)pomeloDisconnect:(PomeloClient *)pomelo withError:(NSError *)error {
+    
+}
+
 #pragma mark RYChatManagerDelegate
 
 - (void)connectToGateSuccess:(id)data {
@@ -137,7 +130,7 @@
 
 - (void)connect{
     
-    [[RYChatManager shareManager] connectToConnectorServer];
+    [self.RYChatHandler connectToConnectorServer];
     
 }
 
@@ -191,5 +184,16 @@
                                      nil];
     }
     return _loginAPICmd;
+}
+
+- (RYChatHandler *)RYChatHandler {
+    if (!_RYChatHandler) {
+        _RYChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _RYChatHandler.gateDelegate = self;
+        _RYChatHandler.connectorDelegate = self;
+        _RYChatHandler.chatServerType = RouteChatTypeSend;
+        _RYChatHandler.parameters = @{@"test":@"testkey"};
+    }
+    return _RYChatHandler;
 }
 @end

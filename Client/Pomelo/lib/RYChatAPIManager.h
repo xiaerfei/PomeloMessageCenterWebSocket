@@ -62,15 +62,21 @@ typedef NS_ENUM(NSInteger, RouteChatTypeName){
     //用于保存用户消息免打扰的情况
     RouteChatTypeDisturbed =  3 << 4,
     //获取组和组成员信息
-    RouteChatTypeGetGroupInfo
+    RouteChatTypeGetGroupInfo = 3 << 5
+};
+
+typedef NS_ENUM(NSInteger, ResultCodeType){
+    //获取成功
+    ResultCodeTypeSuccess = 200,
+    //用户未登录
+    ResultCodeTypeNoLogin = 401,
+    //用户未登录
+    ResultCodeTypeOtherError = 500
 };
 
 
 //有关聊天接口管理类
 @interface RYChatAPIManager : NSObject
-
-//chat服务器请求所需要的参数
-@property (nonatomic, copy) NSDictionary *parameters;
 
 //connector服务器需要连接的host和port端口
 @property (nonatomic, copy) NSString *hostConnector;

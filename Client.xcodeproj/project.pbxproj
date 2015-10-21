@@ -53,8 +53,20 @@
 		980C27901BD099110026EA86 /* AFURLResponseSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 980C27861BD099110026EA86 /* AFURLResponseSerialization.m */; };
 		980C27911BD099110026EA86 /* AFURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 980C27881BD099110026EA86 /* AFURLSessionManager.m */; };
 		980C27931BD09E380026EA86 /* README.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 980C27921BD09E380026EA86 /* README.rtfd */; };
-		98116A041BD1DD6900B494A9 /* RYChatManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 98116A031BD1DD6900B494A9 /* RYChatManager.m */; };
+		98116A041BD1DD6900B494A9 /* RYChatHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 98116A031BD1DD6900B494A9 /* RYChatHandler.m */; };
 		98116A071BD1DF1A00B494A9 /* RYChatAPIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 98116A061BD1DF1A00B494A9 /* RYChatAPIManager.m */; };
+		9824892E1BD7288D0008BF6A /* MessageCenterUserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9824892D1BD7288D0008BF6A /* MessageCenterUserModel.m */; };
+		982489311BD728A40008BF6A /* CommonModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 982489301BD728A40008BF6A /* CommonModel.m */; };
+		982489341BD728DA0008BF6A /* MessageCenterMessageModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 982489331BD728DA0008BF6A /* MessageCenterMessageModel.m */; };
+		982489371BD729030008BF6A /* MessageCenterMetadataModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 982489361BD729030008BF6A /* MessageCenterMetadataModel.m */; };
+		98BE69691BD60E0900DFD027 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 98BE695F1BD60E0900DFD027 /* FMDatabase.m */; };
+		98BE696A1BD60E0900DFD027 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 98BE69611BD60E0900DFD027 /* FMDatabaseAdditions.m */; };
+		98BE696B1BD60E0900DFD027 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 98BE69631BD60E0900DFD027 /* FMDatabasePool.m */; };
+		98BE696C1BD60E0900DFD027 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 98BE69651BD60E0900DFD027 /* FMDatabaseQueue.m */; };
+		98BE696D1BD60E0900DFD027 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 98BE69681BD60E0900DFD027 /* FMResultSet.m */; };
+		98BE69711BD60E1F00DFD027 /* RYDataBaseStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 98BE69701BD60E1F00DFD027 /* RYDataBaseStore.m */; };
+		98BE69771BD6102200DFD027 /* PomeloMessageCenterDBManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 98BE69761BD6102200DFD027 /* PomeloMessageCenterDBManager.m */; };
+		98BE69791BD6109C00DFD027 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 98BE69781BD6109C00DFD027 /* libsqlite3.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -145,10 +157,34 @@
 		980C27871BD099110026EA86 /* AFURLSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLSessionManager.h; sourceTree = "<group>"; };
 		980C27881BD099110026EA86 /* AFURLSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLSessionManager.m; sourceTree = "<group>"; };
 		980C27921BD09E380026EA86 /* README.rtfd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.rtfd; path = README.rtfd; sourceTree = "<group>"; };
-		98116A021BD1DD6900B494A9 /* RYChatManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RYChatManager.h; sourceTree = "<group>"; };
-		98116A031BD1DD6900B494A9 /* RYChatManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RYChatManager.m; sourceTree = "<group>"; };
+		98116A021BD1DD6900B494A9 /* RYChatHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RYChatHandler.h; sourceTree = "<group>"; };
+		98116A031BD1DD6900B494A9 /* RYChatHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RYChatHandler.m; sourceTree = "<group>"; };
 		98116A051BD1DF1A00B494A9 /* RYChatAPIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RYChatAPIManager.h; sourceTree = "<group>"; };
 		98116A061BD1DF1A00B494A9 /* RYChatAPIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RYChatAPIManager.m; sourceTree = "<group>"; };
+		9824892C1BD7288D0008BF6A /* MessageCenterUserModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageCenterUserModel.h; sourceTree = "<group>"; };
+		9824892D1BD7288D0008BF6A /* MessageCenterUserModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageCenterUserModel.m; sourceTree = "<group>"; };
+		9824892F1BD728A40008BF6A /* CommonModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonModel.h; sourceTree = "<group>"; };
+		982489301BD728A40008BF6A /* CommonModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommonModel.m; sourceTree = "<group>"; };
+		982489321BD728DA0008BF6A /* MessageCenterMessageModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageCenterMessageModel.h; sourceTree = "<group>"; };
+		982489331BD728DA0008BF6A /* MessageCenterMessageModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageCenterMessageModel.m; sourceTree = "<group>"; };
+		982489351BD729030008BF6A /* MessageCenterMetadataModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageCenterMetadataModel.h; sourceTree = "<group>"; };
+		982489361BD729030008BF6A /* MessageCenterMetadataModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageCenterMetadataModel.m; sourceTree = "<group>"; };
+		98BE695E1BD60E0900DFD027 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
+		98BE695F1BD60E0900DFD027 /* FMDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
+		98BE69601BD60E0900DFD027 /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseAdditions.h; sourceTree = "<group>"; };
+		98BE69611BD60E0900DFD027 /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseAdditions.m; sourceTree = "<group>"; };
+		98BE69621BD60E0900DFD027 /* FMDatabasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabasePool.h; sourceTree = "<group>"; };
+		98BE69631BD60E0900DFD027 /* FMDatabasePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabasePool.m; sourceTree = "<group>"; };
+		98BE69641BD60E0900DFD027 /* FMDatabaseQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseQueue.h; sourceTree = "<group>"; };
+		98BE69651BD60E0900DFD027 /* FMDatabaseQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseQueue.m; sourceTree = "<group>"; };
+		98BE69661BD60E0900DFD027 /* FMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDB.h; sourceTree = "<group>"; };
+		98BE69671BD60E0900DFD027 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
+		98BE69681BD60E0900DFD027 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
+		98BE696F1BD60E1F00DFD027 /* RYDataBaseStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RYDataBaseStore.h; sourceTree = "<group>"; };
+		98BE69701BD60E1F00DFD027 /* RYDataBaseStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RYDataBaseStore.m; sourceTree = "<group>"; };
+		98BE69751BD6102200DFD027 /* PomeloMessageCenterDBManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PomeloMessageCenterDBManager.h; sourceTree = "<group>"; };
+		98BE69761BD6102200DFD027 /* PomeloMessageCenterDBManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PomeloMessageCenterDBManager.m; sourceTree = "<group>"; };
+		98BE69781BD6109C00DFD027 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +192,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98BE69791BD6109C00DFD027 /* libsqlite3.dylib in Frameworks */,
 				3764EB7117F028CD00093CF7 /* Security.framework in Frameworks */,
 				3764EB6F17F028BD00093CF7 /* libicucore.dylib in Frameworks */,
 				3764EB6D17F0280E00093CF7 /* CFNetwork.framework in Frameworks */,
@@ -181,6 +218,7 @@
 		3743B518180E2BF800C17E30 /* Pomelo */ = {
 			isa = PBXGroup;
 			children = (
+				9824892B1BD728640008BF6A /* model */,
 				3743B52B180E2CB700C17E30 /* Protobuf */,
 				3743B519180E2C9500C17E30 /* SocketRocket */,
 				3743B521180E2C9500C17E30 /* lib */,
@@ -210,10 +248,12 @@
 				3743B523180E2C9500C17E30 /* PomeloClient.m */,
 				3743B524180E2C9500C17E30 /* PomeloProtocol.h */,
 				3743B525180E2C9500C17E30 /* PomeloProtocol.m */,
-				98116A021BD1DD6900B494A9 /* RYChatManager.h */,
-				98116A031BD1DD6900B494A9 /* RYChatManager.m */,
+				98116A021BD1DD6900B494A9 /* RYChatHandler.h */,
+				98116A031BD1DD6900B494A9 /* RYChatHandler.m */,
 				98116A051BD1DF1A00B494A9 /* RYChatAPIManager.h */,
 				98116A061BD1DF1A00B494A9 /* RYChatAPIManager.m */,
+				98BE69751BD6102200DFD027 /* PomeloMessageCenterDBManager.h */,
+				98BE69761BD6102200DFD027 /* PomeloMessageCenterDBManager.m */,
 			);
 			path = lib;
 			sourceTree = "<group>";
@@ -239,6 +279,8 @@
 		3764EB1D17F0268600093CF7 = {
 			isa = PBXGroup;
 			children = (
+				98BE696E1BD60E1F00DFD027 /* RYDataBaseStore */,
+				98BE695D1BD60E0900DFD027 /* fmdb */,
 				980C27921BD09E380026EA86 /* README.rtfd */,
 				980C27751BD099110026EA86 /* AFNetworking */,
 				980C27611BD095860026EA86 /* NetworkCenter */,
@@ -262,6 +304,7 @@
 		3764EB2817F0268600093CF7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				98BE69781BD6109C00DFD027 /* libsqlite3.dylib */,
 				3764EB7017F028CD00093CF7 /* Security.framework */,
 				3764EB6E17F028BD00093CF7 /* libicucore.dylib */,
 				3764EB6C17F0280D00093CF7 /* CFNetwork.framework */,
@@ -442,6 +485,48 @@
 			path = AFNetworking;
 			sourceTree = "<group>";
 		};
+		9824892B1BD728640008BF6A /* model */ = {
+			isa = PBXGroup;
+			children = (
+				9824892F1BD728A40008BF6A /* CommonModel.h */,
+				982489301BD728A40008BF6A /* CommonModel.m */,
+				9824892C1BD7288D0008BF6A /* MessageCenterUserModel.h */,
+				9824892D1BD7288D0008BF6A /* MessageCenterUserModel.m */,
+				982489321BD728DA0008BF6A /* MessageCenterMessageModel.h */,
+				982489331BD728DA0008BF6A /* MessageCenterMessageModel.m */,
+				982489351BD729030008BF6A /* MessageCenterMetadataModel.h */,
+				982489361BD729030008BF6A /* MessageCenterMetadataModel.m */,
+			);
+			path = model;
+			sourceTree = "<group>";
+		};
+		98BE695D1BD60E0900DFD027 /* fmdb */ = {
+			isa = PBXGroup;
+			children = (
+				98BE695E1BD60E0900DFD027 /* FMDatabase.h */,
+				98BE695F1BD60E0900DFD027 /* FMDatabase.m */,
+				98BE69601BD60E0900DFD027 /* FMDatabaseAdditions.h */,
+				98BE69611BD60E0900DFD027 /* FMDatabaseAdditions.m */,
+				98BE69621BD60E0900DFD027 /* FMDatabasePool.h */,
+				98BE69631BD60E0900DFD027 /* FMDatabasePool.m */,
+				98BE69641BD60E0900DFD027 /* FMDatabaseQueue.h */,
+				98BE69651BD60E0900DFD027 /* FMDatabaseQueue.m */,
+				98BE69661BD60E0900DFD027 /* FMDB.h */,
+				98BE69671BD60E0900DFD027 /* FMResultSet.h */,
+				98BE69681BD60E0900DFD027 /* FMResultSet.m */,
+			);
+			path = fmdb;
+			sourceTree = "<group>";
+		};
+		98BE696E1BD60E1F00DFD027 /* RYDataBaseStore */ = {
+			isa = PBXGroup;
+			children = (
+				98BE696F1BD60E1F00DFD027 /* RYDataBaseStore.h */,
+				98BE69701BD60E1F00DFD027 /* RYDataBaseStore.m */,
+			);
+			path = RYDataBaseStore;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -544,6 +629,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				980C27891BD099110026EA86 /* AFHTTPRequestOperation.m in Sources */,
+				982489311BD728A40008BF6A /* CommonModel.m in Sources */,
 				3743B528180E2C9500C17E30 /* SRWebSocket.m in Sources */,
 				3743B52A180E2C9500C17E30 /* PomeloProtocol.m in Sources */,
 				3743B527180E2C9500C17E30 /* NSData+SRB64Additions.m in Sources */,
@@ -551,11 +637,14 @@
 				3764EB4317F0268600093CF7 /* ViewController.m in Sources */,
 				3743B537180E2CB700C17E30 /* ProtobufEncoder.m in Sources */,
 				980C278B1BD099110026EA86 /* AFHTTPSessionManager.m in Sources */,
+				98BE69691BD60E0900DFD027 /* FMDatabase.m in Sources */,
+				982489341BD728DA0008BF6A /* MessageCenterMessageModel.m in Sources */,
 				376AA7CE1821EC5500C05AA8 /* ProtobufParse.m in Sources */,
 				3764EB3A17F0268600093CF7 /* AppDelegate.m in Sources */,
-				98116A041BD1DD6900B494A9 /* RYChatManager.m in Sources */,
+				98116A041BD1DD6900B494A9 /* RYChatHandler.m in Sources */,
 				980C278C1BD099110026EA86 /* AFNetworkReachabilityManager.m in Sources */,
 				980C27911BD099110026EA86 /* AFURLSessionManager.m in Sources */,
+				98BE696B1BD60E0900DFD027 /* FMDatabasePool.m in Sources */,
 				3743B526180E2C9500C17E30 /* base64.c in Sources */,
 				980C27711BD095860026EA86 /* RYAPIManager.m in Sources */,
 				980C278E1BD099110026EA86 /* AFURLConnectionOperation.m in Sources */,
@@ -566,11 +655,18 @@
 				3743B538180E2CB700C17E30 /* ProtobufUtil.m in Sources */,
 				98116A071BD1DF1A00B494A9 /* RYChatAPIManager.m in Sources */,
 				3743B536180E2CB700C17E30 /* ProtobufDecoder.m in Sources */,
+				98BE696C1BD60E0900DFD027 /* FMDatabaseQueue.m in Sources */,
 				3764EB3617F0268600093CF7 /* main.m in Sources */,
 				980C27701BD095860026EA86 /* RYAPILogger.m in Sources */,
 				980C278A1BD099110026EA86 /* AFHTTPRequestOperationManager.m in Sources */,
+				9824892E1BD7288D0008BF6A /* MessageCenterUserModel.m in Sources */,
+				98BE69711BD60E1F00DFD027 /* RYDataBaseStore.m in Sources */,
+				982489371BD729030008BF6A /* MessageCenterMetadataModel.m in Sources */,
 				980C278D1BD099110026EA86 /* AFSecurityPolicy.m in Sources */,
+				98BE69771BD6102200DFD027 /* PomeloMessageCenterDBManager.m in Sources */,
+				98BE696D1BD60E0900DFD027 /* FMResultSet.m in Sources */,
 				3743B535180E2CB700C17E30 /* ProtobufCodec.m in Sources */,
+				98BE696A1BD60E0900DFD027 /* FMDatabaseAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
