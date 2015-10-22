@@ -10,7 +10,7 @@
 #import "LoginAPICmd.h"
 #import "RYChatHandler.h"
 
-@interface ViewController () <APICmdApiCallBackDelegate ,RYGateHandlerDelegate, RYConnectorHandlerDelegate,PomeloClientDelegate>
+@interface ViewController () <APICmdApiCallBackDelegate ,RYGateHandlerDelegate, RYConnectorHandlerDelegate,RYChatHandlerDelegate,PomeloClientDelegate>
 
 @property (nonatomic, copy) NSString *hostStr;
 @property (nonatomic, copy) NSString *portStr;
@@ -21,6 +21,8 @@
 @property (nonatomic, strong) LoginAPICmd *loginAPICmd;
 
 @property (nonatomic, strong) RYChatHandler *RYChatHandler;
+
+@property (nonatomic, strong) RYChatHandler *readChatHandler;
 
 @end
 
@@ -86,13 +88,15 @@
 }
 
 - (void)apiCmdDidFailed:(RYBaseAPICmd *)baseAPICmd error:(NSError *)error {
-    NSLog(@"error = %@",error);
+    NSLog(@"error = %@----------------",error);
 }
 
 #pragma mark PomeloClientDelegate
 
 //断开连接
 - (void)pomeloDisconnect:(PomeloClient *)pomelo withError:(NSError *)error {
+    
+    NSLog(@"-----断开连接-----");
     
 }
 
@@ -110,10 +114,26 @@
 
 - (void)connectToConnectorSuccess:(id)data {
     
+    NSLog(@"connectToConnectorSuccess");
+    
+    [self.RYChatHandler chat];
+    
+//    [self.readChatHandler chat];
 }
 
 - (void)connectToConnectorFailure:(id)error {
+     NSLog(@"connectToConnectorFailure");
+}
+
+#pragma mark RYChatHandlerDelegate
+
+- (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data {
+    NSLog(@"success----------chat %@",data);
     
+}
+
+- (void)connectToChatFailure:(RYChatHandler *)chatHandler result:(id)error {
+    NSLog(@"failure = %@",error);
 }
 
 #pragma mark - event response       事件相应的方法如 button 等等
@@ -129,48 +149,10 @@
 
 
 - (void)connect{
-    
-    [self.RYChatHandler connectToConnectorServer];
+    //连接server
+    [self.RYChatHandler connectToServer];
     
 }
-
-//- (void)push{
-//    [self.client notifyWithRoute:@"connector.entryHandler.push" andParams:@{@"a": @"adfasdfasf",
-//                                                                       @"b":@"abbbbb",
-//                                                                       @"c":@-1,
-//                                                                       @"d":@2,
-//                                                                       @"f":@1.2,
-//                                                                       @"e":@2.333333,
-//                                                                       @"g":@{@"a": @"adf",@"b":@12313},
-//                                                                       @"h":@[@{@"a": @"addddf",@"b":@1212313},@{@"a": @"asdfadf",@"b":@12313}],
-//                                                                       @"i":@[@-1,@22,@1],
-//                                                                       @"j":@[@1.1,@-1.2]}];
-//}
-//
-//
-//- (void)sendProto{
-//    [self.client requestWithRoute:@"connector.entryHandler.proto" andParams:@{@"a": @"adfasdfasf",
-//                                                                         @"b":@"abbbbb",
-//                                                                         @"c":@-1,
-//                                                                         @"d":@2,
-//                                                                         @"f":@1.2,
-//                                                                         @"e":@2.333333,
-//                                                                         @"g":@{@"a": @"adf",@"b":@12313},
-//                                                                         @"h":@[@{@"a": @"addddf",@"b":@1212313},@{@"a": @"asdfadf",@"b":@12313}],
-//                                                                         @"i":@[@-1,@22,@1],
-//                                                                         @"j":@[@1.1,@-1.2]} andCallback:^(id arg) {
-//                                                                             NSLog(@"%@",arg);
-//                                                                         }];
-//    
-//}
-//
-//
-//
-//- (void)dissconnect{
-//    [self.client disconnectWithCallback:^(id arg) {
-//        NSLog(@"断线了");
-//    }];
-//}
 
 #pragma mark - getters and setters
 
@@ -191,9 +173,22 @@
         _RYChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _RYChatHandler.gateDelegate = self;
         _RYChatHandler.connectorDelegate = self;
-        _RYChatHandler.chatServerType = RouteChatTypeSend;
-        _RYChatHandler.parameters = @{@"test":@"testkey"};
+        _RYChatHandler.chatDelegate = self;
+        _RYChatHandler.chatServerType = RouteConnectorTypeInit;
     }
     return _RYChatHandler;
 }
+
+- (RYChatHandler *)readChatHandler {
+    if (!_readChatHandler) {
+        _readChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _readChatHandler.gateDelegate = self;
+        _readChatHandler.connectorDelegate = self;
+        _readChatHandler.chatDelegate = self;
+        _readChatHandler.chatServerType = RouteChatTypeRead;
+        _readChatHandler.parameters = @{@"lastedReadMsgId":@"1"};
+    }
+    return _readChatHandler;
+}
+
 @end

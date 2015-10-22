@@ -65,6 +65,8 @@ typedef NS_ENUM(NSInteger, RouteChatTypeName){
     RouteChatTypeGetGroupInfo = 3 << 5
 };
 
+//获取成功或失败之后枚举值
+
 typedef NS_ENUM(NSInteger, ResultCodeType){
     //获取成功
     ResultCodeTypeSuccess = 200,
@@ -72,6 +74,58 @@ typedef NS_ENUM(NSInteger, ResultCodeType){
     ResultCodeTypeNoLogin = 401,
     //用户未登录
     ResultCodeTypeOtherError = 500
+};
+
+/**
+ *
+ *  消息推送
+ *
+ */
+
+typedef NS_ENUM(NSInteger, NotifyType){
+    
+    /**
+     *  推送消息到客户端
+     *  推送消息给客户端；推送新消息时，判断老消息是否已全部推送完，否则不推送新消息
+     */
+    
+    NotifyTypeOnChat           = 5 << 1,
+    
+    /**
+     *  推送消息已读情况到客户端
+     */
+    
+    NotifyTypeOnRead           = 5 << 2,
+    
+    /**
+     *  推送消息置顶情况到客户端
+     */
+    
+    NotifyTypeOnTop            = 5 << 3,
+    
+    /**
+     *  推送消息免打扰到客户端
+     */
+    NotifyTypeOnDisturbed      = 5 << 4,
+    
+    /**
+     *  推送消息列表给客户端，用于客户端刚刚登陆时
+     */
+    
+    NotifyTypeOnGroupMsgList   = 7 << 1,
+    
+    /**
+     *  推送消息群组在客户端展示的设置到客户端
+     */
+    
+    NotifyTypeOnClientStatus   = 7 << 2,
+    
+    /**
+     *  接收到消息群组client端展示推送
+     */
+    
+    NotifyTypeOnClientShow
+    
 };
 
 
@@ -86,6 +140,8 @@ typedef NS_ENUM(NSInteger, ResultCodeType){
 
 //根据不同类型返回路由字符串
 + (NSString *)routeWithType:(NSInteger)type;
+//根据不同类型返回通知路由字符串
++ (NSString *)notifyWithType:(NSInteger)type;
 
 //连接服务器需要的参数设置
 //根据是否连接gate服务器获取参数（如果是gate服务器，则参数形式为@{@"uid":@""},如果连接为connector服务器，则参数为@{@"token":@""}）

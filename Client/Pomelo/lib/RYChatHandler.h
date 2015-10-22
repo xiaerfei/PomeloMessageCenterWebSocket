@@ -14,6 +14,8 @@
 @class RYChatHandler;
 @class CommonModel;
 
+/*---------------------------------RYGateHandlerDelegate-------------------------------*/
+
 @protocol RYGateHandlerDelegate <NSObject>
 
 //如果连接gate成功，则会紧接着连接gate服务器分配的connector服务器的host和port，其成功和失败的delegate方法可用可不用
@@ -27,6 +29,8 @@
 
 @end
 
+/*---------------------------------RYConnectorHandlerDelegate-------------------------------*/
+
 @protocol RYConnectorHandlerDelegate <NSObject>
 
 //连接connector成功,进行后续操作
@@ -36,6 +40,8 @@
 - (void)connectToConnectorFailure:(id)error;
 
 @end
+
+/*---------------------------------RYChatHandlerDelegate------------------------------------*/
 
 //连接chat服务器之后，不论是何种请求，返回结果和chatHandler即可，具体viewController处理
 @protocol RYChatHandlerDelegate <NSObject>
@@ -47,15 +53,19 @@
 
 @end
 
+
+
+
 //pomelo开源框架
 @interface RYChatHandler : NSObject
 
 //chat服务器请求所需要的参数
-@property (nonatomic, copy) NSDictionary *parameters;
+@property (nonatomic, copy)   NSDictionary *parameters;
 //chat请求类型
 @property (nonatomic, assign) NSInteger chatServerType;
 //chat数据模型
 @property (nonatomic, strong) CommonModel *commonModel;
+
 
 @property (nonatomic, weak) id <RYGateHandlerDelegate> gateDelegate;
 @property (nonatomic, weak) id <RYConnectorHandlerDelegate> connectorDelegate;
@@ -64,22 +74,19 @@
 
 - (instancetype)initWithDelegate:(id)delegate ;
 
-/*---------------------------------服务器交互------------------------------*/
+/*---------------------------------gate、connector、chat服务器交互------------------------------*/
 
 //连接gate，进而连接分配的connector
-- (void)connectToConnectorServer;
+- (void)connectToServer;
 //开始聊天
 - (void)chat;
 
-/*---------------------------------本地存储-------------------------------*/
+/*--------------------------------------消息推送---------------------------------*/
 
-//存储用户信息   --- 对应User表操作
-- (void)storeUserInfoWithDatas:(NSArray *)userDatas;
-//存储消息      ---  对应message表
-- (void)storeMessageInfoWithDatas:(NSArray *)messageDatas;
-//存储本地未发送消息
-- (void)storeMessageNoSendInfoWithDatas:(NSArray *)messageDatas;
-//消息Metadata --- 对应Metadata表
-- (void)storeMetaDataWithDatas:(NSArray *)metaDatas;
+/*--------------------------------------待测试---------------------------------------*/
+//注册通知监听
+- (void)monitorMessage;
+//当失去连接时关闭推送功能
+- (void)disConnect;
 
 @end

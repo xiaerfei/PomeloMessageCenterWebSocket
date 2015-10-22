@@ -19,7 +19,7 @@
  *  @param length        copy的长度
  */
 + (void)copyData:(NSMutableData *)dest
-       destOffset:(NSUInteger)dest_offset
+      destOffset:(NSUInteger)dest_offset
              src:(NSData *)source
        srcOffset:(NSUInteger)source_offset
              len:(NSUInteger)length;
@@ -76,8 +76,8 @@
  *  @return 新的偏移量
  */
 + (NSUInteger)encodeMsgIdWithMsgid:(NSInteger)msgid
-                        andBuffer:(NSMutableData *)buffer
-                        andOffset:(NSUInteger)offset;
+                         andBuffer:(NSMutableData *)buffer
+                         andOffset:(NSUInteger)offset;
 
 
 /**
@@ -144,7 +144,7 @@
     }
     return buffer;
 }
-   
+
 + (PomeloPackage *)packageDecode:(NSData *)buffer{
     unsigned char * bytes  = (unsigned char *)[buffer bytes];
     PackageType type = (PackageType) bytes[0];
@@ -273,15 +273,15 @@
 #pragma mark PrivateMethod
 
 + (void)copyData:(NSMutableData *)dest
-       destOffset:(NSUInteger)dest_offset
+      destOffset:(NSUInteger)dest_offset
              src:(NSData *)source
        srcOffset:(NSUInteger)source_offset
              len:(NSUInteger)length {
     unsigned char *ptr_tmp = (unsigned char *) source.bytes;
-       
+    
     [dest replaceBytesInRange:NSMakeRange(dest_offset, length)
-                       withBytes:&(ptr_tmp[source_offset])
-                          length:length];
+                    withBytes:&(ptr_tmp[source_offset])
+                       length:length];
 }
 
 
@@ -316,8 +316,8 @@
 }
 
 + (NSUInteger)encodeMsgIdWithMsgid:(NSInteger)msgid
-                        andBuffer:(NSMutableData *)buffer
-                        andOffset:(NSUInteger)offset{
+                         andBuffer:(NSMutableData *)buffer
+                         andOffset:(NSUInteger)offset{
     do {
         NSUInteger tmp = msgid % 128;
         NSUInteger next = msgid / 128;

@@ -246,4 +246,41 @@
     return resultDatas;
 }
 
+/**
+ *
+ *  User数据存储
+ *
+ */
+- (void)storeUserInfoWithDatas:(NSArray *)userDatas {
+    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:userDatas];
+}
+
+/**
+ *
+ *  消息数据存储
+ *
+ */
+- (void)storeMessageInfoWithDatas:(NSArray *)messageDatas {
+    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:messageDatas];
+}
+
+/**
+ *
+ *  未发送消息数据存储
+ *
+ */
+
+- (void)storeMessageNoSendInfoWithDatas:(NSArray *)messageDatas {
+    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE_NO_SEND data:messageDatas];
+}
+
+/**
+ *
+ *  列表数据存储
+ *
+ */
+- (void)storeMetaDataWithDatas:(NSArray *)metaDatas {
+    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMETADATA data:metaDatas];
+}
+
 @end

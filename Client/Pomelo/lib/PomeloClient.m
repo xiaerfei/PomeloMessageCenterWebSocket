@@ -235,7 +235,7 @@
     }
     
     [self addLogWithKey:[NSString stringWithFormat:@"连接  host:%@  port:%@",host,port] andParam:params];
-
+    
     
     if (callback) {
         [_callBacks setObject:callback forKey:kPomeloHandshakeCallback];
@@ -254,7 +254,7 @@
 - (void)disconnectWithCallback:(PomeloCallback)callback{
     
     [self addLogWithKey:@"断开连接" andParam:nil];
-
+    
     if (callback) {
         [_callBacks setObject:callback forKey:kPomeloCloseCallback];
     }
@@ -280,7 +280,7 @@
     _reqId++;
     
     [self addLogWithKey:[NSString stringWithFormat:@"request: %@ reqId:%d",route,(int)_reqId] andParam:params];
-
+    
     if (callback) {
         [_callBacks setObject:callback forKey:MESSAGE_CALLBACK_KEY((int)_reqId)];
     }
@@ -641,12 +641,12 @@
 #if DEBUG == 1
             NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil];
             NSString *jsonStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            NSLog(@"%@",jsonStr);
+            //            NSLog(@"%@",jsonStr);
 #endif
             [_logs addObject:dict];
         }else{
 #if DEBUG == 1
-            NSLog(@"%@",keyString);
+            //            NSLog(@"%@",keyString);
 #endif
             [_logs addObject:keyString];
         }
@@ -660,11 +660,11 @@
     NSString *filePath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:PROTOBUFFILENAME];
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
         NSData *data = [NSData dataWithContentsOfFile:filePath];
-            NSError *error;
-            NSDictionary *dict =  [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-            if (!error) {
-                [self updataProtobuf:dict UseUpdate:YES];
-            }
+        NSError *error;
+        NSDictionary *dict =  [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+        if (!error) {
+            [self updataProtobuf:dict UseUpdate:YES];
+        }
         
     }
 }
@@ -674,8 +674,8 @@
     
     NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&error];
     if (!error) {
-            NSString *filePath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:PROTOBUFFILENAME];
-            [data writeToFile:filePath atomically:YES];
+        NSString *filePath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:PROTOBUFFILENAME];
+        [data writeToFile:filePath atomically:YES];
     }
     
 }

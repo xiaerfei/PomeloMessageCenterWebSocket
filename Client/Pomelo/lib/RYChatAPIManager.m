@@ -62,10 +62,42 @@ static RYChatAPIManager *shareManager = nil;
     return routeStr;
 }
 
++ (NSString *)notifyWithType:(NSInteger)type {
+    
+    NSString *notifyStr = @"";
+    
+    switch (type) {
+        case NotifyTypeOnChat:
+            notifyStr = @"onChat";
+            break;
+        case NotifyTypeOnRead:
+            notifyStr = @"onRead";
+            break;
+        case NotifyTypeOnTop:
+            notifyStr = @"onTop";
+            break;
+        case NotifyTypeOnDisturbed:
+            notifyStr = @"onDisturbed";
+            break;
+        case NotifyTypeOnGroupMsgList:
+            notifyStr = @"onGroupMsgList";
+            break;
+        case NotifyTypeOnClientStatus:
+            notifyStr = @"onClientStatus";
+            break;
+        case NotifyTypeOnClientShow:
+            notifyStr = @"onClientShow";
+            break;
+        default:
+            break;
+    }
+    return notifyStr;
+}
+
 + (NSDictionary *)parametersWithType:(BOOL)isConnectInit {
     
     if (isConnectInit) {
-        return @{@"uid":[RYChatAPIManager token]};
+        return @{@"token":[RYChatAPIManager token]};
     }
     return @{@"token":[RYChatAPIManager token]};
 }

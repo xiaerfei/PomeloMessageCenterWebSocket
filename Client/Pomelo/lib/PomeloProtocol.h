@@ -122,8 +122,8 @@ typedef NSMutableDictionary PomeloPackage;
  *  @return encode result
  */
 + (NSData *)messageEncodeWithId:(NSInteger)msgId
-                            andType:(MessageType)type
-                   andCompressRoute:(BOOL)compressRoute
+                        andType:(MessageType)type
+               andCompressRoute:(BOOL)compressRoute
                        andRoute:(id)route
                         andBody:(NSData *)body;
 
@@ -148,7 +148,7 @@ PomeloMessage * MakePomeloMessage(NSUInteger msgId,MessageType type, BOOL compre
 NS_INLINE
 PomeloPackage * MakePomeloPackage(PackageType type,NSData *body){
     return body.length>0?[NSMutableDictionary dictionaryWithObjectsAndKeys:
-            [NSNumber numberWithInt:type],@"type",
+                          [NSNumber numberWithInt:type],@"type",
                           body,@"body", nil]:
     [NSMutableDictionary dictionaryWithObjectsAndKeys:
      [NSNumber numberWithInt:type],@"type", nil];

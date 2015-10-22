@@ -41,12 +41,12 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
 
 + (instancetype)shareInstance;
 
+/*---------------------------------数据库交互-------------------------------*/
+
 /**
  *  根据不同的表类型向表中添加数据
  */
 - (void)addDataToTableWithType:(NSInteger)tableType data:(NSArray *)datas;
-
-//有关组成员
 
 //进入某个群之后，如果缓存没有或者已经展示完缓存数据，则从服务器请求更多记录并记录在本地，如果没有，不再做请求
 //如果是用户列表和组列表，则全部取出，如果是信息列表，则要根据GroupId查询所在组的消息列表，在此基础上按UserId取出用户信息
@@ -58,7 +58,20 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *  @param (targetType:0:个人 1:组 markID:GroupId/UserId)
  *
  *  @return 表中数据
+ *
  */
+
 - (NSArray *)fetchUserInfosWithType:(NSInteger)tableType markID:(NSString *)markID currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber;
+
+/*---------------------------------本地存储简化对外接口-------------------------------*/
+
+//存储用户信息   --- 对应User表操作
+- (void)storeUserInfoWithDatas:(NSArray *)userDatas;
+//存储消息      ---  对应message表
+- (void)storeMessageInfoWithDatas:(NSArray *)messageDatas;
+//存储本地未发送消息
+- (void)storeMessageNoSendInfoWithDatas:(NSArray *)messageDatas;
+//消息Metadata --- 对应Metadata表
+- (void)storeMetaDataWithDatas:(NSArray *)metaDatas;
 
 @end

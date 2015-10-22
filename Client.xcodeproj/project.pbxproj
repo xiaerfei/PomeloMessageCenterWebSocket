@@ -59,6 +59,7 @@
 		982489311BD728A40008BF6A /* CommonModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 982489301BD728A40008BF6A /* CommonModel.m */; };
 		982489341BD728DA0008BF6A /* MessageCenterMessageModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 982489331BD728DA0008BF6A /* MessageCenterMessageModel.m */; };
 		982489371BD729030008BF6A /* MessageCenterMetadataModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 982489361BD729030008BF6A /* MessageCenterMetadataModel.m */; };
+		98B0868B1BD87C2900D9A36A /* RYNotifyHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 98B0868A1BD87C2900D9A36A /* RYNotifyHandler.m */; };
 		98BE69691BD60E0900DFD027 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 98BE695F1BD60E0900DFD027 /* FMDatabase.m */; };
 		98BE696A1BD60E0900DFD027 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 98BE69611BD60E0900DFD027 /* FMDatabaseAdditions.m */; };
 		98BE696B1BD60E0900DFD027 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 98BE69631BD60E0900DFD027 /* FMDatabasePool.m */; };
@@ -169,6 +170,8 @@
 		982489331BD728DA0008BF6A /* MessageCenterMessageModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageCenterMessageModel.m; sourceTree = "<group>"; };
 		982489351BD729030008BF6A /* MessageCenterMetadataModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageCenterMetadataModel.h; sourceTree = "<group>"; };
 		982489361BD729030008BF6A /* MessageCenterMetadataModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageCenterMetadataModel.m; sourceTree = "<group>"; };
+		98B086891BD87C2900D9A36A /* RYNotifyHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RYNotifyHandler.h; sourceTree = "<group>"; };
+		98B0868A1BD87C2900D9A36A /* RYNotifyHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RYNotifyHandler.m; sourceTree = "<group>"; };
 		98BE695E1BD60E0900DFD027 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
 		98BE695F1BD60E0900DFD027 /* FMDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
 		98BE69601BD60E0900DFD027 /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseAdditions.h; sourceTree = "<group>"; };
@@ -254,6 +257,8 @@
 				98116A061BD1DF1A00B494A9 /* RYChatAPIManager.m */,
 				98BE69751BD6102200DFD027 /* PomeloMessageCenterDBManager.h */,
 				98BE69761BD6102200DFD027 /* PomeloMessageCenterDBManager.m */,
+				98B086891BD87C2900D9A36A /* RYNotifyHandler.h */,
+				98B0868A1BD87C2900D9A36A /* RYNotifyHandler.m */,
 			);
 			path = lib;
 			sourceTree = "<group>";
@@ -647,6 +652,7 @@
 				98BE696B1BD60E0900DFD027 /* FMDatabasePool.m in Sources */,
 				3743B526180E2C9500C17E30 /* base64.c in Sources */,
 				980C27711BD095860026EA86 /* RYAPIManager.m in Sources */,
+				98B0868B1BD87C2900D9A36A /* RYNotifyHandler.m in Sources */,
 				980C278E1BD099110026EA86 /* AFURLConnectionOperation.m in Sources */,
 				980C27901BD099110026EA86 /* AFURLResponseSerialization.m in Sources */,
 				980C276F1BD095860026EA86 /* RYBaseAPICmd.m in Sources */,
