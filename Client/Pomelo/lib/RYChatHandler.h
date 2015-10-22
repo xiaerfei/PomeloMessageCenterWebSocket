@@ -14,30 +14,15 @@
 @class RYChatHandler;
 @class CommonModel;
 
-/*---------------------------------RYGateHandlerDelegate-------------------------------*/
+/*---------------------------------RYConnectorServerHandlerDelegate-------------------------------*/
 
-@protocol RYGateHandlerDelegate <NSObject>
-
-//如果连接gate成功，则会紧接着连接gate服务器分配的connector服务器的host和port，其成功和失败的delegate方法可用可不用
-
-//如果连接Gate成功,返回需要连接的connector
-@optional
-- (void)connectToGateSuccess:(id)data;
-//连接Gate失败，返回失败信息（主要用于客户端连接失败时的提示信息）
-@required
-- (void)connectToGateFailure:(id)error;
-
-@end
-
-/*---------------------------------RYConnectorHandlerDelegate-------------------------------*/
-
-@protocol RYConnectorHandlerDelegate <NSObject>
+@protocol RYConnectorServerHandlerDelegate <NSObject>
 
 //连接connector成功,进行后续操作
 @required
-- (void)connectToConnectorSuccess:(id)data;
+- (void)connectToServerSuccess:(id)data;
 @optional
-- (void)connectToConnectorFailure:(id)error;
+- (void)connectToServerFailure:(id)error;
 
 @end
 
@@ -66,13 +51,14 @@
 //chat数据模型
 @property (nonatomic, strong) CommonModel *commonModel;
 
+//pomelo必须区分gate还是其他的，否则将会disconnect之后再次使用的问题
+@property (nonatomic, strong) PomeloClient *gateClient;
+@property (nonatomic, strong) PomeloClient *chatClient;
 
-@property (nonatomic, weak) id <RYGateHandlerDelegate> gateDelegate;
-@property (nonatomic, weak) id <RYConnectorHandlerDelegate> connectorDelegate;
-@property (nonatomic, weak) id <RYChatHandlerDelegate> chatDelegate;
+@property (nonatomic, strong) id delegate;
 
 
-- (instancetype)initWithDelegate:(id)delegate ;
+- (instancetype)initWithDelegate:(id)delegate;
 
 /*---------------------------------gate、connector、chat服务器交互------------------------------*/
 
@@ -84,9 +70,9 @@
 /*--------------------------------------消息推送---------------------------------*/
 
 /*--------------------------------------待测试---------------------------------------*/
-//注册通知监听
-- (void)monitorMessage;
-//当失去连接时关闭推送功能
-- (void)disConnect;
+////注册通知监听
+//- (void)monitorMessage;
+////当失去连接时关闭推送功能
+//- (void)disConnect;
 
 @end

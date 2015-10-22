@@ -21,23 +21,33 @@ static RYChatHandler *shareHandler = nil;
 
 //pomelo代理类型，PomeloClientDelegate代理设置
 @property (nonatomic, weak) id <PomeloClientDelegate> pomeloDelegate;
+@property (nonatomic, weak) id <RYConnectorServerHandlerDelegate> serverDelegate;
+@property (nonatomic, weak) id <RYChatHandlerDelegate> chatDelegate;
 
-@property (nonatomic, strong) RYNotifyHandler *onChatNotifyHandler;
-@property (nonatomic, strong) RYNotifyHandler *onGroupMsgListNotifyHandler;
-@property (nonatomic, strong) RYNotifyHandler *onReadNotifyHandler;
-@property (nonatomic, strong) RYNotifyHandler *onTopNotifyHandler;
-@property (nonatomic, strong) RYNotifyHandler *onClientShowNotifyHandler;
+//@property (nonatomic, strong) RYNotifyHandler *onChatNotifyHandler;
+//@property (nonatomic, strong) RYNotifyHandler *onGroupMsgListNotifyHandler;
+//@property (nonatomic, strong) RYNotifyHandler *onReadNotifyHandler;
+//@property (nonatomic, strong) RYNotifyHandler *onTopNotifyHandler;
+//@property (nonatomic, strong) RYNotifyHandler *onClientShowNotifyHandler;
 
-
-@property (nonatomic, strong) PomeloClient *gateClient;
-@property (nonatomic, strong) PomeloClient *client;
 //connector的host和port
 @property (nonatomic, copy) NSString *hostStr;
 @property (nonatomic, copy) NSString *portStr;
 
 @end
 
+static RYChatHandler *shareChatHandler = nil;
+
 @implementation RYChatHandler
+
++ (instancetype)shareChatHandler {
+    
+    static dispatch_once_t onceInstance;
+    dispatch_once(&onceInstance, ^{
+        shareChatHandler = [[RYChatHandler alloc] init];
+    });
+    return shareChatHandler;
+}
 
 /*-------------------------------------------------------------------------------*/
 
@@ -48,6 +58,8 @@ static RYChatHandler *shareHandler = nil;
     self = [super init];
     if (self) {
         _pomeloDelegate = delegate;
+        _serverDelegate   = delegate;
+        _chatDelegate = delegate;
     }
     return self;
 }
@@ -59,8 +71,8 @@ static RYChatHandler *shareHandler = nil;
 - (void)connectToServer {
     
     //self进行weak化，否则造成循环引用无法释放controller
-    __strong RYChatHandler *weakSelf= self;
-    __strong PomeloClient  *weakClient = self.gateClient;
+    __block RYChatHandler *weakSelf= self;
+    __block PomeloClient  *weakClient = self.gateClient;
     
     [weakClient connectToHost:[RYChatAPIManager host] onPort:[RYChatAPIManager port] withCallback:^(id arg) {
         
@@ -82,8 +94,8 @@ static RYChatHandler *shareHandler = nil;
                 
             }else{
                 
-                if ([weakSelf.gateDelegate respondsToSelector:@selector(connectToGateFailure:)]) {
-                    [weakSelf.gateDelegate connectToGateFailure:arg];
+                if ([weakSelf.serverDelegate respondsToSelector:@selector(connectToServerFailure:)]) {
+                    [weakSelf.serverDelegate connectToServerFailure:arg];
                 }else{
                     //condition是条件表达式，值为YES或NO；desc为异常描述
                     NSAssert(0,@"connectToGateFailure-方法必须实现");
@@ -97,19 +109,23 @@ static RYChatHandler *shareHandler = nil;
 
 - (void)connectToConnectorServer {
     
+    __block RYChatHandler *weakSelf= self;
+    
     if (self.hostStr && self.portStr) {
         
-        [self.client connectToHost:self.hostStr onPort:self.portStr withCallback:^(id arg) {
+        [self.chatClient connectToHost:self.hostStr onPort:self.portStr withCallback:^(id arg) {
             
-            if ([self.connectorDelegate respondsToSelector:@selector(connectToConnectorSuccess:)]) {
-                [self.connectorDelegate connectToConnectorSuccess:arg];
+            if ([weakSelf.serverDelegate respondsToSelector:@selector(connectToServerSuccess:)]) {
+                [weakSelf.serverDelegate connectToServerSuccess:arg];
             }else{
                 NSAssert(0,@"connectToConnectorSuccess-方法必须实现");
             }
             
+            //App连接到消息中心后，存储App Client信息
+            [weakSelf storeClientInfo];
+            
             /*
-             //App连接到消息中心后，存储App Client信息
-             [weakSelf storeClientInfo];
+             
              //监听消息推送
              [weakSelf monitorMessage];
              */
@@ -119,29 +135,28 @@ static RYChatHandler *shareHandler = nil;
 
 - (void)chat {
     
-    __weak __typeof(self) weakSelf= self;
+    __block RYChatHandler *weakSelf= self;;
     
     if (self.chatServerType == RouteConnectorTypeInit) {
         self.parameters = [RYChatAPIManager parametersWithType:NO];
     }
     
-    [self.client requestWithRoute:[RYChatAPIManager routeWithType:self.chatServerType] andParams:self.parameters andCallback:^(id arg) {
+    [self.chatClient requestWithRoute:[RYChatAPIManager routeWithType:self.chatServerType] andParams:self.parameters andCallback:^(id arg) {
         
         NSDictionary *connectorInitDict = (NSDictionary *)arg;
         
-        NSLog(@"arg = %@",arg);
-        
         if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
-            
-//            if (weakSelf.chatServerType == RouteChatTypeRead) {
-//                //标记已读成功，客户端已读消息，存储数据到表MsgMetadata，并调用消息中心推送消息已读同步到APP端/web端
-//                [self markReadMessage];
-//            }
-//            else if (weakSelf.chatServerType == RouteChatTypeGetGroupInfo) {
-//                //获取组成员信息
-//                [self storeGroupMemberInfoWithArray:arg[@"groupInfo"]];
-//            }
+            /*
+            if (weakSelf.chatServerType == RouteChatTypeRead) {
+                //标记已读成功，客户端已读消息，存储数据到表MsgMetadata，并调用消息中心推送消息已读同步到APP端/web端
+                [self markReadMessage];
+            }
+            else if (weakSelf.chatServerType == RouteChatTypeGetGroupInfo) {
+                //获取组成员信息
+                [self storeGroupMemberInfoWithArray:arg[@"groupInfo"]];
+            }
+             */
             
             if ([weakSelf.chatDelegate respondsToSelector:@selector(connectToChatSuccess:result:)]) {
                 [weakSelf.chatDelegate connectToChatSuccess:weakSelf result:arg];
@@ -161,47 +176,49 @@ static RYChatHandler *shareHandler = nil;
     
 }
 
-#pragma mark RYNotifyHandlerDelegate
+//#pragma mark RYNotifyHandlerDelegate
+//
+//- (void)notifyCallBack:(id)callBackData notifyHandler:(id)notifyHandler{
+//    
+//    if (self.onGroupMsgListNotifyHandler == notifyHandler) {
+//        
+//    }else if (self.onReadNotifyHandler == notifyHandler) {
+//        
+//    }else if (self.onTopNotifyHandler == notifyHandler) {
+//        
+//    }else if (self.onClientShowNotifyHandler == notifyHandler) {
+//        
+//    }else if (self.onChatNotifyHandler == notifyHandler) {
+//        
+//    }
+//    
+//}
+//
+///*------------------------------------------消息推送------------------------------------------*/
+//
+//- (void)monitorMessage {
+//    
+//    //异步推送消息列表
+//    [self listenGroupMsgList];
+//    //监听到onRead，更新表MsgMetadata，展示已读状态
+//    [self listenReadMessage];
+//    //监听到onTop，更新缓存
+//    [self listenOnTopMessage];
+//    //监听到onClientShow，更新缓存
+//    [self listenOnClientShowMessage];
+//    
+//}
+//
+//- (void)disConnect {
+//    
+//    [self.client offAllRoute];
+//    
+//}
 
-- (void)notifyCallBack:(id)callBackData notifyHandler:(id)notifyHandler{
-    
-    if (self.onGroupMsgListNotifyHandler == notifyHandler) {
-        
-    }else if (self.onReadNotifyHandler == notifyHandler) {
-        
-    }else if (self.onTopNotifyHandler == notifyHandler) {
-        
-    }else if (self.onClientShowNotifyHandler == notifyHandler) {
-        
-    }else if (self.onChatNotifyHandler == notifyHandler) {
-        
-    }
-    
-}
 
-/*------------------------------------------消息推送------------------------------------------*/
-
-- (void)monitorMessage {
-    
-    //异步推送消息列表
-    [self listenGroupMsgList];
-    //监听到onRead，更新表MsgMetadata，展示已读状态
-    [self listenReadMessage];
-    //监听到onTop，更新缓存
-    [self listenOnTopMessage];
-    //监听到onClientShow，更新缓存
-    [self listenOnClientShowMessage];
-    
-}
-
-- (void)disConnect {
-    
-    [self.client offAllRoute];
-    
-}
+/*-----------------------------------------内部方法--------------------------------------*/
 
 
-/*-----------------------------------------inner Method--------------------------------------*/
 
 #pragma mark - inner Method
 
@@ -212,8 +229,15 @@ static RYChatHandler *shareHandler = nil;
  */
 
 - (void)storeClientInfo {
+    
+    /*
+     client:1219041c8c3b9bdff326f0f3e3615930
+     _deviceToken = f4a52dbda1af30249c27421214468d24bfdacbea16298f4cd2da35a3929daad5
+     */
+    
     self.chatServerType = RouteChatTypeWriteClientInfo;
-    self.parameters = @{@"appClientId":@"",@"deviceToken":@""};
+    self.parameters = @{@"appClientId":@"1219041c8c3b9bdff326f0f3e3615930",@"deviceToken":@"f4a52dbda1af30249c27421214468d24bfdacbea16298f4cd2da35a3929daad5"};
+    
     [self chat];
 }
 
@@ -257,95 +281,81 @@ static RYChatHandler *shareHandler = nil;
  *
  */
 
-- (void)listenGroupMsgList {
-    
-    [self.onGroupMsgListNotifyHandler onNotify];
-    
-}
-
-- (void)listenReadMessage {
-    
-    [self.onReadNotifyHandler onNotify];
-    
-}
-
-- (void)listenOnTopMessage {
-    
-    [self.onTopNotifyHandler onNotify];
-    
-}
-
-- (void)listenOnClientShowMessage {
-    
-    [self.onClientShowNotifyHandler onNotify];
-    
-}
+//- (void)listenGroupMsgList {
+//    
+//    [self.onGroupMsgListNotifyHandler onNotify];
+//    
+//}
+//
+//- (void)listenReadMessage {
+//    
+//    [self.onReadNotifyHandler onNotify];
+//    
+//}
+//
+//- (void)listenOnTopMessage {
+//    
+//    [self.onTopNotifyHandler onNotify];
+//    
+//}
+//
+//- (void)listenOnClientShowMessage {
+//    
+//    [self.onClientShowNotifyHandler onNotify];
+//    
+//}
 
 #pragma mark - getters and setters
 
-- (PomeloClient *)client {
-    if (!_client) {
-        _client = [[PomeloClient alloc] initWithDelegate:_gateDelegate];
-    }
-    return _client;
-}
-
-- (PomeloClient *)gateClient {
-    if (!_gateClient) {
-        _gateClient = [[PomeloClient alloc] initWithDelegate:_gateDelegate];
-    }
-    return _gateClient;
-}
-
-- (RYNotifyHandler *)onChatNotifyHandler {
-    if (!_onChatNotifyHandler) {
-        _onChatNotifyHandler = [[RYNotifyHandler alloc] init];
-        _onChatNotifyHandler.notifyType = NotifyTypeOnChat;
-        _onChatNotifyHandler.delegate = self;
-        _onChatNotifyHandler.client = self.client;
-    }
-    return _onChatNotifyHandler;
-}
-
-- (RYNotifyHandler *)onGroupMsgListNotifyHandler {
-    
-    if (!_onGroupMsgListNotifyHandler) {
-        _onGroupMsgListNotifyHandler = [[RYNotifyHandler alloc] init];
-        _onGroupMsgListNotifyHandler.notifyType = NotifyTypeOnGroupMsgList;
-        _onGroupMsgListNotifyHandler.delegate = self;
-        _onGroupMsgListNotifyHandler.client = self.client;
-    }
-    return _onGroupMsgListNotifyHandler;
-}
-
-- (RYNotifyHandler *)onReadNotifyHandler {
-    if (!_onReadNotifyHandler) {
-        _onReadNotifyHandler = [[RYNotifyHandler alloc] init];
-        _onReadNotifyHandler.notifyType = NotifyTypeOnRead;
-        _onReadNotifyHandler.delegate = self;
-        _onReadNotifyHandler.client = self.client;
-    }
-    return _onReadNotifyHandler;
-}
-
-- (RYNotifyHandler *)onTopNotifyHandler {
-    if (!_onTopNotifyHandler) {
-        _onTopNotifyHandler = [[RYNotifyHandler alloc] init];
-        _onTopNotifyHandler.notifyType = NotifyTypeOnTop;
-        _onTopNotifyHandler.delegate = self;
-        _onTopNotifyHandler.client = self.client;
-    }
-    return _onTopNotifyHandler;
-}
-
-- (RYNotifyHandler *)onClientShowNotifyHandler {
-    if (!_onClientShowNotifyHandler) {
-        _onClientShowNotifyHandler = [[RYNotifyHandler alloc] init];
-        _onClientShowNotifyHandler.notifyType = NotifyTypeOnClientShow;
-        _onClientShowNotifyHandler.delegate = self;
-        _onClientShowNotifyHandler.client = self.client;
-    }
-    return _onClientShowNotifyHandler;
-}
+//- (RYNotifyHandler *)onChatNotifyHandler {
+//    if (!_onChatNotifyHandler) {
+//        _onChatNotifyHandler = [[RYNotifyHandler alloc] init];
+//        _onChatNotifyHandler.notifyType = NotifyTypeOnChat;
+//        _onChatNotifyHandler.delegate = self;
+//        _onChatNotifyHandler.client = self.client;
+//    }
+//    return _onChatNotifyHandler;
+//}
+//
+//- (RYNotifyHandler *)onGroupMsgListNotifyHandler {
+//    
+//    if (!_onGroupMsgListNotifyHandler) {
+//        _onGroupMsgListNotifyHandler = [[RYNotifyHandler alloc] init];
+//        _onGroupMsgListNotifyHandler.notifyType = NotifyTypeOnGroupMsgList;
+//        _onGroupMsgListNotifyHandler.delegate = self;
+//        _onGroupMsgListNotifyHandler.client = self.client;
+//    }
+//    return _onGroupMsgListNotifyHandler;
+//}
+//
+//- (RYNotifyHandler *)onReadNotifyHandler {
+//    if (!_onReadNotifyHandler) {
+//        _onReadNotifyHandler = [[RYNotifyHandler alloc] init];
+//        _onReadNotifyHandler.notifyType = NotifyTypeOnRead;
+//        _onReadNotifyHandler.delegate = self;
+//        _onReadNotifyHandler.client = self.client;
+//    }
+//    return _onReadNotifyHandler;
+//}
+//
+//- (RYNotifyHandler *)onTopNotifyHandler {
+//    if (!_onTopNotifyHandler) {
+//        _onTopNotifyHandler = [[RYNotifyHandler alloc] init];
+//        _onTopNotifyHandler.notifyType = NotifyTypeOnTop;
+//        _onTopNotifyHandler.delegate = self;
+//        _onTopNotifyHandler.client = self.client;
+//    }
+//    return _onTopNotifyHandler;
+//}
+//
+//- (RYNotifyHandler *)onClientShowNotifyHandler {
+//    if (!_onClientShowNotifyHandler) {
+//        _onClientShowNotifyHandler = [[RYNotifyHandler alloc] init];
+//        _onClientShowNotifyHandler.notifyType = NotifyTypeOnClientShow;
+//        _onClientShowNotifyHandler.delegate = self;
+//        _onClientShowNotifyHandler.client = self.client;
+//    }
+//    return _onClientShowNotifyHandler;
+//}
 
 @end

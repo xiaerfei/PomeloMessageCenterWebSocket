@@ -9,8 +9,11 @@
 #import "ViewController.h"
 #import "LoginAPICmd.h"
 #import "RYChatHandler.h"
+#import "Tool.h"
+#import "PomeloMessageCenterDBManager.h"
+#import "MessageCenterUserModel.h"
 
-@interface ViewController () <APICmdApiCallBackDelegate ,RYGateHandlerDelegate, RYConnectorHandlerDelegate,RYChatHandlerDelegate,PomeloClientDelegate>
+@interface ViewController () <APICmdApiCallBackDelegate ,RYConnectorServerHandlerDelegate,RYChatHandlerDelegate,PomeloClientDelegate>
 
 @property (nonatomic, copy) NSString *hostStr;
 @property (nonatomic, copy) NSString *portStr;
@@ -23,6 +26,9 @@
 @property (nonatomic, strong) RYChatHandler *RYChatHandler;
 
 @property (nonatomic, strong) RYChatHandler *readChatHandler;
+
+@property (nonatomic, strong) PomeloClient *gatePomeloClient;
+@property (nonatomic, strong) PomeloClient *connectorPomeloClient;
 
 @end
 
@@ -52,16 +58,27 @@
 
 - (void)configData {
     
+    _gatePomeloClient = [[PomeloClient alloc] initWithDelegate:self];
+    _connectorPomeloClient = [[PomeloClient alloc] initWithDelegate:self];
+    
     [self.loginAPICmd loadData];
 }
 
 - (void)configUI {
-    UIButton *btn0 = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+    
+    UIButton *btn0 = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
     btn0.backgroundColor = [UIColor redColor];
     [btn0 setTitle:@"connect" forState:UIControlStateNormal];
     [btn0 addTarget:self action:@selector(connect) forControlEvents:UIControlEventTouchUpInside];
     
     [self.view addSubview:btn0];
+    
+    UIButton *btn1 = [[UIButton alloc] initWithFrame:CGRectMake(50, 50, 100, 50)];
+    btn1.backgroundColor = [UIColor redColor];
+    [btn1 setTitle:@"saveinfo" forState:UIControlStateNormal];
+    [btn1 addTarget:self action:@selector(saveinfo) forControlEvents:UIControlEventTouchUpInside];
+    
+    [self.view addSubview:btn1];
 }
 
 #pragma mark - SystemDelegate
@@ -85,6 +102,8 @@
         }
     }
     
+    [Tool setToken:self.tokenStr];
+    
 }
 
 - (void)apiCmdDidFailed:(RYBaseAPICmd *)baseAPICmd error:(NSError *)error {
@@ -100,57 +119,55 @@
     
 }
 
-#pragma mark RYChatManagerDelegate
+#pragma mark RYConnectorServerHandlerDelegate
 
-- (void)connectToGateSuccess:(id)data {
+- (void)connectToServerSuccess:(id)data {
+
+    //用户信息
+    
+    [_RYChatHandler chat];
+    
+    //read
+    [self.readChatHandler chat];
     
 }
 
-- (void)connectToGateFailure:(id)error {
-    
-}
-
-#pragma mark RYConnectorManagerDelegate
-
-- (void)connectToConnectorSuccess:(id)data {
-    
-    NSLog(@"connectToConnectorSuccess");
-    
-    [self.RYChatHandler chat];
-    
-//    [self.readChatHandler chat];
-}
-
-- (void)connectToConnectorFailure:(id)error {
-     NSLog(@"connectToConnectorFailure");
+- (void)connectToServerFailure:(id)error {
 }
 
 #pragma mark RYChatHandlerDelegate
 
 - (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data {
+    
     NSLog(@"success----------chat %@",data);
+    
+    if (chatHandler.chatServerType == RouteConnectorTypeInit) {
+        
+        NSDictionary *userInfos = data[@"userInfo"];
+        [[PomeloMessageCenterDBManager shareInstance] updateTableWithType:MessageCenterDBManagerTypeUSER markID:userInfos[@"userId"] data:[NSArray arrayWithObjects:userInfos, nil]];
+    }
     
 }
 
 - (void)connectToChatFailure:(RYChatHandler *)chatHandler result:(id)error {
-    NSLog(@"failure = %@",error);
+    NSLog(@"-----连接chat失败----- %@",error);
 }
 
-#pragma mark - event response       事件相应的方法如 button 等等
-//所有button、gestureRecognizer的响应事件都放在这个区域里面
+#pragma mark - event response   事件相应的方法如 button 等等
 
 
 
-#pragma mark - private methods      自己定义的方法
-/** methods
- *  正常情况下ViewController里面一般是不会存在private methods的，
- *  这个private methods一般是用于日期换算、图片裁剪啥的这种小功能
- */
+#pragma mark - private methods  自己定义的方法
 
 
 - (void)connect{
+    
     //连接server
     [self.RYChatHandler connectToServer];
+    
+}
+
+- (void)saveinfo {
     
 }
 
@@ -171,9 +188,8 @@
 - (RYChatHandler *)RYChatHandler {
     if (!_RYChatHandler) {
         _RYChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
-        _RYChatHandler.gateDelegate = self;
-        _RYChatHandler.connectorDelegate = self;
-        _RYChatHandler.chatDelegate = self;
+        _RYChatHandler.gateClient = _gatePomeloClient;
+        _RYChatHandler.chatClient = _connectorPomeloClient;
         _RYChatHandler.chatServerType = RouteConnectorTypeInit;
     }
     return _RYChatHandler;
@@ -182,11 +198,12 @@
 - (RYChatHandler *)readChatHandler {
     if (!_readChatHandler) {
         _readChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
-        _readChatHandler.gateDelegate = self;
-        _readChatHandler.connectorDelegate = self;
-        _readChatHandler.chatDelegate = self;
-        _readChatHandler.chatServerType = RouteChatTypeRead;
-        _readChatHandler.parameters = @{@"lastedReadMsgId":@"1"};
+        _readChatHandler.gateClient = _gatePomeloClient;
+        _readChatHandler.chatClient = _connectorPomeloClient;
+        _RYChatHandler.chatServerType = RouteConnectorTypeInit;
+//        _readChatHandler.chatServerType = RouteChatTypeRead;
+//        _readChatHandler.parameters = @{@"lastedReadMsgId":@"1"};
+        
     }
     return _readChatHandler;
 }

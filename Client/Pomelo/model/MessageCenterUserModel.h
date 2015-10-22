@@ -14,5 +14,6 @@
 @property (nonatomic, copy) NSString *UserId;
 @property (nonatomic, copy) NSString *UserName;
 @property (nonatomic, copy) NSString *Imge;
+@property (nonatomic, copy) NSString *ImgeCache;
 
 @end
