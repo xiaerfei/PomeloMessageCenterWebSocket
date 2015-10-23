@@ -44,7 +44,9 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
 /*---------------------------------数据库交互-------------------------------*/
 
 /**
+ *
  *  根据不同的表类型向表中添加数据
+ *
  */
 - (void)addDataToTableWithType:(MessageCenterDBManagerType)tableType data:(NSArray *)datas;
 
@@ -53,19 +55,26 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
 
 /**
  *
- *  根据不同的表类型获取表中信息,如果 pageNumber == -1 表示要取表中所有数据，否则读取指定个数
- *
- *  @param (targetType:0:个人 1:组 markID:GroupId/UserId)
- *
- *  @return 表中数据
+ *  根据不同的表类型获取表中信息,如果 pageNumber == -1 表示要取表中所有数据，否则读取指定个数(存在分页)
  *
  */
 
 - (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType markID:(NSString *)markID currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber;
 
+/**
+ *
+ *  根据不同的表类型获取表中信息(无分页)
+ *
+ */
+
 - (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType markID:(NSString *)markID;
 
-//更新数据（实际：如果表中有此数据则更新即可，否则添加到表中）
+/**
+ *
+ *  更新数据（实际：如果表中有此数据则更新即可，否则添加到表中）
+ *
+ */
+
 - (void)updateTableWithType:(MessageCenterDBManagerType)tableType markID:(NSString *)markID data:(NSArray *)datas;
 
 /*---------------------------------本地存储简化对外接口-------------------------------*/

@@ -24,8 +24,8 @@
 @property (nonatomic, strong) LoginAPICmd *loginAPICmd;
 
 @property (nonatomic, strong) RYChatHandler *RYChatHandler;
-
 @property (nonatomic, strong) RYChatHandler *readChatHandler;
+@property (nonatomic, strong) RYChatHandler *clientInfoChatHandler;
 
 @property (nonatomic, strong) PomeloClient *gatePomeloClient;
 @property (nonatomic, strong) PomeloClient *connectorPomeloClient;
@@ -73,12 +73,19 @@
     
     [self.view addSubview:btn0];
     
-    UIButton *btn1 = [[UIButton alloc] initWithFrame:CGRectMake(50, 50, 100, 50)];
+    UIButton *btn1 = [[UIButton alloc] initWithFrame:CGRectMake(50, 0, 100, 50)];
     btn1.backgroundColor = [UIColor redColor];
-    [btn1 setTitle:@"saveinfo" forState:UIControlStateNormal];
-    [btn1 addTarget:self action:@selector(saveinfo) forControlEvents:UIControlEventTouchUpInside];
+    [btn1 setTitle:@"initRoute" forState:UIControlStateNormal];
+    [btn1 addTarget:self action:@selector(initRoute) forControlEvents:UIControlEventTouchUpInside];
     
     [self.view addSubview:btn1];
+    
+    UIButton *btn2 = [[UIButton alloc] initWithFrame:CGRectMake(50, 50, 100, 50)];
+    btn2.backgroundColor = [UIColor redColor];
+    [btn2 setTitle:@"saveinfo" forState:UIControlStateNormal];
+    [btn2 addTarget:self action:@selector(saveinfo) forControlEvents:UIControlEventTouchUpInside];
+    
+    [self.view addSubview:btn2];
 }
 
 #pragma mark - SystemDelegate
@@ -107,7 +114,6 @@
 }
 
 - (void)apiCmdDidFailed:(RYBaseAPICmd *)baseAPICmd error:(NSError *)error {
-    NSLog(@"error = %@----------------",error);
 }
 
 #pragma mark PomeloClientDelegate
@@ -122,29 +128,36 @@
 #pragma mark RYConnectorServerHandlerDelegate
 
 - (void)connectToServerSuccess:(id)data {
-
-    //用户信息
-    
-    [_RYChatHandler chat];
-    
-    //read
-    [self.readChatHandler chat];
     
 }
 
 - (void)connectToServerFailure:(id)error {
+    
 }
 
 #pragma mark RYChatHandlerDelegate
 
 - (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data {
     
-    NSLog(@"success----------chat %@",data);
-    
     if (chatHandler.chatServerType == RouteConnectorTypeInit) {
         
-        NSDictionary *userInfos = data[@"userInfo"];
-        [[PomeloMessageCenterDBManager shareInstance] updateTableWithType:MessageCenterDBManagerTypeUSER markID:userInfos[@"userId"] data:[NSArray arrayWithObjects:userInfos, nil]];
+        if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+            
+            NSLog(@"获取客户信息成功");
+            
+            NSDictionary *userInfos = data[@"userInfo"];
+            [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
+            
+        }
+        
+    }else if (chatHandler.chatServerType == RouteChatTypeWriteClientInfo) {
+        
+        if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+            
+            NSLog(@"发送客户信息成功");
+            
+        }
+        
     }
     
 }
@@ -153,11 +166,11 @@
     NSLog(@"-----连接chat失败----- %@",error);
 }
 
-#pragma mark - event response   事件相应的方法如 button 等等
+#pragma mark event response
 
 
 
-#pragma mark - private methods  自己定义的方法
+#pragma mark private methods
 
 
 - (void)connect{
@@ -167,7 +180,13 @@
     
 }
 
+- (void)initRoute {
+    [self.RYChatHandler chat];
+}
+
 - (void)saveinfo {
+    
+    [self.clientInfoChatHandler chat];
     
 }
 
@@ -200,12 +219,23 @@
         _readChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _readChatHandler.gateClient = _gatePomeloClient;
         _readChatHandler.chatClient = _connectorPomeloClient;
-        _RYChatHandler.chatServerType = RouteConnectorTypeInit;
-//        _readChatHandler.chatServerType = RouteChatTypeRead;
-//        _readChatHandler.parameters = @{@"lastedReadMsgId":@"1"};
+        _readChatHandler.chatServerType = RouteChatTypeRead;
+        _readChatHandler.parameters = @{@"lastedReadMsgId":@"1"};
         
     }
     return _readChatHandler;
+}
+
+- (RYChatHandler *)clientInfoChatHandler {
+    if (!_clientInfoChatHandler) {
+        _clientInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _clientInfoChatHandler.gateClient = _gatePomeloClient;
+        _clientInfoChatHandler.chatClient = _connectorPomeloClient;
+        _clientInfoChatHandler.chatServerType = RouteChatTypeWriteClientInfo;
+        _clientInfoChatHandler.parameters = @{@"appClientId":@"1219041c8c3b9bdff326f0f3e3615930",
+                                              @"deviceToken":@"f4a52dbda1af30249c27421214468d24bfdacbea16298f4cd2da35a3929daad5"};
+    }
+    return _clientInfoChatHandler;
 }
 
 @end

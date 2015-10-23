@@ -48,7 +48,7 @@
     
     //➢ 用户信息表(User)
     [_dataBaseStore createTableWithName:@"User" sqlString:
-     @"(ID integer PRIMARY KEY autoincrement,"
+     @"(UID integer PRIMARY KEY autoincrement,"
      "UserId  varchar(100),"
      "UserName varchar(100),"
      "Imge  varchar(100),"
@@ -58,7 +58,7 @@
     //➢	消息列表(Message)
     
     [_dataBaseStore createTableWithName:@"Message" sqlString:
-     @"(ID integer PRIMARY KEY autoincrement,"
+     @"(MID integer PRIMARY KEY autoincrement,"
      "MessageId varchar(100),"
      "UserId      varchar(100),"
      "Target      varchar(30),"
@@ -69,7 +69,7 @@
     //➢	消息列表(Message 未发送)
     
     [_dataBaseStore createTableWithName:@"Message_noSend" sqlString:
-     @"(ID integer PRIMARY KEY autoincrement,"
+     @"(MID integer PRIMARY KEY autoincrement,"
      "MessageId varchar(100),"
      "UserId      varchar(100),"
      "Target      varchar(30),"
@@ -80,7 +80,7 @@
     //➢	消息Metadata(MsgMetadata)
     
     [_dataBaseStore createTableWithName:@"MsgMetadata" sqlString:
-     @"(ID integer PRIMARY KEY autoincrement,"
+     @"(MTID integer PRIMARY KEY autoincrement,"
      "MsgMetadataId varchar(100),"
      "UserId           varchar(100),"
      "MsgTo            varchar(100),"
@@ -126,49 +126,87 @@
 
 - (void)addDataWithSQL:(NSString *)SQLStr type:(MessageCenterDBManagerType)tableType datas:(NSArray *)datas{
     
-    for (int i = 0; i < datas.count; i ++) {
+    //如果是添加，首先判断是否存在该数据，如果存在，则调用更新
+    
+    for (int i = 0; i < datas.count; i++) {
+        
+        NSString *markID = @"";
+        NSDictionary *tempDict = (NSDictionary *)datas[i];
+        BOOL exist = NO;
         
         if (tableType == MessageCenterDBManagerTypeUSER) {
             
             MessageCenterUserModel *messageCenterUserModel = [[MessageCenterUserModel alloc] init];
             [messageCenterUserModel setValuesForKeysWithDictionary:datas[i]];
             
-            [_dataBaseStore updateDataWithSql:SQLStr,
-             messageCenterUserModel.UserId,
-             messageCenterUserModel.UserName,
-             messageCenterUserModel.Imge,
-             messageCenterUserModel.ImgeCache];
+            markID = messageCenterUserModel.UserId;
             
-        }else if (tableType == MessageCenterDBManagerTypeMESSAGE || tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND) {
+        }else if (tableType == MessageCenterDBManagerTypeMESSAGE || tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND){
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
             [messageCenterMessageModel setValuesForKeysWithDictionary:datas[i]];
-            
-            [_dataBaseStore updateDataWithSql:SQLStr,
-             messageCenterMessageModel.MessageId,
-             messageCenterMessageModel.UserId,
-             messageCenterMessageModel.Target,
-             messageCenterMessageModel.TargetType,
-             messageCenterMessageModel.MsgContent,
-             messageCenterMessageModel.CreateTime];
+            markID = messageCenterMessageModel.MessageId;
             
         }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
             
             MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
             [messageCenterMetadataModel setValuesForKeysWithDictionary:datas[i]];
             
-            [_dataBaseStore updateDataWithSql:SQLStr,
-             messageCenterMetadataModel.MsgMetadataId,
-             messageCenterMetadataModel.UserId,
-             messageCenterMetadataModel.MsgTo,
-             messageCenterMetadataModel.LastedReadMsgId,
-             messageCenterMetadataModel.LastedReadTime,
-             messageCenterMetadataModel.LastedMsgId,
-             messageCenterMetadataModel.LastedMsgSenderName,
-             messageCenterMetadataModel.LastedMsgTime,
-             messageCenterMetadataModel.LastedMsgContent,
-             messageCenterMetadataModel.UnReadMsgCount,
-             messageCenterMetadataModel.CreateTime];
+            markID = messageCenterMetadataModel.MsgMetadataId;
+            
+        }
+        
+        exist = [self existTableWithType:tableType markID:markID];
+        
+        if (exist) {
+            
+            [self updateTableWithType:tableType markID:markID data:[NSArray arrayWithObjects:tempDict, nil]];
+            
+        }else{
+            
+            if (tableType == MessageCenterDBManagerTypeUSER) {
+                
+                MessageCenterUserModel *messageCenterUserModel = [[MessageCenterUserModel alloc] init];
+                [messageCenterUserModel setValuesForKeysWithDictionary:datas[i]];
+                
+                [_dataBaseStore updateDataWithSql:SQLStr,
+                 messageCenterUserModel.UserId,
+                 messageCenterUserModel.UserName,
+                 messageCenterUserModel.Imge,
+                 messageCenterUserModel.ImgeCache];
+                
+            }else if (tableType == MessageCenterDBManagerTypeMESSAGE || tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND) {
+                
+                MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
+                [messageCenterMessageModel setValuesForKeysWithDictionary:datas[i]];
+                
+                [_dataBaseStore updateDataWithSql:SQLStr,
+                 messageCenterMessageModel.MessageId,
+                 messageCenterMessageModel.UserId,
+                 messageCenterMessageModel.Target,
+                 messageCenterMessageModel.TargetType,
+                 messageCenterMessageModel.MsgContent,
+                 messageCenterMessageModel.CreateTime];
+                
+            }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
+                
+                MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
+                [messageCenterMetadataModel setValuesForKeysWithDictionary:datas[i]];
+                
+                [_dataBaseStore updateDataWithSql:SQLStr,
+                 messageCenterMetadataModel.MsgMetadataId,
+                 messageCenterMetadataModel.UserId,
+                 messageCenterMetadataModel.MsgTo,
+                 messageCenterMetadataModel.LastedReadMsgId,
+                 messageCenterMetadataModel.LastedReadTime,
+                 messageCenterMetadataModel.LastedMsgId,
+                 messageCenterMetadataModel.LastedMsgSenderName,
+                 messageCenterMetadataModel.LastedMsgTime,
+                 messageCenterMetadataModel.LastedMsgContent,
+                 messageCenterMetadataModel.UnReadMsgCount,
+                 messageCenterMetadataModel.CreateTime];
+                
+            }
             
         }
         
@@ -286,91 +324,82 @@
     
     NSString*     SQLStr = nil;
     
-    BOOL exist = [self existTableWithType:tableType markID:markID];
-    
-    if (!exist) {
+    for (int i = 0; i < datas.count; i ++) {
         
-        [self addDataToTableWithType:tableType data:datas];
+        NSDictionary *tempDict = datas[i];
         
-    }else{
-        
-        for (int i = 0; i < datas.count; i ++) {
+        //更新
+        if (tableType == MessageCenterDBManagerTypeMESSAGE || tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND) {
             
-            NSDictionary *tempDict = datas[i];
+            MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
+            [messageCenterMessageModel setValuesForKeysWithDictionary:tempDict];
             
-            //更新
-            if (tableType == MessageCenterDBManagerTypeMESSAGE || tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND) {
-                
-                MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
-                [messageCenterMessageModel setValuesForKeysWithDictionary:tempDict];
-                
-                if (tableType == MessageCenterDBManagerTypeMESSAGE) {
-                    
-                    SQLStr = [NSString stringWithFormat:
-                              @"(update Message "
-                              "set UserId = ?,Target = ?,"
-                              "TargetType = ?,MsgContent = ?,"
-                              "CreateTime = ? where MessageId = '%@');",markID];
-                    
-                }else{
-                    
-                    SQLStr = [NSString stringWithFormat:
-                              @"(update Message_noSend "
-                              "set UserId = ?,Target = ?,"
-                              "TargetType = ?,MsgContent = ?,"
-                              "CreateTime = ? where MessageId = '%@');",markID];
-                }
-                
-                [_dataBaseStore updateDataWithSql:SQLStr,
-                 messageCenterMessageModel.UserId,
-                 messageCenterMessageModel.Target,
-                 messageCenterMessageModel.TargetType,
-                 messageCenterMessageModel.MsgContent,
-                 messageCenterMessageModel.CreateTime
-                 ];
-                
-                
-            }else if (tableType == MessageCenterDBManagerTypeUSER) {
-                
-                MessageCenterUserModel *messageCenterUserModel = [[MessageCenterUserModel alloc] init];
-                [messageCenterUserModel setValuesForKeysWithDictionary:tempDict];
-                
-                
-                SQLStr = [NSString stringWithFormat:@"UPDATE USER SET UserName = ?,Imge = ?,ImgeCache = ? WHERE UserId = '%@'",markID];
-                
-                [_dataBaseStore updateDataWithSql:SQLStr,
-                 messageCenterUserModel.UserName,
-                 messageCenterUserModel.Imge,
-                 messageCenterUserModel.ImgeCache];
-                
-            }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
-                
-                MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
-                [messageCenterMetadataModel setValuesForKeysWithDictionary:tempDict];
+            if (tableType == MessageCenterDBManagerTypeMESSAGE) {
                 
                 SQLStr = [NSString stringWithFormat:
-                          @"(update MsgMetadata "
-                          "set UserId = ?,MsgTo = ?,"
-                          "TargetType = ?,LastedReadMsgId = ?,"
-                          "LastedReadTime = ?,LastedMsgId = ?,"
-                          "LastedMsgSenderName = ?,LastedMsgTime = ?,"
-                          "LastedMsgContent = ?,UnReadMsgCount = ?,"
-                          "CreateTime = ? where MsgMetadataId = '%@');",markID];
+                          @"(update Message "
+                          "set UserId = ?,Target = ?,"
+                          "TargetType = ?,MsgContent = ?,"
+                          "CreateTime = ? where MessageId = '%@');",markID];
                 
-                [_dataBaseStore updateDataWithSql:SQLStr,
-                 messageCenterMetadataModel.UserId,
-                 messageCenterMetadataModel.MsgTo,
-                 messageCenterMetadataModel.TargetType,
-                 messageCenterMetadataModel.LastedReadMsgId,
-                 messageCenterMetadataModel.LastedReadTime,
-                 messageCenterMetadataModel.LastedMsgId,
-                 messageCenterMetadataModel.LastedMsgSenderName,
-                 messageCenterMetadataModel.LastedMsgTime,
-                 messageCenterMetadataModel.LastedMsgContent,
-                 messageCenterMetadataModel.UnReadMsgCount,
-                 messageCenterMetadataModel.CreateTime
-                 ];
+            }else{
+                
+                SQLStr = [NSString stringWithFormat:
+                          @"(update Message_noSend "
+                          "set UserId = ?,Target = ?,"
+                          "TargetType = ?,MsgContent = ?,"
+                          "CreateTime = ? where MessageId = '%@');",markID];
             }
+            
+            [_dataBaseStore updateDataWithSql:SQLStr,
+             messageCenterMessageModel.UserId,
+             messageCenterMessageModel.Target,
+             messageCenterMessageModel.TargetType,
+             messageCenterMessageModel.MsgContent,
+             messageCenterMessageModel.CreateTime
+             ];
+            
+            
+        }else if (tableType == MessageCenterDBManagerTypeUSER) {
+            
+            MessageCenterUserModel *messageCenterUserModel = [[MessageCenterUserModel alloc] init];
+            [messageCenterUserModel setValuesForKeysWithDictionary:tempDict];
+            
+            
+            SQLStr = [NSString stringWithFormat:@"UPDATE USER SET UserName = ?,Imge = ?,ImgeCache = ? WHERE UserId = '%@'",markID];
+            
+            [_dataBaseStore updateDataWithSql:SQLStr,
+             messageCenterUserModel.UserName,
+             messageCenterUserModel.Imge,
+             messageCenterUserModel.ImgeCache];
+            
+        }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
+            
+            MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
+            [messageCenterMetadataModel setValuesForKeysWithDictionary:tempDict];
+            
+            SQLStr = [NSString stringWithFormat:
+                      @"(update MsgMetadata "
+                      "set UserId = ?,MsgTo = ?,"
+                      "TargetType = ?,LastedReadMsgId = ?,"
+                      "LastedReadTime = ?,LastedMsgId = ?,"
+                      "LastedMsgSenderName = ?,LastedMsgTime = ?,"
+                      "LastedMsgContent = ?,UnReadMsgCount = ?,"
+                      "CreateTime = ? where MsgMetadataId = '%@');",markID];
+            
+            [_dataBaseStore updateDataWithSql:SQLStr,
+             messageCenterMetadataModel.UserId,
+             messageCenterMetadataModel.MsgTo,
+             messageCenterMetadataModel.TargetType,
+             messageCenterMetadataModel.LastedReadMsgId,
+             messageCenterMetadataModel.LastedReadTime,
+             messageCenterMetadataModel.LastedMsgId,
+             messageCenterMetadataModel.LastedMsgSenderName,
+             messageCenterMetadataModel.LastedMsgTime,
+             messageCenterMetadataModel.LastedMsgContent,
+             messageCenterMetadataModel.UnReadMsgCount,
+             messageCenterMetadataModel.CreateTime
+             ];
         }
     }
     

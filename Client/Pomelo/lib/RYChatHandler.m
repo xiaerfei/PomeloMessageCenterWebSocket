@@ -121,14 +121,6 @@ static RYChatHandler *shareChatHandler = nil;
                 NSAssert(0,@"connectToConnectorSuccess-方法必须实现");
             }
             
-            //App连接到消息中心后，存储App Client信息
-            [weakSelf storeClientInfo];
-            
-            /*
-             
-             //监听消息推送
-             [weakSelf monitorMessage];
-             */
         }];
     }
 }
@@ -221,25 +213,6 @@ static RYChatHandler *shareChatHandler = nil;
 
 
 #pragma mark - inner Method
-
-/**
- *
- *  App连接到消息中心后，存储App Client信息
- *
- */
-
-- (void)storeClientInfo {
-    
-    /*
-     client:1219041c8c3b9bdff326f0f3e3615930
-     _deviceToken = f4a52dbda1af30249c27421214468d24bfdacbea16298f4cd2da35a3929daad5
-     */
-    
-    self.chatServerType = RouteChatTypeWriteClientInfo;
-    self.parameters = @{@"appClientId":@"1219041c8c3b9bdff326f0f3e3615930",@"deviceToken":@"f4a52dbda1af30249c27421214468d24bfdacbea16298f4cd2da35a3929daad5"};
-    
-    [self chat];
-}
 
 /**
  *
