@@ -173,16 +173,18 @@
 #pragma mark private methods
 
 
+//服务器连接
 - (void)connect{
-    
     //连接server
     [self.RYChatHandler connectToServer];
-    
 }
 
+//连接到分配的连接服务器（同时获取用户信息）
 - (void)initRoute {
     [self.RYChatHandler chat];
 }
+
+//存储App Client信息
 
 - (void)saveinfo {
     

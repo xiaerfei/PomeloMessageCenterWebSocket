@@ -10,7 +10,7 @@
 
 @interface MessageCenterMessageModel : CommonModel
 
-@property (nonatomic, copy) NSString *MessageId;  //主键
+@property (nonatomic, copy) NSString *MessageId;   
 @property (nonatomic, copy) NSString *UserId;     //发送者
 @property (nonatomic, copy) NSString *Target;
 @property (nonatomic, assign) NSInteger TargetType;

@@ -92,7 +92,8 @@
      "LastedMsgTime    varchar(100),"
      "LastedMsgContent TEXT,"
      "UnReadMsgCount   integer,"
-     "CreateTime       varchar(100));"];
+     "CreateTime       varchar(100),"
+     "IsTop            integer);"];
     
 }
 
@@ -111,7 +112,7 @@
             SQLStr = @"insert into Message_noSend (MessageId, UserId, Target,TargetType,MsgContent,CreateTime) values (?,?,?,?,?,?);";
             break;
         case MessageCenterDBManagerTypeMETADATA:
-            SQLStr = @"insert into MsgMetadata (MsgMetadataId, UserId, MsgTo,TargetType,LastedReadMsgId,LastedReadTime,LastedMsgId,LastedMsgSenderName,LastedMsgTime,LastedMsgContent,UnReadMsgCount,CreateTime) values (?,?,?,?,?,?,?,?,?,?,?,?);";
+            SQLStr = @"insert into MsgMetadata (MsgMetadataId, UserId, MsgTo,TargetType,LastedReadMsgId,LastedReadTime,LastedMsgId,LastedMsgSenderName,LastedMsgTime,LastedMsgContent,UnReadMsgCount,CreateTime,IsTop) values (?,?,?,?,?,?,?,?,?,?,?,?,?);";
             break;
         default:
             break;
@@ -204,7 +205,8 @@
                  messageCenterMetadataModel.LastedMsgTime,
                  messageCenterMetadataModel.LastedMsgContent,
                  messageCenterMetadataModel.UnReadMsgCount,
-                 messageCenterMetadataModel.CreateTime];
+                 messageCenterMetadataModel.CreateTime,
+                 messageCenterMetadataModel.IsTop];
                 
             }
             
@@ -301,6 +303,7 @@
             messageCenterMetadataModel.LastedMsgContent = [set stringForColumn:@"LastedMsgContent"];
             messageCenterMetadataModel.UnReadMsgCount = [set stringForColumn:@"UnReadMsgCount"];
             messageCenterMetadataModel.CreateTime = [set stringForColumn:@"CreateTime"];
+            messageCenterMetadataModel.IsTop = [set stringForColumn:@"IsTop"];
             
             [resultDatas addObject:messageCenterMetadataModel];
             
@@ -385,7 +388,7 @@
                       "LastedReadTime = ?,LastedMsgId = ?,"
                       "LastedMsgSenderName = ?,LastedMsgTime = ?,"
                       "LastedMsgContent = ?,UnReadMsgCount = ?,"
-                      "CreateTime = ? where MsgMetadataId = '%@');",markID];
+                      "CreateTime = ?,IsTop = ? where MsgMetadataId = '%@');",markID];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
              messageCenterMetadataModel.UserId,
@@ -398,7 +401,8 @@
              messageCenterMetadataModel.LastedMsgTime,
              messageCenterMetadataModel.LastedMsgContent,
              messageCenterMetadataModel.UnReadMsgCount,
-             messageCenterMetadataModel.CreateTime
+             messageCenterMetadataModel.CreateTime,
+             messageCenterMetadataModel.IsTop
              ];
         }
     }
