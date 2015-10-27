@@ -12,7 +12,7 @@
 @class RYNotifyHandler;
 
 @protocol RYNotifyHandlerDelegate <NSObject>
-
+@optional
 - (void)notifyCallBack:(id)callBackData notifyHandler:(RYNotifyHandler *)notifyHandler;
 
 @end
