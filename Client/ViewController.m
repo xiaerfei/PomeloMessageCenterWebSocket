@@ -12,8 +12,9 @@
 #import "MessageTool.h"
 #import "PomeloMessageCenterDBManager.h"
 #import "MessageCenterUserModel.h"
+#import "ConnectToServer.h"
 
-@interface ViewController () <APICmdApiCallBackDelegate ,RYConnectorServerHandlerDelegate,RYChatHandlerDelegate,PomeloClientDelegate>
+@interface ViewController () <APICmdApiCallBackDelegate ,RYChatHandlerDelegate,ConnectToServerDelegate>
 
 @property (nonatomic, copy) NSString *hostStr;
 @property (nonatomic, copy) NSString *portStr;
@@ -27,8 +28,9 @@
 @property (nonatomic, strong) RYChatHandler *readChatHandler;
 @property (nonatomic, strong) RYChatHandler *clientInfoChatHandler;
 
-@property (nonatomic, strong) PomeloClient *gatePomeloClient;
-@property (nonatomic, strong) PomeloClient *connectorPomeloClient;
+@property (nonatomic, strong) ConnectToServer *connectToSever;
+
+- (IBAction)disconnect:(id)sender;
 
 @end
 
@@ -57,9 +59,8 @@
 #pragma mark viewDidLoad methods
 
 - (void)configData {
-    
-    _gatePomeloClient = [[PomeloClient alloc] initWithDelegate:self];
-    _connectorPomeloClient = [[PomeloClient alloc] initWithDelegate:self];
+    self.connectToSever = [ConnectToServer shareInstance];
+    self.connectToSever.delegate = self;
     
     [self.loginAPICmd loadData];
 }
@@ -116,23 +117,20 @@
 - (void)apiCmdDidFailed:(RYBaseAPICmd *)baseAPICmd error:(NSError *)error {
 }
 
-#pragma mark PomeloClientDelegate
-
-//断开连接
-- (void)pomeloDisconnect:(PomeloClient *)pomelo withError:(NSError *)error {
-    
-    NSLog(@"-----断开连接-----");
-    
+#pragma mark ConnectToServerDelegate
+- (void)connectToServerSuccessWithData:(id)data
+{
+    NSLog(@"connectToServerSuccess--->\n %@",data);
 }
 
-#pragma mark RYConnectorServerHandlerDelegate
-
-- (void)connectToServerSuccess:(id)data {
-    
+- (void)connectToServerFailureWithData:(id)data
+{
+    NSLog(@"connectToServerFailure--->\n %@",data);
 }
 
-- (void)connectToServerFailure:(id)error {
-    
+- (void)connectToServerDisconnectSuccessWithData:(id)data
+{
+    NSLog(@"connectToServerDisconnectSuccess--->\n %@",data);
 }
 
 #pragma mark RYChatHandlerDelegate
@@ -167,16 +165,14 @@
 }
 
 #pragma mark event response
-
-
-
-#pragma mark private methods
-
+- (IBAction)disconnect:(id)sender {
+    [self.connectToSever chatClientDisconnect];
+}
 
 //服务器连接
 - (void)connect{
     //连接server
-    [self.RYChatHandler connectToServer];
+    [self.connectToSever connectToSeverGate];
 }
 
 //连接到分配的连接服务器（同时获取用户信息）
@@ -209,8 +205,6 @@
 - (RYChatHandler *)RYChatHandler {
     if (!_RYChatHandler) {
         _RYChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
-        _RYChatHandler.gateClient = _gatePomeloClient;
-        _RYChatHandler.chatClient = _connectorPomeloClient;
         _RYChatHandler.chatServerType = RouteConnectorTypeInit;
     }
     return _RYChatHandler;
@@ -219,8 +213,6 @@
 - (RYChatHandler *)readChatHandler {
     if (!_readChatHandler) {
         _readChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
-        _readChatHandler.gateClient = _gatePomeloClient;
-        _readChatHandler.chatClient = _connectorPomeloClient;
         _readChatHandler.chatServerType = RouteChatTypeRead;
         _readChatHandler.parameters = @{@"lastedReadMsgId":@"1"};
         
@@ -231,8 +223,6 @@
 - (RYChatHandler *)clientInfoChatHandler {
     if (!_clientInfoChatHandler) {
         _clientInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
-        _clientInfoChatHandler.gateClient = _gatePomeloClient;
-        _clientInfoChatHandler.chatClient = _connectorPomeloClient;
         _clientInfoChatHandler.chatServerType = RouteChatTypeWriteClientInfo;
         _clientInfoChatHandler.parameters = @{@"appClientId":@"1219041c8c3b9bdff326f0f3e3615930",
                                               @"deviceToken":@"f4a52dbda1af30249c27421214468d24bfdacbea16298f4cd2da35a3929daad5"};

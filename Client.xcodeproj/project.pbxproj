@@ -48,6 +48,7 @@
 		4EF0E6F41BDF227000F1ABFB /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 4EF0E6DD1BDF227000F1ABFB /* base64.c */; };
 		4EF0E6F51BDF227000F1ABFB /* NSData+SRB64Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EF0E6E01BDF227000F1ABFB /* NSData+SRB64Additions.m */; };
 		4EF0E6F61BDF227000F1ABFB /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EF0E6E31BDF227000F1ABFB /* SRWebSocket.m */; };
+		4EF0E74D1BDF71CD00F1ABFB /* ConnectToServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EF0E74C1BDF71CD00F1ABFB /* ConnectToServer.m */; };
 		980C276F1BD095860026EA86 /* RYBaseAPICmd.m in Sources */ = {isa = PBXBuildFile; fileRef = 980C27681BD095860026EA86 /* RYBaseAPICmd.m */; };
 		980C27701BD095860026EA86 /* RYAPILogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 980C276B1BD095860026EA86 /* RYAPILogger.m */; };
 		980C27711BD095860026EA86 /* RYAPIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 980C276E1BD095860026EA86 /* RYAPIManager.m */; };
@@ -149,6 +150,8 @@
 		4EF0E6E11BDF227000F1ABFB /* SocketRocket-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SocketRocket-Prefix.pch"; sourceTree = "<group>"; };
 		4EF0E6E21BDF227000F1ABFB /* SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRWebSocket.h; sourceTree = "<group>"; };
 		4EF0E6E31BDF227000F1ABFB /* SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRWebSocket.m; sourceTree = "<group>"; };
+		4EF0E74B1BDF71CD00F1ABFB /* ConnectToServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectToServer.h; sourceTree = "<group>"; };
+		4EF0E74C1BDF71CD00F1ABFB /* ConnectToServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConnectToServer.m; sourceTree = "<group>"; };
 		980C27671BD095860026EA86 /* RYBaseAPICmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RYBaseAPICmd.h; sourceTree = "<group>"; };
 		980C27681BD095860026EA86 /* RYBaseAPICmd.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RYBaseAPICmd.m; sourceTree = "<group>"; };
 		980C276A1BD095860026EA86 /* RYAPILogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RYAPILogger.h; sourceTree = "<group>"; };
@@ -337,6 +340,7 @@
 		4EF0E6B11BDF227000F1ABFB /* MessageWorking */ = {
 			isa = PBXGroup;
 			children = (
+				4EF0E74A1BDF71CD00F1ABFB /* ConnectToServer */,
 				4EF0E6B21BDF227000F1ABFB /* ChatAPIManager */,
 				4EF0E6B51BDF227000F1ABFB /* ChatHandler */,
 				4EF0E6BA1BDF227000F1ABFB /* MessageCenterDB */,
@@ -459,6 +463,15 @@
 				4EF0E6E31BDF227000F1ABFB /* SRWebSocket.m */,
 			);
 			path = SocketRocket;
+			sourceTree = "<group>";
+		};
+		4EF0E74A1BDF71CD00F1ABFB /* ConnectToServer */ = {
+			isa = PBXGroup;
+			children = (
+				4EF0E74B1BDF71CD00F1ABFB /* ConnectToServer.h */,
+				4EF0E74C1BDF71CD00F1ABFB /* ConnectToServer.m */,
+			);
+			path = ConnectToServer;
 			sourceTree = "<group>";
 		};
 		980C27611BD095860026EA86 /* NetworkCenter */ = {
@@ -711,6 +724,7 @@
 				4EF0E6EB1BDF227000F1ABFB /* MessageCenterUserModel.m in Sources */,
 				3764EB3617F0268600093CF7 /* main.m in Sources */,
 				4EF0E6ED1BDF227000F1ABFB /* PomeloClient.m in Sources */,
+				4EF0E74D1BDF71CD00F1ABFB /* ConnectToServer.m in Sources */,
 				980C27701BD095860026EA86 /* RYAPILogger.m in Sources */,
 				980C278A1BD099110026EA86 /* AFHTTPRequestOperationManager.m in Sources */,
 				4EF0E6EF1BDF227000F1ABFB /* ProtobufCodec.m in Sources */,

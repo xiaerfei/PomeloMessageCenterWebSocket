@@ -14,6 +14,7 @@
 #import "MessageCenterMetadataModel.h"
 #import "PomeloMessageCenterDBManager.h"
 #import "RYNotifyHandler.h"
+#import "ConnectToServer.h"
 
 static RYChatHandler *shareHandler = nil;
 
@@ -21,7 +22,6 @@ static RYChatHandler *shareHandler = nil;
 
 //pomelo代理类型，PomeloClientDelegate代理设置
 @property (nonatomic, weak) id <PomeloClientDelegate> pomeloDelegate;
-@property (nonatomic, weak) id <RYConnectorServerHandlerDelegate> serverDelegate;
 @property (nonatomic, weak) id <RYChatHandlerDelegate> chatDelegate;
 
 //@property (nonatomic, strong) RYNotifyHandler *onChatNotifyHandler;
@@ -40,15 +40,6 @@ static RYChatHandler *shareChatHandler = nil;
 
 @implementation RYChatHandler
 
-//+ (instancetype)shareChatHandler {
-//    
-//    static dispatch_once_t onceInstance;
-//    dispatch_once(&onceInstance, ^{
-//        shareChatHandler = [[RYChatHandler alloc] init];
-//    });
-//    return shareChatHandler;
-//}
-
 /*-------------------------------------------------------------------------------*/
 
 #pragma mark - life cycle
@@ -58,7 +49,6 @@ static RYChatHandler *shareChatHandler = nil;
     self = [super init];
     if (self) {
         _pomeloDelegate = delegate;
-        _serverDelegate   = delegate;
         _chatDelegate = delegate;
     }
     return self;
@@ -66,65 +56,7 @@ static RYChatHandler *shareChatHandler = nil;
 
 /*---------------------------------gate、connector、chat服务器交互------------------------------*/
 
-#pragma mark - private method
-
-- (void)connectToServer {
-    
-    //self进行weak化，否则造成循环引用无法释放controller
-    __block RYChatHandler *weakSelf= self;
-    __block PomeloClient  *weakClient = self.gateClient;
-    
-    [weakClient connectToHost:[RYChatAPIManager host] onPort:[RYChatAPIManager port] withCallback:^(id arg) {
-        
-        [weakClient requestWithRoute:[RYChatAPIManager routeWithType:RouteGateTypeQueryEntry] andParams:[RYChatAPIManager parametersWithType:YES] andCallback:^(id arg) {
-            
-            //断开gate服务器，连接connector服务器
-            //断开连接（必须做的操作，否则浪费gate服务器资源）
-            [weakClient disconnect];
-            
-            NSDictionary *queryEntryResult = (NSDictionary *)arg;
-            //code:状态码（200:获取成功;401:用户未登录;500或其他:错误）
-            
-            if ([[NSString stringWithFormat:@"%@",queryEntryResult[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
-                
-                weakSelf.hostStr = arg[@"host"];
-                weakSelf.portStr = arg[@"port"];
-                
-                [weakSelf connectToConnectorServer];
-                
-            }else{
-                
-                if ([weakSelf.serverDelegate respondsToSelector:@selector(connectToServerFailure:)]) {
-                    [weakSelf.serverDelegate connectToServerFailure:arg];
-                }else{
-                    //condition是条件表达式，值为YES或NO；desc为异常描述
-                    NSAssert(0,@"connectToGateFailure-方法必须实现");
-                }
-                
-            }
-            
-        }];
-    }];
-}
-
-- (void)connectToConnectorServer {
-    
-    __block RYChatHandler *weakSelf= self;
-    
-    if (self.hostStr && self.portStr) {
-        
-        [self.chatClient connectToHost:self.hostStr onPort:self.portStr withCallback:^(id arg) {
-            
-            if ([weakSelf.serverDelegate respondsToSelector:@selector(connectToServerSuccess:)]) {
-                [weakSelf.serverDelegate connectToServerSuccess:arg];
-            }else{
-                NSAssert(0,@"connectToConnectorSuccess-方法必须实现");
-            }
-            
-        }];
-    }
-}
-
+#pragma mark - public methods
 - (void)chat {
     
     __block RYChatHandler *weakSelf= self;;
@@ -132,22 +64,22 @@ static RYChatHandler *shareChatHandler = nil;
     if (self.chatServerType == RouteConnectorTypeInit) {
         self.parameters = [RYChatAPIManager parametersWithType:NO];
     }
-    
-    [self.chatClient requestWithRoute:[RYChatAPIManager routeWithType:self.chatServerType] andParams:self.parameters andCallback:^(id arg) {
+    ConnectToServer *connectToServer = [ConnectToServer shareInstance];
+    [connectToServer.chatClient requestWithRoute:[RYChatAPIManager routeWithType:self.chatServerType] andParams:self.parameters andCallback:^(id arg) {
         
         NSDictionary *connectorInitDict = (NSDictionary *)arg;
         
         if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
             /*
-            if (weakSelf.chatServerType == RouteChatTypeRead) {
-                //标记已读成功，客户端已读消息，存储数据到表MsgMetadata，并调用消息中心推送消息已读同步到APP端/web端
-                [self markReadMessage];
-            }
-            else if (weakSelf.chatServerType == RouteChatTypeGetGroupInfo) {
-                //获取组成员信息
-                [self storeGroupMemberInfoWithArray:arg[@"groupInfo"]];
-            }
+             if (weakSelf.chatServerType == RouteChatTypeRead) {
+             //标记已读成功，客户端已读消息，存储数据到表MsgMetadata，并调用消息中心推送消息已读同步到APP端/web端
+             [self markReadMessage];
+             }
+             else if (weakSelf.chatServerType == RouteChatTypeGetGroupInfo) {
+             //获取组成员信息
+             [self storeGroupMemberInfoWithArray:arg[@"groupInfo"]];
+             }
              */
             
             if ([weakSelf.chatDelegate respondsToSelector:@selector(connectToChatSuccess:result:)]) {
@@ -173,25 +105,25 @@ static RYChatHandler *shareChatHandler = nil;
 //#pragma mark RYNotifyHandlerDelegate
 //
 //- (void)notifyCallBack:(id)callBackData notifyHandler:(id)notifyHandler{
-//    
+//
 //    if (self.onGroupMsgListNotifyHandler == notifyHandler) {
-//        
+//
 //    }else if (self.onReadNotifyHandler == notifyHandler) {
-//        
+//
 //    }else if (self.onTopNotifyHandler == notifyHandler) {
-//        
+//
 //    }else if (self.onClientShowNotifyHandler == notifyHandler) {
-//        
+//
 //    }else if (self.onChatNotifyHandler == notifyHandler) {
-//        
+//
 //    }
-//    
+//
 //}
 //
 ///*------------------------------------------消息推送------------------------------------------*/
 //
 //- (void)monitorMessage {
-//    
+//
 //    //异步推送消息列表
 //    [self listenGroupMsgList];
 //    //监听到onRead，更新表MsgMetadata，展示已读状态
@@ -200,13 +132,13 @@ static RYChatHandler *shareChatHandler = nil;
 //    [self listenOnTopMessage];
 //    //监听到onClientShow，更新缓存
 //    [self listenOnClientShowMessage];
-//    
+//
 //}
 //
 //- (void)disConnect {
-//    
+//
 //    [self.client offAllRoute];
-//    
+//
 //}
 
 
@@ -257,27 +189,27 @@ static RYChatHandler *shareChatHandler = nil;
  */
 
 //- (void)listenGroupMsgList {
-//    
+//
 //    [self.onGroupMsgListNotifyHandler onNotify];
-//    
+//
 //}
 //
 //- (void)listenReadMessage {
-//    
+//
 //    [self.onReadNotifyHandler onNotify];
-//    
+//
 //}
 //
 //- (void)listenOnTopMessage {
-//    
+//
 //    [self.onTopNotifyHandler onNotify];
-//    
+//
 //}
 //
 //- (void)listenOnClientShowMessage {
-//    
+//
 //    [self.onClientShowNotifyHandler onNotify];
-//    
+//
 //}
 
 #pragma mark - getters and setters
@@ -293,7 +225,7 @@ static RYChatHandler *shareChatHandler = nil;
 //}
 //
 //- (RYNotifyHandler *)onGroupMsgListNotifyHandler {
-//    
+//
 //    if (!_onGroupMsgListNotifyHandler) {
 //        _onGroupMsgListNotifyHandler = [[RYNotifyHandler alloc] init];
 //        _onGroupMsgListNotifyHandler.notifyType = NotifyTypeOnGroupMsgList;
