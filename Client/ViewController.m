@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "LoginAPICmd.h"
 #import "RYChatHandler.h"
-#import "Tool.h"
+#import "MessageTool.h"
 #import "PomeloMessageCenterDBManager.h"
 #import "MessageCenterUserModel.h"
 
@@ -109,7 +109,7 @@
         }
     }
     
-    [Tool setToken:self.tokenStr];
+    [MessageTool setToken:self.tokenStr];
     
 }
 

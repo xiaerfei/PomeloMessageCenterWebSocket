@@ -40,14 +40,14 @@ static RYChatHandler *shareChatHandler = nil;
 
 @implementation RYChatHandler
 
-+ (instancetype)shareChatHandler {
-    
-    static dispatch_once_t onceInstance;
-    dispatch_once(&onceInstance, ^{
-        shareChatHandler = [[RYChatHandler alloc] init];
-    });
-    return shareChatHandler;
-}
+//+ (instancetype)shareChatHandler {
+//    
+//    static dispatch_once_t onceInstance;
+//    dispatch_once(&onceInstance, ^{
+//        shareChatHandler = [[RYChatHandler alloc] init];
+//    });
+//    return shareChatHandler;
+//}
 
 /*-------------------------------------------------------------------------------*/
 
@@ -167,6 +167,8 @@ static RYChatHandler *shareChatHandler = nil;
     }];
     
 }
+
+
 
 //#pragma mark RYNotifyHandlerDelegate
 //
