@@ -10,9 +10,9 @@
 
 @interface MessageCenterMetadataModel : CommonModel
 
-@property (nonatomic, copy) NSString *MsgMetadataId;
+@property (nonatomic, copy) NSString *MsgMetadataId;       //主键
 @property (nonatomic, copy) NSString *UserId;
-@property (nonatomic, assign) NSInteger TargetType;        //个人/组
+@property (nonatomic, assign) NSInteger TargetType;          //个人/组
 @property (nonatomic, copy) NSString *MsgTo;               //消息发送目标Id
 @property (nonatomic, copy) NSString *LastedReadMsgId;     //最后读取消息Id
 @property (nonatomic, copy) NSString *LastedReadTime;      //最后读取时间
@@ -22,7 +22,5 @@
 @property (nonatomic, copy) NSString *LastedMsgContent;    //最后消息内容
 @property (nonatomic, copy) NSString *UnReadMsgCount;      //未读消息数量
 @property (nonatomic, copy) NSString *CreateTime;          //创建时间
-
-@property (nonatomic, copy) NSString *IsTop;               //本地判断消息是否置顶
 
 @end

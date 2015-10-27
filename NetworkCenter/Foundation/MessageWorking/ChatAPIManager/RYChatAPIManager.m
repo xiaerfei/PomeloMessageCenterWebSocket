@@ -7,7 +7,7 @@
 //
 
 #import "RYChatAPIManager.h"
-#import "Tool.h"
+#import "MessageTool.h"
 
 static RYChatAPIManager *shareManager = nil;
 
@@ -98,9 +98,9 @@ static RYChatAPIManager *shareManager = nil;
 + (NSDictionary *)parametersWithType:(BOOL)isConnectInit {
     
     if (isConnectInit) {
-        return @{@"token":[Tool token]};
+        return @{@"token":[MessageTool token]};
     }
-    return @{@"token":[Tool token]};
+    return @{@"token":[MessageTool token]};
 }
 
 + (NSString *)host {
