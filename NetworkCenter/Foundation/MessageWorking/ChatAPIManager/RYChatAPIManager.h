@@ -37,11 +37,11 @@ typedef NS_ENUM(NSInteger, RouteGateTypeName){
  *  RouteConnectorTypeName
  */
 typedef NS_ENUM(NSInteger, RouteConnectorTypeName){
-    //用于连接到分配的连接服务器(初始化的同时并返回给web/app端用户信息；初始化后，消息中心会异步推送老消息和消息列表给客户端)
+    /// 用于连接到分配的连接服务器(初始化的同时并返回给web/app端用户信息；初始化后，消息中心会异步推送老消息和消息列表给客户端)
     RouteConnectorTypeInit  =  1,
-    //推送消息
+    /// 推送消息
     RouteConnectorTypePush  =  1 << 1,
-    //
+    ///
     RouteConnectorTypeProto =  1 << 2,
 };
 
@@ -51,28 +51,34 @@ typedef NS_ENUM(NSInteger, RouteConnectorTypeName){
  *  RouteChatTypeName
  */
 typedef NS_ENUM(NSInteger, RouteChatTypeName){
-    //用于App连接到消息中心后，存储App Client信息
-    RouteChatTypeWriteClientInfo  =  3,
-    //用于用户或系统发送消息给用户
-    RouteChatTypeSend  =  3 << 1,
-    //用于保存用户读取消息的情况
-    RouteChatTypeRead  =  3 << 2,
-    //用于保存用户消息置顶的情况
-    RouteChatTypeTop   =  3 << 3,
-    //用于保存用户消息免打扰的情况
-    RouteChatTypeDisturbed =  3 << 4,
-    //获取组和组成员信息
-    RouteChatTypeGetGroupInfo = 3 << 5
+    /// 用于App连接到消息中心后，存储App Client信息
+    RouteChatTypeWriteClientInfo  = 3 << 0,
+    /// 用于用户或系统发送消息给用户
+    RouteChatTypeSend             = 3 << 1,
+    /// 用于保存用户读取消息的情况
+    RouteChatTypeRead             = 3 << 2,
+    /// 用于保存用户消息置顶的情况
+    RouteChatTypeTop              = 3 << 3,
+    /// 用于保存用户消息免打扰的情况
+    RouteChatTypeDisturbed        = 3 << 4,
+    /// 获取组和组成员信息
+    RouteChatTypeGetGroupInfo     = 3 << 5,
+    /// 获取一对一聊天组
+    RouteChatTypeGetGroupId       = 3 << 6,
+    /// Web端消息中心获取组列表
+    RouteChatTypeGetGroups        = 3 << 7,
+    /// 进入群组后取当前群组的n条消息，下拉获取之前的n条消息
+    RouteChatTypeGetMsg           = 3 << 8
 };
 
 //获取成功或失败之后枚举值
 
 typedef NS_ENUM(NSInteger, ResultCodeType){
-    //获取成功
+    /// 获取成功
     ResultCodeTypeSuccess = 200,
-    //用户未登录
+    /// 用户未登录
     ResultCodeTypeNoLogin = 401,
-    //用户未登录
+    /// 用户未登录
     ResultCodeTypeOtherError = 500
 };
 
@@ -138,22 +144,22 @@ typedef NS_ENUM(NSInteger, NotifyType){
 
 + (instancetype)shareManager;
 
-//根据不同类型返回路由字符串
+/// 根据不同类型返回路由字符串
 + (NSString *)routeWithType:(NSInteger)type;
-//根据不同类型返回通知路由字符串
+/// 根据不同类型返回通知路由字符串
 + (NSString *)notifyWithType:(NSInteger)type;
 
-//连接服务器需要的参数设置
-//根据是否连接gate服务器获取参数（如果是gate服务器，则参数形式为@{@"uid":@""},如果连接为connector服务器，则参数为@{@"token":@""}）
+/// 连接服务器需要的参数设置
+/// 根据是否连接gate服务器获取参数（如果是gate服务器，则参数形式为@{@"uid":@""},如果连接为connector服务器，则参数为@{@"token":@""}）
 + (NSDictionary *)parametersWithType:(BOOL)isConnectInit;
 
-//连接gate服务器的host
+/// 连接gate服务器的host
 + (NSString *)host;
 
-//连接gate服务器的端口号
+/// 连接gate服务器的端口号
 + (NSString *)port;
 
-//已登录下获取token值
+/// 已登录下获取token值
 + (NSString *)token;
 
 @end
