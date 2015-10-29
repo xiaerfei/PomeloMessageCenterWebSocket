@@ -17,7 +17,7 @@
 #define kPomeloCloseCallback @"kPomeloCloseCallback"
 
 
-#if  DEBUG == 1
+#if  DEBUG == 0
 #define DEBUGLOG(...) NSLog(__VA_ARGS__)
 #else
 #define DEBUGLOG(...)

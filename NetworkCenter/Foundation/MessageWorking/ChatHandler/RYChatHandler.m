@@ -65,9 +65,21 @@ static RYChatHandler *shareChatHandler = nil;
         self.parameters = [RYChatAPIManager parametersWithType:NO];
     }
     ConnectToServer *connectToServer = [ConnectToServer shareInstance];
+    
+
+    
     [connectToServer.chatClient requestWithRoute:[RYChatAPIManager routeWithType:self.chatServerType] andParams:self.parameters andCallback:^(id arg) {
         
         NSDictionary *connectorInitDict = (NSDictionary *)arg;
+        
+        NSMutableString *logString = [NSMutableString stringWithString:@"\n\n**************************************************************\n*                       message chat                        *\n**************************************************************\n\n"];
+        [logString appendFormat:@"Route:\t\t%@\n", [RYChatAPIManager routeWithType:self.chatServerType]];
+        [logString appendFormat:@"params:\t\t\n%@", weakSelf.parameters];
+        [logString appendFormat:@"\n---------------------------Response---------------------------\n"];
+        [logString appendFormat:@"params:\t\t\n%@", arg];
+        [logString appendFormat:@"\n\n**************************************************************\n*                         message End                        *\n**************************************************************\n\n\n\n"];
+        NSLog(@"%@", logString);
+        
         
         if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             

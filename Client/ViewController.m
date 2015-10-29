@@ -27,10 +27,17 @@
 @property (nonatomic, strong) RYChatHandler *RYChatHandler;
 @property (nonatomic, strong) RYChatHandler *readChatHandler;
 @property (nonatomic, strong) RYChatHandler *clientInfoChatHandler;
+@property (nonatomic, strong) RYChatHandler *getGroupIdChatHandler;
+@property (nonatomic, strong) RYChatHandler *groupInfoChatHandler;
+
+@property (nonatomic, strong) RYChatHandler *sendChatHandler;
 
 @property (nonatomic, strong) ConnectToServer *connectToSever;
 
 - (IBAction)disconnect:(id)sender;
+@property (weak, nonatomic) IBOutlet UITextField *textField;
+- (IBAction)sendData:(id)sender;
+- (IBAction)readData:(id)sender;
 
 @end
 
@@ -145,10 +152,12 @@
             
             NSDictionary *userInfos = data[@"userInfo"];
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
-            
+            [self.groupInfoChatHandler chat];
+//            [self.getGroupIdChatHandler chat];
+//            [self.sendChatHandler chat];
         }
         
-    }else if (chatHandler.chatServerType == RouteChatTypeWriteClientInfo) {
+    } else if (chatHandler.chatServerType == RouteChatTypeWriteClientInfo) {
         
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
@@ -156,7 +165,32 @@
             
         }
         
+    } else if (chatHandler.chatServerType == RouteChatTypeGetGroupInfo) {
+        
+        if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+            
+            NSLog(@"%@",data);
+            
+        }
+        
+    } else if (chatHandler.chatServerType == RouteChatTypeGetGroupId) {
+        
+        if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+            
+            NSLog(@"%@",data);
+            
+        }
+        
+    } else if (chatHandler.chatServerType == RouteChatTypeSend) {
+        
+        if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+            
+            NSLog(@"%@",data);
+            
+        }
+        
     }
+
     
 }
 
@@ -188,15 +222,48 @@
     
 }
 
+- (IBAction)sendData:(id)sender {
+    self.sendChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+                                                      @"content":self.textField.text};
+    [self.sendChatHandler chat];
+    
+}
+
+- (IBAction)readData:(id)sender {
+    [self.readChatHandler chat];
+}
+
+
 #pragma mark - getters and setters
+
+/**
+ *   @author xiaerfei, 15-10-29 13:10:28
+ *
+ *   18601793005    rongyu100   bbd75913-edcd-49c0-bcb9-d9a30138e86b
+     100200300	    代理商       234d4bba-aced-4251-8a4f-fafcb6afbce6
+     13122258882	客户
+ 
+ 13918549186	 	3
+ 13604049697	 	3
+ 13817658400	 	2
+ 15021503868	 	1
+ 18601793005	 	1
+ 
+ 
+ *
+ *   @return
+ 
+ 11111111121  11111a
+ 
+ */
 
 - (LoginAPICmd *)loginAPICmd {
     if (!_loginAPICmd) {
         _loginAPICmd = [[LoginAPICmd alloc] init];
         _loginAPICmd.delegate = self;
         _loginAPICmd.path = @"API/User/OnLogon";
-        _loginAPICmd.reformParams = [NSDictionary dictionaryWithObjectsAndKeys:@"11111111121", @"userName",
-                                     @"11111a", @"password",
+        _loginAPICmd.reformParams = [NSDictionary dictionaryWithObjectsAndKeys:@"15021503868", @"userName",
+                                     @"11", @"password",
                                      nil];
     }
     return _loginAPICmd;
@@ -220,6 +287,36 @@
     return _readChatHandler;
 }
 
+- (RYChatHandler *)groupInfoChatHandler {
+    if (!_groupInfoChatHandler) {
+        _groupInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _groupInfoChatHandler.chatServerType = RouteChatTypeGetGroupInfo;
+        _groupInfoChatHandler.parameters = @{@"target":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904"};
+        
+    }
+    return _groupInfoChatHandler;
+}
+
+- (RYChatHandler *)sendChatHandler {
+    if (!_sendChatHandler) {
+        _sendChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _sendChatHandler.chatServerType = RouteChatTypeSend;
+        _sendChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+                                        @"content":@"你好啊！小朋友"};
+        
+    }
+    return _sendChatHandler;
+}
+
+- (RYChatHandler *)getGroupIdChatHandler {
+    if (!_getGroupIdChatHandler) {
+        _getGroupIdChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _getGroupIdChatHandler.chatServerType = RouteChatTypeGetGroupId;
+        _getGroupIdChatHandler.parameters = @{@"targetUserId":@"43aa53b1-32aa-4d39-a86b-137cc190cb19"};
+        
+    }
+    return _getGroupIdChatHandler;
+}
 - (RYChatHandler *)clientInfoChatHandler {
     if (!_clientInfoChatHandler) {
         _clientInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
@@ -229,5 +326,6 @@
     }
     return _clientInfoChatHandler;
 }
+
 
 @end

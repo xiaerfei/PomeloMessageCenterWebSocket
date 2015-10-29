@@ -18,17 +18,75 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PI1-4Y-Xq1">
-                                <rect key="frame" x="137" y="450" width="68" height="30"/>
+                                <rect key="frame" x="126" y="470" width="68" height="30"/>
+                                <state key="normal" title="diconnect">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mMQ-Fh-zgo">
+                                <rect key="frame" x="19" y="346" width="49" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="2uI-ZT-bgn"/>
+                                    <constraint firstAttribute="width" constant="49" id="w1A-M0-gUH"/>
+                                </constraints>
+                                <state key="normal" title="发送">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="sendData:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="h4T-8l-k3i"/>
+                                </connections>
+                            </button>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="TQ9-Fq-lm1">
+                                <rect key="frame" x="19" y="302" width="282" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="EJJ-co-TiT"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0ah-cg-QeB">
+                                <rect key="frame" x="256" y="346" width="45" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="45" id="YI5-9z-h0B"/>
+                                    <constraint firstAttribute="height" constant="30" id="plH-Nd-2t7"/>
+                                </constraints>
+                                <state key="normal" title="读数据">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="readData:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="fVy-Su-36f"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4LJ-eG-jVz">
+                                <rect key="frame" x="126" y="470" width="68" height="30"/>
+                                <state key="normal" title="diconnect">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wmT-aW-pal">
+                                <rect key="frame" x="126" y="470" width="68" height="30"/>
                                 <state key="normal" title="diconnect">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="disconnect:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="ile-NA-vpM"/>
+                                    <action selector="disconnect:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="gAp-nI-vuv"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="0ah-cg-QeB" secondAttribute="trailing" constant="19" id="2mi-zW-Tbp"/>
+                            <constraint firstItem="mMQ-Fh-zgo" firstAttribute="top" secondItem="TQ9-Fq-lm1" secondAttribute="bottom" constant="14" id="FN0-by-sgD"/>
+                            <constraint firstItem="TQ9-Fq-lm1" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="19" id="HWP-Up-TsZ"/>
+                            <constraint firstAttribute="bottom" secondItem="TQ9-Fq-lm1" secondAttribute="bottom" constant="236" id="SRK-do-Vwq"/>
+                            <constraint firstItem="0ah-cg-QeB" firstAttribute="top" secondItem="TQ9-Fq-lm1" secondAttribute="bottom" constant="14" id="X0X-3P-xZK"/>
+                            <constraint firstItem="mMQ-Fh-zgo" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="19" id="Xau-BC-QR7"/>
+                            <constraint firstAttribute="trailing" secondItem="TQ9-Fq-lm1" secondAttribute="trailing" constant="19" id="nqt-8m-cPK"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="textField" destination="TQ9-Fq-lm1" id="Qyk-9u-l5h"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
