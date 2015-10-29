@@ -9,12 +9,13 @@
 #import "ViewController.h"
 #import "LoginAPICmd.h"
 #import "RYChatHandler.h"
+#import "RYNotifyHandler.h"
 #import "MessageTool.h"
 #import "PomeloMessageCenterDBManager.h"
 #import "MessageCenterUserModel.h"
 #import "ConnectToServer.h"
 
-@interface ViewController () <APICmdApiCallBackDelegate ,RYChatHandlerDelegate,ConnectToServerDelegate>
+@interface ViewController () <APICmdApiCallBackDelegate ,RYChatHandlerDelegate,ConnectToServerDelegate,RYNotifyHandlerDelegate>
 
 @property (nonatomic, copy) NSString *hostStr;
 @property (nonatomic, copy) NSString *portStr;
@@ -25,10 +26,13 @@
 @property (nonatomic, strong) LoginAPICmd *loginAPICmd;
 
 @property (nonatomic, strong) RYChatHandler *RYChatHandler;
-@property (nonatomic, strong) RYChatHandler *readChatHandler;
 @property (nonatomic, strong) RYChatHandler *clientInfoChatHandler;
 
 @property (nonatomic, strong) RYChatHandler *sendHandler;
+@property (nonatomic, strong) RYChatHandler *readChatHandler;
+@property (nonatomic, strong) RYChatHandler *getMessageChatHandler;
+
+@property (nonatomic, strong) RYNotifyHandler *chatNotifyHandler;
 
 @property (nonatomic, strong) ConnectToServer *connectToSever;
 
@@ -158,12 +162,20 @@
             
         }
         
+    }else if (chatHandler.chatServerType == RouteChatTypeSend) {
+        NSLog(@"%@",data);
     }
     
 }
 
 - (void)connectToChatFailure:(RYChatHandler *)chatHandler result:(id)error {
     NSLog(@"-----连接chat失败----- %@",error);
+}
+
+#pragma mark RYNotifyHandlerDelegate
+
+- (void)notifyCallBack:(id)callBackData notifyHandler:(RYNotifyHandler *)notifyHandler {
+    NSLog(@"callBackData = %@",callBackData);
 }
 
 #pragma mark event response
@@ -186,10 +198,9 @@
 
 - (void)saveinfo {
     
-//    [self.clientInfoChatHandler chat];
+//    [self.sendHandler chat];
     
-    [self.sendHandler chat];
-    
+    [self.chatNotifyHandler onNotify];
 }
 
 #pragma mark - getters and setters
@@ -218,7 +229,6 @@
     if (!_readChatHandler) {
         _readChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _readChatHandler.chatServerType = RouteChatTypeRead;
-        _readChatHandler.parameters = @{@"lastedReadMsgId":@"1"};
         
     }
     return _readChatHandler;
@@ -238,10 +248,35 @@
     if (!_sendHandler) {
         _sendHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _sendHandler.chatServerType = RouteChatTypeSend;
-        _clientInfoChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+        _sendHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
                                               @"content":@"hello ---- you"};
     }
     return _sendHandler;
 }
+
+- (RYChatHandler *)getMessageChatHandler {
+    if (!_getMessageChatHandler) {
+        _getMessageChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _getMessageChatHandler.chatServerType = RouteChatTypeGetMsg;
+        _getMessageChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+                                                  @"lastMsgId":@"",@"count":@"10"};
+        
+    }
+    return _getMessageChatHandler;
+}
+
+/*--------------------消息推送--------------------*/
+
+- (RYNotifyHandler *)chatNotifyHandler {
+    if (!_chatNotifyHandler) {
+        _chatNotifyHandler = [[RYNotifyHandler alloc] init];
+        _chatNotifyHandler.notifyType = NotifyTypeOnChat;
+        _chatNotifyHandler.delegate = self;
+        
+    }
+    return _chatNotifyHandler;
+}
+
+
 
 @end

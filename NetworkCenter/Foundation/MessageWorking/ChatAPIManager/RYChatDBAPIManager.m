@@ -74,4 +74,51 @@ static RYChatDBAPIManager *shareManager = nil;
     return nil;
 }
 
+- (NSString *)addTableSQLWithTableType:(MessageCenterDBManagerType)type {
+    
+    NSString *SQLStr = nil;
+    
+    switch (type) {
+        case MessageCenterDBManagerTypeUSER:
+            break;
+        case MessageCenterDBManagerTypeMESSAGE:
+            break;
+        case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
+            break;
+        case MessageCenterDBManagerTypeMETADATA:
+            break;
+        default:
+            break;
+    }
+    
+    return nil;
+}
+
+
+- (NSString *)updateTableSQLWithTableType:(MessageCenterDBManagerType)type {
+    
+    NSString *SQLStr = nil;
+    
+    switch (type) {
+        case MessageCenterDBManagerTypeUSER:
+            break;
+        case MessageCenterDBManagerTypeMESSAGE:
+            break;
+        case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
+            break;
+        case MessageCenterDBManagerTypeMETADATA:
+            break;
+        default:
+            break;
+    }
+    
+    return nil;
+}
+
+- (NSString *)getSQLPartStrWithType:(NSInteger)type {
+    NSString *commonSQL = @"";
+    return commonSQL;
+}
+
+
 @end
