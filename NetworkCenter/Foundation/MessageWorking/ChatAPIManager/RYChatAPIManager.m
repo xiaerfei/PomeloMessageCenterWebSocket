@@ -33,14 +33,11 @@ static RYChatAPIManager *shareManager = nil;
         case RouteConnectorTypeInit:
             routeStr = @"connector.entryHandler.init";
             break;
-        case RouteConnectorTypePush:
-            routeStr = @"connector.entryHandler.push";
-            break;
-        case RouteConnectorTypeProto:
-            routeStr = @"connector.entryHandler.proto";
-            break;
         case RouteChatTypeWriteClientInfo:
             routeStr = @"chat.chatHandler.writeClientInfo";
+            break;
+        case RouteChatTypeGetGroupId:
+            routeStr = @"chat.chatHandler.getGroupId";
             break;
         case RouteChatTypeSend:
             routeStr = @"chat.chatHandler.send";
@@ -54,9 +51,22 @@ static RYChatAPIManager *shareManager = nil;
         case RouteChatTypeDisturbed:
             routeStr = @"chat.chatHandler.Disturbed";
             break;
+        case RouteChatTypeGetGroups:
+            routeStr = @"chat.ChatHandler.getGroups";
+            break;
+        case RouteChatTypeGetMsg:
+            routeStr = @"chat.chatHandler.getMsg";
+            break;
         case RouteChatTypeGetGroupInfo:
             routeStr = @"chat.ChatHandler.getGroupInfo";
             break;
+        case RouteConnectorTypePush:
+            routeStr = @"connector.entryHandler.push";
+            break;
+        case RouteConnectorTypeProto:
+            routeStr = @"connector.entryHandler.proto";
+            break;
+
         default:
             break;
     }
