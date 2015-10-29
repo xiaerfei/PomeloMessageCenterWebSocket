@@ -89,10 +89,17 @@
     
     UIButton *btn2 = [[UIButton alloc] initWithFrame:CGRectMake(50, 50, 100, 50)];
     btn2.backgroundColor = [UIColor redColor];
-    [btn2 setTitle:@"saveinfo" forState:UIControlStateNormal];
-    [btn2 addTarget:self action:@selector(saveinfo) forControlEvents:UIControlEventTouchUpInside];
+    [btn2 setTitle:@"notify" forState:UIControlStateNormal];
+    [btn2 addTarget:self action:@selector(notify) forControlEvents:UIControlEventTouchUpInside];
     
     [self.view addSubview:btn2];
+    
+    UIButton *btn3 = [[UIButton alloc] initWithFrame:CGRectMake(100, 200, 150, 50)];
+    btn3.backgroundColor = [UIColor redColor];
+    [btn3 setTitle:@"send" forState:UIControlStateNormal];
+    [btn3 addTarget:self action:@selector(send) forControlEvents:UIControlEventTouchUpInside];
+    
+    [self.view addSubview:btn3];
 }
 
 #pragma mark - SystemDelegate
@@ -194,13 +201,14 @@
     [self.RYChatHandler chat];
 }
 
-//存储App Client信息
-
-- (void)saveinfo {
-    
-//    [self.sendHandler chat];
+- (void)notify {
     
     [self.chatNotifyHandler onNotify];
+}
+
+- (void)send {
+    
+    [self.sendHandler chat];
 }
 
 #pragma mark - getters and setters
