@@ -28,6 +28,8 @@
 @property (nonatomic, strong) RYChatHandler *readChatHandler;
 @property (nonatomic, strong) RYChatHandler *clientInfoChatHandler;
 
+@property (nonatomic, strong) RYChatHandler *sendHandler;
+
 @property (nonatomic, strong) ConnectToServer *connectToSever;
 
 - (IBAction)disconnect:(id)sender;
@@ -184,7 +186,9 @@
 
 - (void)saveinfo {
     
-    [self.clientInfoChatHandler chat];
+//    [self.clientInfoChatHandler chat];
+    
+    [self.sendHandler chat];
     
 }
 
@@ -195,8 +199,8 @@
         _loginAPICmd = [[LoginAPICmd alloc] init];
         _loginAPICmd.delegate = self;
         _loginAPICmd.path = @"API/User/OnLogon";
-        _loginAPICmd.reformParams = [NSDictionary dictionaryWithObjectsAndKeys:@"11111111121", @"userName",
-                                     @"11111a", @"password",
+        _loginAPICmd.reformParams = [NSDictionary dictionaryWithObjectsAndKeys:@"18601793005", @"userName",
+                                     @"11", @"password",
                                      nil];
     }
     return _loginAPICmd;
@@ -228,6 +232,16 @@
                                               @"deviceToken":@"f4a52dbda1af30249c27421214468d24bfdacbea16298f4cd2da35a3929daad5"};
     }
     return _clientInfoChatHandler;
+}
+
+- (RYChatHandler *)sendHandler {
+    if (!_sendHandler) {
+        _sendHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _sendHandler.chatServerType = RouteChatTypeSend;
+        _clientInfoChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+                                              @"content":@"hello ---- you"};
+    }
+    return _sendHandler;
 }
 
 @end
