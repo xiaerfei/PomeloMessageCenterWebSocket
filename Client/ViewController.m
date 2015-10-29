@@ -171,7 +171,7 @@
             
         }
         
-<<<<<<< HEAD
+
     } else if (chatHandler.chatServerType == RouteChatTypeGetGroupInfo) {
         
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
@@ -195,11 +195,8 @@
             NSLog(@"%@",data);
             
         }
-        
-=======
     }else if (chatHandler.chatServerType == RouteChatTypeSend) {
         NSLog(@"%@",data);
->>>>>>> e0faffa4a2325517045825ad6492493aa6dd9865
     }
 
     
@@ -280,11 +277,7 @@
         _loginAPICmd = [[LoginAPICmd alloc] init];
         _loginAPICmd.delegate = self;
         _loginAPICmd.path = @"API/User/OnLogon";
-<<<<<<< HEAD
         _loginAPICmd.reformParams = [NSDictionary dictionaryWithObjectsAndKeys:@"15021503868", @"userName",
-=======
-        _loginAPICmd.reformParams = [NSDictionary dictionaryWithObjectsAndKeys:@"18601793005", @"userName",
->>>>>>> e0faffa4a2325517045825ad6492493aa6dd9865
                                      @"11", @"password",
                                      nil];
     }
@@ -348,8 +341,6 @@
     return _clientInfoChatHandler;
 }
 
-<<<<<<< HEAD
-=======
 - (RYChatHandler *)sendHandler {
     if (!_sendHandler) {
         _sendHandler = [[RYChatHandler alloc] initWithDelegate:self];
@@ -382,8 +373,5 @@
     }
     return _chatNotifyHandler;
 }
-
-
->>>>>>> e0faffa4a2325517045825ad6492493aa6dd9865
 
 @end
