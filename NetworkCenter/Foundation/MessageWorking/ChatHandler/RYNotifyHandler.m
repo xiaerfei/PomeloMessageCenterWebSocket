@@ -9,6 +9,7 @@
 #import "RYNotifyHandler.h"
 #import "PomeloClient.h"
 #import "RYChatAPIManager.h"
+#import "ConnectToServer.h"
 
 static RYNotifyHandler *shareHandler = nil;
 
@@ -31,7 +32,9 @@ static RYNotifyHandler *shareHandler = nil;
     
     __weak __typeof(self) weakSelf= self;
     
-    [self.client onRoute:[RYChatAPIManager notifyWithType:self.notifyType] withCallback:^(id arg) {
+    ConnectToServer *connectToServer = [ConnectToServer shareInstance];
+    
+    [connectToServer.chatClient onRoute:[RYChatAPIManager notifyWithType:self.notifyType] withCallback:^(id arg) {
         
         if ([weakSelf.delegate respondsToSelector:@selector(notifyCallBack:notifyHandler:)]) {
             [weakSelf.delegate notifyCallBack:arg notifyHandler:weakSelf];

@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RYChatAPIManager.h"
 
 @class PomeloClient;
 @class RYNotifyHandler;
@@ -19,7 +20,7 @@
 
 @interface RYNotifyHandler : NSObject
 
-@property (nonatomic, assign) NSInteger notifyType;
+@property (nonatomic, assign) NotifyType notifyType;
 @property (nonatomic, strong) PomeloClient *client;
 @property (nonatomic, weak) id <RYNotifyHandlerDelegate> delegate;
 
