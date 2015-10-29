@@ -66,8 +66,11 @@ static RYChatHandler *shareChatHandler = nil;
     }
     ConnectToServer *connectToServer = [ConnectToServer shareInstance];
     
+<<<<<<< HEAD
 
     
+=======
+>>>>>>> e0faffa4a2325517045825ad6492493aa6dd9865
     [connectToServer.chatClient requestWithRoute:[RYChatAPIManager routeWithType:self.chatServerType] andParams:self.parameters andCallback:^(id arg) {
         
         NSDictionary *connectorInitDict = (NSDictionary *)arg;

@@ -344,7 +344,7 @@
 }
 
 - (void)processPackage:(PomeloPackage *)package{
-    DEBUGLOG(@"processPackage");
+    //DEBUGLOG(@"processPackage");
     PackageType type = [[package objectForKey:@"type"] intValue];
     id body = [package objectForKey:@"body"];
     switch (type) {
@@ -684,7 +684,7 @@
 #pragma mark SRWebSocketDelegate
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message{
-    DEBUGLOG(@"webSocket receive data");
+    //DEBUGLOG(@"webSocket receive data");
     PomeloPackage *package = [PomeloProtocol packageDecode:message];
     [self processPackage:package];
 }

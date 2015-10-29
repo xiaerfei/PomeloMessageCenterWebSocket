@@ -12,8 +12,13 @@
 
 @property (nonatomic, copy) NSString *MsgMetadataId;       //主键
 @property (nonatomic, copy) NSString *UserId;
-@property (nonatomic, assign) NSInteger TargetType;          //个人/组
-@property (nonatomic, copy) NSString *MsgTo;               //消息发送目标Id
+@property (nonatomic, copy) NSString *GroupId;
+@property (nonatomic, copy) NSString *GroupName;
+@property (nonatomic, copy) NSString *Avatar;
+@property (nonatomic, copy) NSString *AvatarCache;
+@property (nonatomic, assign) NSInteger GroupType;
+@property (nonatomic, copy) NSString *CompanyName;
+@property (nonatomic, assign) NSInteger ApproveStatus;
 @property (nonatomic, copy) NSString *LastedReadMsgId;     //最后读取消息Id
 @property (nonatomic, copy) NSString *LastedReadTime;      //最后读取时间
 @property (nonatomic, copy) NSString *LastedMsgId;         //最新消息id
