@@ -29,10 +29,8 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
     MessageCenterDBManagerTypeUSER = 0,
     //消息表
     MessageCenterDBManagerTypeMESSAGE  = 1,
-    //消息表（本地消息发送时由于网络或者其他原因没有发送出时存放此表）
-    MessageCenterDBManagerTypeMESSAGE_NO_SEND = 2,
     //组表（类似聊天界面包含个人和组的表）
-    MessageCenterDBManagerTypeMETADATA = 3
+    MessageCenterDBManagerTypeMETADATA = 2
 };
 
 

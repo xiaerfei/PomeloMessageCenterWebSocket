@@ -154,11 +154,23 @@
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
             NSLog(@"发送客户信息成功");
-            
         }
         
     }else if (chatHandler.chatServerType == RouteChatTypeSend) {
         NSLog(@"%@",data);
+        
+        if (![[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+            
+            //如果code = 200发送成功则无需处理，在推送通知里也会存在发送过的消息，如果发送失败标记信息isSend = 0
+            
+            NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:chatHandler.parameters];
+            [tempDict setValue:@"0" forKey:@"isSend"];
+            [tempDict setValue:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"CreateTime"];
+            
+            [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
+            
+        }
+        
     }
     
 }
@@ -183,6 +195,14 @@
 //注册所有推送通知监听，获取需要的数据
 - (void)notifyAllCallBack:(id)callBackData notifyType:(NotifyType)notifyType {
     
+    //写入数据表UserMessage
+    
+    //设置该消息发送或者是获取到的
+    NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:callBackData];
+    [tempDict setValue:@"1" forKey:@"isSend"];
+    
+    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
+    
     NSLog(@" %d  %@ ",notifyType,callBackData);
     
 }
@@ -204,7 +224,7 @@
 
 - (IBAction)getGroupInfo:(id)sender {
     
-//    [self.getGroupInfoChatHandler chat];
+    [self.getGroupInfoChatHandler chat];
     
     [self.getGroupIdChatHandler chat];
 }
@@ -275,7 +295,7 @@
     if (!_getGroupInfoChatHandler) {
         _getGroupInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _getGroupInfoChatHandler.chatServerType = RouteChatTypeGetGroupInfo;
-        _getGroupInfoChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+        _getGroupInfoChatHandler.parameters = @{@"target":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
                                               @"userId":@"ea4184cc-f124-4952-a2a9-65f808e25f94"};
         
     }

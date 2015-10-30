@@ -54,11 +54,10 @@ static RYChatDBAPIManager *shareManager = nil;
     self.tablesName = @[@"User",@"UserMessage",@"UserMessage_noSend",@"MsgMetadata"];
     
     self.UserCols = @[@"UserId",@"PersonName",@"UserRole",@"Avatar",@"AvatarCache"];
-    self.UserMessageCols = @[@"UserMessageId",@"UserId",@"MessageId",@"GroupId",@"MsgContent",@"CreateTime"];
-    self.UserMessageNoSendCols = @[@"UserMessageId",@"UserId",@"MessageId",@"GroupId",@"MsgContent",@"CreateTime"];
+    self.UserMessageCols = @[@"UserMessageId",@"UserId",@"MessageId",@"GroupId",@"MsgContent",@"CreateTime",@"isSend"];
     self.MsgMetadataCols = @[@"MsgMetadataId",@"UserId",@"GroupId",@"GroupName",@"Avatar",@"AvatarCache",@"GroupType",@"CompanyName",@"ApproveStatus",@"LastedReadMsgId",@"LastedReadTime",@"LastedMsgId",@"LastedMsgSenderName",@"LastedMsgTime",@"LastedMsgContent",@"UnReadMsgCount",@"CreateTime"];
     
-    self.integerArr = @[@"GroupType",@"GroupType",@"UnReadMsgCount"];
+    self.integerArr = @[@"GroupType",@"GroupType",@"UnReadMsgCount",@"isSend"];
     self.textArr    = @[@"MsgContent",@"LastedMsgContent"];
     
 }
@@ -83,25 +82,27 @@ static RYChatDBAPIManager *shareManager = nil;
     return [self getSQLPartStrWithType:SQLTypeUpdate DBType:type key:(NSString *)keyStr];
 }
 
+- (NSString *)selectTableSQLWithTableType:(MessageCenterDBManagerType)type key:(NSString *)keyStr {
+    
+    return [self getSQLPartStrWithType:SQLTypeSelect DBType:type key:keyStr];
+    
+}
+
 - (NSString *)getSQLPartStrWithType:(SQLType)type DBType:(MessageCenterDBManagerType)DBType key:(NSString *)keyStr{
     
     NSString *commonSQL = @"";
     
     switch (DBType) {
         case MessageCenterDBManagerTypeUSER:{
-            commonSQL = [self getColStrWithArr:self.UserCols type:type DBType:DBType key:@"UserId"];
+            commonSQL = [self getColStrWithArr:self.UserCols type:type DBType:DBType key:keyStr];
         }
             break;
         case MessageCenterDBManagerTypeMESSAGE:{
-            commonSQL = [self getColStrWithArr:self.UserMessageCols type:type DBType:DBType key:@"MessageId"];
-        }
-            break;
-        case MessageCenterDBManagerTypeMESSAGE_NO_SEND:{
-            commonSQL = [self getColStrWithArr:self.UserMessageNoSendCols type:type DBType:DBType key:@"MessageId"];
+            commonSQL = [self getColStrWithArr:self.UserMessageCols type:type DBType:DBType key:keyStr];
         }
             break;
         case MessageCenterDBManagerTypeMETADATA:{
-            commonSQL = [self getColStrWithArr:self.MsgMetadataCols type:type DBType:DBType key:@"MsgMetadataId"];
+            commonSQL = [self getColStrWithArr:self.MsgMetadataCols type:type DBType:DBType key:keyStr];
         }
             break;
         default:
@@ -156,9 +157,6 @@ static RYChatDBAPIManager *shareManager = nil;
                 case MessageCenterDBManagerTypeMESSAGE:
                     tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE]];
                     break;
-                case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
-                    tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE_NO_SEND]];
-                    break;
                 case MessageCenterDBManagerTypeMETADATA:
                     tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMETADATA]];
                     break;
@@ -202,9 +200,6 @@ static RYChatDBAPIManager *shareManager = nil;
                 case MessageCenterDBManagerTypeMESSAGE:
                     tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE]];
                     break;
-                case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
-                    tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE_NO_SEND]];
-                    break;
                 case MessageCenterDBManagerTypeMETADATA:
                     tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMETADATA]];
                     break;
@@ -229,6 +224,31 @@ static RYChatDBAPIManager *shareManager = nil;
             [backUpdateStr appendString:@"'%@'"];
             
             [tempStr appendFormat:@"%@%@",foreUpdateStr,backUpdateStr];
+            
+        }
+            break;
+        case SQLTypeSelect:{
+            
+            tempStr = [[NSMutableString alloc] initWithString:@"select * from "];
+            
+            switch (DBType) {
+                case MessageCenterDBManagerTypeUSER:
+                    tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeUSER]];
+                    break;
+                case MessageCenterDBManagerTypeMESSAGE:
+                    tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE]];
+                    break;
+                case MessageCenterDBManagerTypeMETADATA:
+                    tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMETADATA]];
+                    break;
+                default:
+                    break;
+            }
+            
+            NSMutableString *backSelectStr = [[NSMutableString alloc] initWithFormat:@" where %@ = ",keyStr];
+            [backSelectStr appendString:@"'%@'"];
+            
+            [tempStr appendString:backSelectStr];
             
         }
             break;
