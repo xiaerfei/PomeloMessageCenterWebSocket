@@ -8,19 +8,29 @@
 
 #import <Foundation/Foundation.h>
 
+/*
+ 
+ 聊天本地处理过程：
+ 1、在组列表界面接受服务器推送通知（onGroupMsgList），更新列表（列表数据推送延迟，如果此时有新的聊天，无论是组还是单对单聊天（其实都是组），都需要在原本列表中添加新的聊天（即新的组更新Metadata表中数据，包括组名字、头像、等等，同时更新UserMessage表））
+ 2、根据推送过来的组ID获取有关组和组员信息（getGroupInfo），同时更新消息列表UserMessage和消息表Metadata，获取组员信息之后更新User表
+ 3、消息组内消息显示时，需要关联消息列表UserMessage和用户信息表User，获取每条信息对应的信息
+ 4、本地存储收到最后消息的信息，当取得列表时获取的信息ID比记录的本地最后消息‘新’，说明有新的消息（作用之一是列表中显示未读消息），当读取消息之后需要设置消息已读，将最后读取消息ID上传服务器
+ 5、单对单相当于组，在向单个用户发送消息前，需要获取发送消息的组，然后获取组信息（同1）
+ 6、置顶、消息免打扰相对简单
+ 
+ */
+
 
 /**
  *  表类型
  */
 typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
     //用户表
-    MessageCenterDBManagerTypeUSER,
+    MessageCenterDBManagerTypeUSER = 0,
     //消息表
-    MessageCenterDBManagerTypeMESSAGE,
-    //消息表（本地消息发送时由于网络或者其他原因没有发送出时存放此表）
-    MessageCenterDBManagerTypeMESSAGE_NO_SEND,
+    MessageCenterDBManagerTypeMESSAGE  = 1,
     //组表（类似聊天界面包含个人和组的表）
-    MessageCenterDBManagerTypeMETADATA
+    MessageCenterDBManagerTypeMETADATA = 2
 };
 
 

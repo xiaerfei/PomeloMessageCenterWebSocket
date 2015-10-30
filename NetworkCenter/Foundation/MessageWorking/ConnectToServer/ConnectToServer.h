@@ -18,6 +18,10 @@
 
 - (void)connectToServerDisconnectSuccessWithData:(id)data;
 
+//与服务器断开连接
+@required
+- (void)pomeloDisconnect:(PomeloClient *)pomelo withError:(NSError *)error;
+
 @end
 
 @interface ConnectToServer : NSObject

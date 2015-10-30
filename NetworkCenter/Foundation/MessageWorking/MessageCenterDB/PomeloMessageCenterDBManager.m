@@ -11,10 +11,12 @@
 #import "MessageCenterUserModel.h"
 #import "MessageCenterMessageModel.h"
 #import "MessageCenterMetadataModel.h"
+#import "RYChatDBAPIManager.h"
 
 @interface PomeloMessageCenterDBManager ()
 
 @property (nonatomic, strong) RYDataBaseStore *dataBaseStore;
+@property (nonatomic, strong) RYChatDBAPIManager *DBAPIManager;
 
 @end
 
@@ -32,7 +34,9 @@
 
 - (instancetype)init {
     if (self = [super init]) {
+        _DBAPIManager = [RYChatDBAPIManager shareManager];
         [self createTables];
+        
     }
     return self;
 }
@@ -44,62 +48,23 @@
 //数据库初始化
 - (void)createTables {
     
-    _dataBaseStore = [[RYDataBaseStore alloc] initDBWithName:@"messageCenter.db"];
+    _dataBaseStore = [[RYDataBaseStore alloc] initDBWithName:[_DBAPIManager dbName]];
     
     
     //➢ 用户信息表(User)
-    [_dataBaseStore createTableWithName:@"User" sqlString:
-     @"(UID integer PRIMARY KEY autoincrement,"
-     "UserId  varchar(100),"
-     "PersonName varchar(100),"
-     "UserRole varchar(100),"
-     "Avatar  varchar(100),"
-     "AvatarCache  varchar(100));"
+    [_dataBaseStore createTableWithName:[_DBAPIManager tableNameWithTableType:MessageCenterDBManagerTypeUSER] sqlString:
+     [_DBAPIManager createTableSQLWithTableType:MessageCenterDBManagerTypeUSER]
      ];
     
     //➢	消息列表(Message)
     
-    [_dataBaseStore createTableWithName:@"UserMessage" sqlString:
-     @"(MID integer PRIMARY KEY autoincrement,"
-     "UserMessageId varchar(100),"
-     "UserId        varchar(100),"
-     "MessageId     varchar(100),"
-     "GroupId       varchar(30),"
-     "MsgContent    varchar(100),"
-     "CreateTime    varchar(100));"];
-    
-    //➢	消息列表(Message 未发送)
-    
-    [_dataBaseStore createTableWithName:@"UserMessage_noSend" sqlString:
-     @"(MID integer PRIMARY KEY autoincrement,"
-     "UserMessageId varchar(100),"
-     "UserId        varchar(100),"
-     "MessageId     varchar(100),"
-     "GroupId       varchar(30),"
-     "MsgContent    varchar(100),"
-     "CreateTime    varchar(100));"];
+    [_dataBaseStore createTableWithName:[_DBAPIManager tableNameWithTableType:MessageCenterDBManagerTypeMESSAGE] sqlString:
+     [_DBAPIManager createTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE]];
     
     //➢	消息Metadata(MsgMetadata)
     
-    [_dataBaseStore createTableWithName:@"MsgMetadata" sqlString:
-     @"(MTID integer PRIMARY KEY autoincrement,"
-     "MsgMetadataId    varchar(100),"
-     "UserId           varchar(100),"
-     "GroupId          varchar(100),"
-     "GroupName        varchar(100),"
-     "Avatar           varchar(100),"
-     "AvatarCache      varchar(100),"
-     "GroupType        integer,"
-     "CompanyName      varchar(100),"
-     "ApproveStatus    integer,"
-     "LastedReadMsgId  varchar(100),"
-     "LastedReadTime   varchar(30),"
-     "LastedMsgId      varchar(100),"
-     "LastedMsgSenderName varchar(100),"
-     "LastedMsgTime    varchar(100),"
-     "LastedMsgContent TEXT,"
-     "UnReadMsgCount   integer,"
-     "CreateTime       varchar(100));"];
+    [_dataBaseStore createTableWithName:[_DBAPIManager tableNameWithTableType:MessageCenterDBManagerTypeMETADATA] sqlString:
+     [_DBAPIManager createTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA]];
     
 }
 
@@ -109,16 +74,13 @@
     
     switch (tableType) {
         case MessageCenterDBManagerTypeUSER:
-            SQLStr = @"insert into User (UserId, PersonName, UserRole ,Avatar, AvatarCache) values (?,?,?,?,?);";
+            SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeUSER];
             break;
         case MessageCenterDBManagerTypeMESSAGE:
-            SQLStr = @"insert into UserMessage (UserMessageId, UserId, MessageId,GroupId,MsgContent,CreateTime) values (?,?,?,?,?,?);";
-            break;
-        case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
-            SQLStr = @"insert into UserMessage_noSend (UserMessageId, UserId, MessageId,GroupId,MsgContent,CreateTime) values (?,?,?,?,?,?);";
+            SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE];
             break;
         case MessageCenterDBManagerTypeMETADATA:
-            SQLStr = @"insert into MsgMetadata (MsgMetadataId, UserId, GroupId,GroupName,Avatar,AvatarCache,GroupType,CompanyName,ApproveStatus,LastedReadMsgId,LastedReadTime,LastedMsgId,LastedMsgSenderName,LastedMsgTime,LastedMsgContent,UnReadMsgCount,CreateTime) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+            SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA];
             break;
         default:
             break;
@@ -148,7 +110,7 @@
             
             markID = messageCenterUserModel.UserId;
             
-        }else if (tableType == MessageCenterDBManagerTypeMESSAGE || tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND){
+        }else if (tableType == MessageCenterDBManagerTypeMESSAGE){
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
             [messageCenterMessageModel setValuesForKeysWithDictionary:datas[i]];
@@ -183,7 +145,7 @@
                  messageCenterUserModel.Avatar,
                  messageCenterUserModel.AvatarCache];
                 
-            }else if (tableType == MessageCenterDBManagerTypeMESSAGE || tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND) {
+            }else if (tableType == MessageCenterDBManagerTypeMESSAGE) {
                 
                 MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
                 [messageCenterMessageModel setValuesForKeysWithDictionary:datas[i]];
@@ -194,7 +156,8 @@
                  messageCenterMessageModel.MessageId,
                  messageCenterMessageModel.GroupId,
                  messageCenterMessageModel.MsgContent,
-                 messageCenterMessageModel.CreateTime];
+                 messageCenterMessageModel.CreateTime,
+                 messageCenterMessageModel.isSend];
                 
             }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
                 
@@ -255,15 +218,11 @@
     NSString       *SQLStr      = nil;
     
     
-    if (tableType == MessageCenterDBManagerTypeMESSAGE || tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND) {
+    if (tableType == MessageCenterDBManagerTypeMESSAGE) {
         
         //群组取出消息(根据groupid或者targetid查找消息，然后根据消息查找对应用户（获取用户信息）)
         
-        SQLStr = [NSString stringWithFormat:@"select * from UserMessage where Target = '%@' join User on UserMessage.UserId = User.UserId",markID];
-        
-        if (tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND) {
-            SQLStr = [NSString stringWithFormat:@"select * from UserMessage_noSend join User on UserMessage_noSend.UserId = User.UserId where Target = '%@'",markID];
-        }
+        SQLStr = [NSString stringWithFormat:@"select * from UserMessage join User on UserMessage.UserId = User.UserId where MessageId = '%@'",markID];
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
@@ -274,6 +233,7 @@
             messageCenterMessageModel.MessageId  = [set stringForColumn:@"MessageId"];
             messageCenterMessageModel.MsgContent = [set stringForColumn:@"MsgContent"];
             messageCenterMessageModel.CreateTime = [set stringForColumn:@"CreateTime"];
+            messageCenterMessageModel.isSend     = [set stringForColumn:@"isSend"];
             messageCenterMessageModel.PersonName   = [set stringForColumn:@"PersonName"];
             messageCenterMessageModel.Avatar       = [set stringForColumn:@"Avatar"];
             
@@ -351,37 +311,22 @@
         NSDictionary *tempDict = datas[i];
         
         //更新
-        if (tableType == MessageCenterDBManagerTypeMESSAGE || tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND) {
+        if (tableType == MessageCenterDBManagerTypeMESSAGE) {
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
             [messageCenterMessageModel setValuesForKeysWithDictionary:tempDict];
             
-            //UserMessageId, UserId, MessageId,GroupId,MsgContent,CreateTime
-            
-            if (tableType == MessageCenterDBManagerTypeMESSAGE) {
-                
-                SQLStr = [NSString stringWithFormat:
-                          @"(update UserMessage "
-                          "set UserMessageId = ?,UserId = ?,"
-                          "GroupId = ?,MsgContent = ?,"
-                          "CreateTime = ? where MessageId = '%@');",markID];
-                
-            }else{
-                
-                SQLStr = [NSString stringWithFormat:
-                          @"(update UserMessage_noSend "
-                          "set UserMessageId = ?,UserId = ?,"
-                          "MessageId = ?,"
-                          "GroupId = ?,MsgContent = ?,"
-                          "CreateTime = ? where MessageId = '%@');",markID];
-            }
+            SQLStr = [NSString stringWithFormat:
+                      [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE key:@"MessageId"],markID];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
              messageCenterMessageModel.UserMessageId,
              messageCenterMessageModel.UserId,
+             messageCenterMessageModel.MessageId,
              messageCenterMessageModel.GroupId,
              messageCenterMessageModel.MsgContent,
-             messageCenterMessageModel.CreateTime
+             messageCenterMessageModel.CreateTime,
+             messageCenterMessageModel.isSend
              ];
             
             
@@ -390,9 +335,11 @@
             MessageCenterUserModel *messageCenterUserModel = [[MessageCenterUserModel alloc] init];
             [messageCenterUserModel setValuesForKeysWithDictionary:tempDict];
             
-            SQLStr = [NSString stringWithFormat:@"UPDATE USER SET PersonName = ?,UserRole = ?,Avatar = ?,AvatarCache = ? WHERE UserId = '%@'",markID];
+            
+            SQLStr = [NSString stringWithFormat:[_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeUSER key:@"UserId"],markID];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
+             messageCenterUserModel.UserId,
              messageCenterUserModel.PersonName,
              messageCenterUserModel.UserRole,
              messageCenterUserModel.Avatar,
@@ -403,21 +350,11 @@
             MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
             [messageCenterMetadataModel setValuesForKeysWithDictionary:tempDict];
             
-            //MsgMetadataId, UserId, GroupId,GroupName,Avatar,AvatarCache,GroupType,CompanyName,ApproveStatus,LastedReadMsgId,LastedReadTime,LastedMsgId,LastedMsgSenderName,LastedMsgTime,LastedMsgContent,UnReadMsgCount,CreateTime
-            
             SQLStr = [NSString stringWithFormat:
-                      @"(update MsgMetadata "
-                      "set UserId = ?,GroupId = ?,"
-                      "GroupName = ?,Avatar = ?,"
-                      "AvatarCache = ?,GroupType = ?,"
-                      "CompanyName = ?,ApproveStatus = ?,"
-                      "LastedReadMsgId = ?,"
-                      "LastedReadTime = ?,LastedMsgId = ?,"
-                      "LastedMsgSenderName = ?,LastedMsgTime = ?,"
-                      "LastedMsgContent = ?,UnReadMsgCount = ?,"
-                      "CreateTime = ? where MsgMetadataId = '%@');",markID];
+                      [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA key:@"MsgMetadataId"],markID];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
+             messageCenterMetadataModel.MsgMetadataId,
              messageCenterMetadataModel.UserId,
              messageCenterMetadataModel.GroupId,
              messageCenterMetadataModel.GroupName,
@@ -454,24 +391,17 @@
     
     __block int exist = 0;
     
-    if (tableType == MessageCenterDBManagerTypeMESSAGE || tableType == MessageCenterDBManagerTypeMESSAGE_NO_SEND) {
+    if (tableType == MessageCenterDBManagerTypeMESSAGE) {
         
-        if (tableType == MessageCenterDBManagerTypeMESSAGE) {
-            
-            SQLStr = [NSString stringWithFormat:@"select * from UserMessage where MessageId = '%@'",markID];
-            
-        }else{
-            
-            SQLStr = [NSString stringWithFormat:@"select * from UserMessage_noSend where MessageId = '%@'",markID];
-        }
+        SQLStr = [NSString stringWithFormat:[_DBAPIManager selectTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE key:@"MessageId"],markID];
         
     }else if (tableType == MessageCenterDBManagerTypeUSER) {
         
-        SQLStr = [NSString stringWithFormat:@"select * from User where UserId = '%@'",markID];
+        SQLStr = [NSString stringWithFormat:[_DBAPIManager selectTableSQLWithTableType:MessageCenterDBManagerTypeUSER key:@"UserId"],markID];
         
     }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
-        SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata where MsgMetadataId = '%@'",markID];
+        SQLStr = [NSString stringWithFormat:[_DBAPIManager selectTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA key:@"MsgMetadataId"],markID];
         
     }
     
@@ -506,16 +436,6 @@
  */
 - (void)storeMessageInfoWithDatas:(NSArray *)messageDatas {
     [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:messageDatas];
-}
-
-/**
- *
- *  未发送消息数据存储
- *
- */
-
-- (void)storeMessageNoSendInfoWithDatas:(NSArray *)messageDatas {
-    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE_NO_SEND data:messageDatas];
 }
 
 /**

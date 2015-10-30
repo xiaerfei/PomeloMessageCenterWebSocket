@@ -15,6 +15,7 @@
 @protocol RYNotifyHandlerDelegate <NSObject>
 @optional
 - (void)notifyCallBack:(id)callBackData notifyHandler:(RYNotifyHandler *)notifyHandler;
+- (void)notifyAllCallBack:(id)callBackData notifyType:(NotifyType)notifyType;
 
 @end
 
@@ -25,6 +26,7 @@
 @property (nonatomic, weak) id <RYNotifyHandlerDelegate> delegate;
 
 - (void)onNotify;
+- (void)onAllNotify;
 - (void)offNotify;
 - (void)offAllNotify;
 
