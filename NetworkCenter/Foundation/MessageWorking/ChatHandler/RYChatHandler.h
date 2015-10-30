@@ -20,9 +20,9 @@
 @protocol RYChatHandlerDelegate <NSObject>
 
 @required
-- (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data;
+- (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data  requestId:(NSInteger)requestId;
 @required
-- (void)connectToChatFailure:(RYChatHandler *)chatHandler result:(id)error;
+- (void)connectToChatFailure:(RYChatHandler *)chatHandler result:(id)error  requestId:(NSInteger)requestId;
 
 @end
 
@@ -45,6 +45,6 @@
 - (instancetype)initWithDelegate:(id)delegate;
 
 //开始聊天
-- (void)chat;
+- (NSInteger)chat;
 
 @end

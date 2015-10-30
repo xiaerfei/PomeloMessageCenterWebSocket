@@ -28,13 +28,16 @@
 //服务器连接及获取数据
 @property (nonatomic, strong) RYChatHandler *RYChatHandler;
 @property (nonatomic, strong) RYChatHandler *clientInfoChatHandler;
+@property (nonatomic, strong) RYChatHandler *getGroupIdChatHandler;
+@property (nonatomic, strong) RYChatHandler *groupInfoChatHandler;
+
+@property (nonatomic, strong) RYChatHandler *sendChatHandler;
 
 @property (nonatomic, strong) RYChatHandler *sendHandler;
 @property (nonatomic, strong) RYChatHandler *readChatHandler;
 @property (nonatomic, strong) RYChatHandler *getMessageChatHandler;
 
 @property (nonatomic, strong) RYChatHandler *getGroupInfoChatHandler;
-@property (nonatomic, strong) RYChatHandler *getGroupIdChatHandler;
 
 //推送消息
 //设置推送监听，并根据类型进行操作
@@ -45,6 +48,9 @@
 @property (nonatomic, strong) ConnectToServer *connectToSever;
 
 - (IBAction)disconnect:(id)sender;
+@property (weak, nonatomic) IBOutlet UITextField *textField;
+- (IBAction)sendData:(id)sender;
+- (IBAction)readData:(id)sender;
 
 @end
 
@@ -56,6 +62,10 @@
 {
     [super viewDidLoad];
     
+    NSLog(@"%@",NSHomeDirectory());
+    
+//    [self configUI];
+
     [self configData];
 }
 
@@ -128,7 +138,7 @@
 
 #pragma mark RYChatHandlerDelegate
 
-- (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data {
+- (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data requestId:(NSInteger)requestId{
     
     if (chatHandler.chatServerType == RouteConnectorTypeInit) {
         
@@ -138,16 +148,16 @@
             
             NSDictionary *userInfos = data[@"userInfo"];
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
+            [self.chatNotifyHandler onNotify];
             
             //连接服务器成功之后提交App Client信息
             [self.clientInfoChatHandler chat];
             
             //连接服务器成功之后注册所有通知
             [self.onAllNotifyHandler onAllNotify];
-            
         }
         
-    }else if (chatHandler.chatServerType == RouteChatTypeWriteClientInfo) {
+    } else if (chatHandler.chatServerType == RouteChatTypeWriteClientInfo) {
         
         NSLog(@"WriteClientInfo = %@",data);
         
@@ -156,7 +166,24 @@
             NSLog(@"发送客户信息成功");
         }
         
-    }else if (chatHandler.chatServerType == RouteChatTypeSend) {
+
+    } else if (chatHandler.chatServerType == RouteChatTypeGetGroupInfo) {
+        
+        if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+            
+            NSLog(@"%@",data);
+            
+        }
+        
+    } else if (chatHandler.chatServerType == RouteChatTypeGetGroupId) {
+        
+        if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+            
+            NSLog(@"%@",data);
+            
+        }
+        
+    } else if (chatHandler.chatServerType == RouteChatTypeSend) {
         NSLog(@"%@",data);
         
         if (![[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
@@ -170,9 +197,7 @@
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
             
         }
-        
     }
-    
 }
 
 - (void)connectToChatFailure:(RYChatHandler *)chatHandler result:(id)error {
@@ -235,7 +260,40 @@
     [self.getGroupIdChatHandler chat];
 }
 
+- (IBAction)sendData:(id)sender {
+    self.sendChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+                                                      @"content":self.textField.text};
+    [self.sendChatHandler chat];
+    
+}
+
+- (IBAction)readData:(id)sender {
+    [self.readChatHandler chat];
+}
+
+
 #pragma mark - getters and setters
+
+/**
+ *   @author xiaerfei, 15-10-29 13:10:28
+ *
+ *   18601793005    rongyu100   bbd75913-edcd-49c0-bcb9-d9a30138e86b
+     100200300	    代理商       234d4bba-aced-4251-8a4f-fafcb6afbce6
+     13122258882	客户
+ 
+ 13918549186	 	3
+ 13604049697	 	3
+ 13817658400	 	2
+ 15021503868	 	1
+ 18601793005	 	1
+ 
+ 
+ *
+ *   @return
+ 
+ 11111111121  11111a
+ 
+ */
 
 - (LoginAPICmd *)loginAPICmd {
     if (!_loginAPICmd) {
@@ -266,6 +324,36 @@
     return _readChatHandler;
 }
 
+- (RYChatHandler *)groupInfoChatHandler {
+    if (!_groupInfoChatHandler) {
+        _groupInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _groupInfoChatHandler.chatServerType = RouteChatTypeGetGroupInfo;
+        _groupInfoChatHandler.parameters = @{@"target":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904"};
+        
+    }
+    return _groupInfoChatHandler;
+}
+
+- (RYChatHandler *)sendChatHandler {
+    if (!_sendChatHandler) {
+        _sendChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _sendChatHandler.chatServerType = RouteChatTypeSend;
+        _sendChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+                                        @"content":@"你好啊！小朋友"};
+        
+    }
+    return _sendChatHandler;
+}
+
+- (RYChatHandler *)getGroupIdChatHandler {
+    if (!_getGroupIdChatHandler) {
+        _getGroupIdChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _getGroupIdChatHandler.chatServerType = RouteChatTypeGetGroupId;
+        _getGroupIdChatHandler.parameters = @{@"targetUserId":@"43aa53b1-32aa-4d39-a86b-137cc190cb19"};
+        
+    }
+    return _getGroupIdChatHandler;
+}
 - (RYChatHandler *)clientInfoChatHandler {
     if (!_clientInfoChatHandler) {
         _clientInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
@@ -308,16 +396,6 @@
     return _getGroupInfoChatHandler;
 }
 
-- (RYChatHandler *)getGroupIdChatHandler {
-    
-    if (!_getGroupIdChatHandler) {
-        _getGroupIdChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
-        _getGroupIdChatHandler.chatServerType = RouteChatTypeGetGroupId;
-        _getGroupIdChatHandler.parameters = @{@"targetUserId":@"ea4184cc-f124-4952-a2a9-65f808e25f94"};
-    }
-    return _getGroupIdChatHandler;
-}
-
 /*--------------------------------------消息推送--------------------------------------*/
 
 - (RYNotifyHandler *)onAllNotifyHandler {
@@ -337,6 +415,7 @@
     }
     return _chatNotifyHandler;
 }
+
 
 - (RYNotifyHandler *)onGroupMsgListNotifyHandler {
     if (!_onGroupMsgListNotifyHandler) {

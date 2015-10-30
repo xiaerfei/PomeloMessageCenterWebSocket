@@ -11,6 +11,8 @@
 #import "AFNetworking.h"
 #import "RYAPILogger.h"
 
+#define DEBUGLOGGER
+
 @interface RYAPIManager ()
 
 @property (nonatomic, strong) NSMutableDictionary *dispatchTable;
