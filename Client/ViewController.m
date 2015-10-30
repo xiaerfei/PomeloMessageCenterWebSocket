@@ -138,7 +138,7 @@
 
 #pragma mark RYChatHandlerDelegate
 
-- (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data {
+- (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data requestId:(NSInteger)requestId{
     
     if (chatHandler.chatServerType == RouteConnectorTypeInit) {
         
@@ -149,7 +149,6 @@
             NSDictionary *userInfos = data[@"userInfo"];
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
             [self.chatNotifyHandler onNotify];
-
             
             //连接服务器成功之后提交App Client信息
             [self.clientInfoChatHandler chat];

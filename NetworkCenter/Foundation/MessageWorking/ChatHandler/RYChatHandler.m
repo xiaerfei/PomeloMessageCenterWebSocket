@@ -22,6 +22,9 @@ static RYChatHandler *shareHandler = nil;
 
 @property (nonatomic, weak) id <RYChatHandlerDelegate> chatDelegate;
 
+
+@property (nonatomic, strong) NSNumber *recordedRequestId;
+
 //connector的host和port
 @property (nonatomic, copy) NSString *hostStr;
 @property (nonatomic, copy) NSString *portStr;
@@ -48,7 +51,7 @@ static RYChatHandler *shareChatHandler = nil;
 /*---------------------------------gate、connector、chat服务器交互------------------------------*/
 
 #pragma mark - public methods
-- (void)chat {
+- (NSInteger)chat {
     
     __block RYChatHandler *weakSelf= self;;
     
@@ -56,6 +59,8 @@ static RYChatHandler *shareChatHandler = nil;
         self.parameters = [RYChatAPIManager parametersWithType:NO];
     }
     ConnectToServer *connectToServer = [ConnectToServer shareInstance];
+    
+    NSNumber *chatNumber = [self generateRequestId];
     
     [connectToServer.chatClient requestWithRoute:[RYChatAPIManager routeWithType:self.chatServerType] andParams:self.parameters andCallback:^(id arg) {
         
@@ -72,22 +77,22 @@ static RYChatHandler *shareChatHandler = nil;
         
         if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
-            if ([weakSelf.chatDelegate respondsToSelector:@selector(connectToChatSuccess:result:)]) {
-                [weakSelf.chatDelegate connectToChatSuccess:weakSelf result:arg];
+            if ([weakSelf.chatDelegate respondsToSelector:@selector(connectToChatSuccess:result:requestId:)]) {
+                [weakSelf.chatDelegate connectToChatSuccess:weakSelf result:arg requestId:chatNumber.integerValue];
             }else{
                 NSAssert(0,@"connectToChatSuccess:result:-方法必须实现");
             }
             
         }else{
             
-            if ([weakSelf.chatDelegate respondsToSelector:@selector(connectToChatFailure:result:)]) {
-                [weakSelf.chatDelegate connectToChatFailure:weakSelf result:arg];
+            if ([weakSelf.chatDelegate respondsToSelector:@selector(connectToChatFailure:result:requestId:)]) {
+                [weakSelf.chatDelegate connectToChatFailure:weakSelf result:arg requestId:chatNumber.integerValue];
             }else{
                 NSAssert(0,@"connectToChatFailure:result:-方法必须实现");
             }
         }
     }];
-    
+    return chatNumber.integerValue;
 }
 
 
@@ -126,6 +131,27 @@ static RYChatHandler *shareChatHandler = nil;
         [userDatas addObject:messageCenterUserModel];
     }
     [[PomeloMessageCenterDBManager shareInstance] storeUserInfoWithDatas:userDatas];
+}
+
+/**
+ *   @author xiaerfei, 15-10-30 17:10:04
+ *
+ *   发送数据 生成的requestId
+ *
+ *   @return
+ */
+- (NSNumber *)generateRequestId
+{
+    if (_recordedRequestId == nil) {
+        _recordedRequestId = @(1);
+    } else {
+        if ([_recordedRequestId integerValue] == NSIntegerMax) {
+            _recordedRequestId = @(1);
+        } else {
+            _recordedRequestId = @([_recordedRequestId integerValue] + 1);
+        }
+    }
+    return _recordedRequestId;
 }
 
 #pragma mark - getters and setters
