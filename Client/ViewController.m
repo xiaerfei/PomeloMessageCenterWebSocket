@@ -38,7 +38,6 @@
 @property (nonatomic, strong) RYChatHandler *getMessageChatHandler;
 
 @property (nonatomic, strong) RYChatHandler *getGroupInfoChatHandler;
-@property (nonatomic, strong) RYChatHandler *getGroupIdChatHandler;
 
 //推送消息
 //设置推送监听，并根据类型进行操作
@@ -63,12 +62,10 @@
 {
     [super viewDidLoad];
     
-<<<<<<< HEAD
     NSLog(@"%@",NSHomeDirectory());
     
-    [self configUI];
-=======
->>>>>>> jingtao910429/master
+//    [self configUI];
+
     [self configData];
 }
 
@@ -151,20 +148,14 @@
             
             NSDictionary *userInfos = data[@"userInfo"];
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
-<<<<<<< HEAD
-            [self.groupInfoChatHandler chat];
             [self.chatNotifyHandler onNotify];
-//            [self.getGroupIdChatHandler chat];
-//            [self.sendChatHandler chat];
-=======
+
             
             //连接服务器成功之后提交App Client信息
             [self.clientInfoChatHandler chat];
             
             //连接服务器成功之后注册所有通知
             [self.onAllNotifyHandler onAllNotify];
-            
->>>>>>> jingtao910429/master
         }
         
     } else if (chatHandler.chatServerType == RouteChatTypeWriteClientInfo) {
@@ -176,7 +167,6 @@
             NSLog(@"发送客户信息成功");
         }
         
-<<<<<<< HEAD
 
     } else if (chatHandler.chatServerType == RouteChatTypeGetGroupInfo) {
         
@@ -195,14 +185,6 @@
         }
         
     } else if (chatHandler.chatServerType == RouteChatTypeSend) {
-        
-        if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
-            
-            NSLog(@"%@",data);
-            
-        }
-=======
-    }else if (chatHandler.chatServerType == RouteChatTypeSend) {
         NSLog(@"%@",data);
         
         if (![[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
@@ -216,11 +198,7 @@
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
             
         }
-        
->>>>>>> jingtao910429/master
     }
-
-    
 }
 
 - (void)connectToChatFailure:(RYChatHandler *)chatHandler result:(id)error {
@@ -419,16 +397,6 @@
     return _getGroupInfoChatHandler;
 }
 
-- (RYChatHandler *)getGroupIdChatHandler {
-    
-    if (!_getGroupIdChatHandler) {
-        _getGroupIdChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
-        _getGroupIdChatHandler.chatServerType = RouteChatTypeGetGroupId;
-        _getGroupIdChatHandler.parameters = @{@"targetUserId":@"ea4184cc-f124-4952-a2a9-65f808e25f94"};
-    }
-    return _getGroupIdChatHandler;
-}
-
 /*--------------------------------------消息推送--------------------------------------*/
 
 - (RYNotifyHandler *)onAllNotifyHandler {
@@ -449,8 +417,7 @@
     return _chatNotifyHandler;
 }
 
-<<<<<<< HEAD
-=======
+
 - (RYNotifyHandler *)onGroupMsgListNotifyHandler {
     if (!_onGroupMsgListNotifyHandler) {
         _onGroupMsgListNotifyHandler = [[RYNotifyHandler alloc] init];
@@ -461,5 +428,4 @@
     return _onGroupMsgListNotifyHandler;
 }
 
->>>>>>> jingtao910429/master
 @end
