@@ -55,6 +55,8 @@
 {
     [super viewDidLoad];
     
+    NSLog(@"%@",NSHomeDirectory());
+    
     [self configUI];
     [self configData];
 }
@@ -159,6 +161,7 @@
             NSDictionary *userInfos = data[@"userInfo"];
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
             [self.groupInfoChatHandler chat];
+            [self.chatNotifyHandler onNotify];
 //            [self.getGroupIdChatHandler chat];
 //            [self.sendChatHandler chat];
         }
@@ -195,8 +198,6 @@
             NSLog(@"%@",data);
             
         }
-    }else if (chatHandler.chatServerType == RouteChatTypeSend) {
-        NSLog(@"%@",data);
     }
 
     
@@ -277,7 +278,7 @@
         _loginAPICmd = [[LoginAPICmd alloc] init];
         _loginAPICmd.delegate = self;
         _loginAPICmd.path = @"API/User/OnLogon";
-        _loginAPICmd.reformParams = [NSDictionary dictionaryWithObjectsAndKeys:@"15021503868", @"userName",
+        _loginAPICmd.reformParams = [NSDictionary dictionaryWithObjectsAndKeys:@"18601793005", @"userName",
                                      @"11", @"password",
                                      nil];
     }
