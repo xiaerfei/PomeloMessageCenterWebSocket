@@ -9,7 +9,7 @@
 #import "ConnectToServer.h"
 #import "RYChatAPIManager.h"
 
-@interface ConnectToServer ()
+@interface ConnectToServer () <PomeloClientDelegate>
 
 @property (nonatomic, strong) PomeloClient *gateClient;
 
@@ -28,16 +28,6 @@
         _f = [[ConnectToServer alloc] init];
     });
     return _f;
-}
-
-
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-//        [self connectToSeverGate];
-    }
-    return self;
 }
 
 #pragma mark - public methods
@@ -117,7 +107,13 @@
     }
 }
 
+#pragma mark PomeloClientDelegate
 
+- (void)pomeloDisconnect:(PomeloClient *)pomelo withError:(NSError *)error {
+    if ([_delegate respondsToSelector:@selector(pomeloDisconnect:withError:)]) {
+        [_delegate pomeloDisconnect:pomelo withError:error];
+    }
+}
 
 
 @end

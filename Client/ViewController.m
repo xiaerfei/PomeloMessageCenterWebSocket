@@ -121,6 +121,10 @@
     NSLog(@"connectToServerDisconnectSuccess--->\n %@",data);
 }
 
+- (void)pomeloDisconnect:(PomeloClient *)pomelo withError:(NSError *)error {
+    
+}
+
 #pragma mark RYChatHandlerDelegate
 
 - (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data {
