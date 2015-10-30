@@ -34,8 +34,9 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        [self createTables];
         _DBAPIManager = [RYChatDBAPIManager shareManager];
+        [self createTables];
+        
     }
     return self;
 }
@@ -46,6 +47,8 @@
 
 //数据库初始化
 - (void)createTables {
+    
+    NSLog(@"dbName = %@",[_DBAPIManager dbName]);
     
     _dataBaseStore = [[RYDataBaseStore alloc] initDBWithName:[_DBAPIManager dbName]];
     

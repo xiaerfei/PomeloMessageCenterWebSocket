@@ -151,16 +151,16 @@ static RYChatDBAPIManager *shareManager = nil;
             
             switch (DBType) {
                 case MessageCenterDBManagerTypeUSER:
-                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeUSER]];
+                    tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeUSER]];
                     break;
                 case MessageCenterDBManagerTypeMESSAGE:
-                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE]];
+                    tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE]];
                     break;
                 case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
-                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE_NO_SEND]];
+                    tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE_NO_SEND]];
                     break;
                 case MessageCenterDBManagerTypeMETADATA:
-                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMETADATA]];
+                    tempStr = [[NSMutableString alloc] initWithFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMETADATA]];
                     break;
                 default:
                     break;
@@ -182,9 +182,9 @@ static RYChatDBAPIManager *shareManager = nil;
             for (int i = 0 ; i < colsArr.count ; i ++) {
                 
                 if (i != colsArr.count - 1) {
-                    [foreAddStr appendString:@"?,"];
+                    [backAddStr appendString:@"?,"];
                 }else{
-                    [foreAddStr appendString:@"?);"];
+                    [backAddStr appendString:@"?);"];
                 }
             }
             
