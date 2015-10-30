@@ -164,7 +164,7 @@
             //如果code = 200发送成功则无需处理，在推送通知里也会存在发送过的消息，如果发送失败标记信息isSend = 0
             
             NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:chatHandler.parameters];
-            [tempDict setValue:@"0" forKey:@"isSend"];
+            [tempDict setValue:@"NO" forKey:@"isSend"];
             [tempDict setValue:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"CreateTime"];
             
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
@@ -195,15 +195,21 @@
 //注册所有推送通知监听，获取需要的数据
 - (void)notifyAllCallBack:(id)callBackData notifyType:(NotifyType)notifyType {
     
+    NSLog(@" %d  %@ ",notifyType,callBackData);
+    
     //写入数据表UserMessage
     
     //设置该消息发送或者是获取到的
     NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:callBackData];
-    [tempDict setValue:@"1" forKey:@"isSend"];
+    [tempDict setValue:tempDict[@"_id"] forKey:@"MessageId"];
+    [tempDict setValue:tempDict[@"time"] forKey:@"CreateTime"];
+    [tempDict setValue:tempDict[@"from"] forKey:@"UserId"];
+    [tempDict setValue:tempDict[@"content"] forKey:@"MsgContent"];
+    [tempDict setValue:@"YES" forKey:@"isSend"];
     
     [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
     
-    NSLog(@" %d  %@ ",notifyType,callBackData);
+    
     
 }
 

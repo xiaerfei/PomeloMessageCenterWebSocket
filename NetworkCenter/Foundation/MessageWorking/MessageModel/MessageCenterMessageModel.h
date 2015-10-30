@@ -18,7 +18,7 @@
 @property (nonatomic, copy) NSString *CreateTime; //消息创建时间
 
 //表示该消息是否发送
-@property (nonatomic, assign) NSInteger isSend;
+@property (nonatomic, copy) NSString *isSend;
 
 //如果关联User表，需要记录UserId的其他信息，用于聊天列表显示
 @property (nonatomic, copy) NSString *PersonName;

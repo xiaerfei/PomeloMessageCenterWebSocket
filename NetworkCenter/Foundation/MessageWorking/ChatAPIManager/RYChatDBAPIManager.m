@@ -51,13 +51,13 @@ static RYChatDBAPIManager *shareManager = nil;
 - (void)initDatas {
     
     self.dbName = @"messageCenter.db";
-    self.tablesName = @[@"User",@"UserMessage",@"UserMessage_noSend",@"MsgMetadata"];
+    self.tablesName = @[@"User",@"UserMessage",@"MsgMetadata"];
     
     self.UserCols = @[@"UserId",@"PersonName",@"UserRole",@"Avatar",@"AvatarCache"];
     self.UserMessageCols = @[@"UserMessageId",@"UserId",@"MessageId",@"GroupId",@"MsgContent",@"CreateTime",@"isSend"];
     self.MsgMetadataCols = @[@"MsgMetadataId",@"UserId",@"GroupId",@"GroupName",@"Avatar",@"AvatarCache",@"GroupType",@"CompanyName",@"ApproveStatus",@"LastedReadMsgId",@"LastedReadTime",@"LastedMsgId",@"LastedMsgSenderName",@"LastedMsgTime",@"LastedMsgContent",@"UnReadMsgCount",@"CreateTime"];
     
-    self.integerArr = @[@"GroupType",@"GroupType",@"UnReadMsgCount",@"isSend"];
+    self.integerArr = @[@"GroupType",@"GroupType",@"UnReadMsgCount"];
     self.textArr    = @[@"MsgContent",@"LastedMsgContent"];
     
 }
@@ -229,7 +229,7 @@ static RYChatDBAPIManager *shareManager = nil;
             break;
         case SQLTypeSelect:{
             
-            tempStr = [[NSMutableString alloc] initWithString:@"select * from "];
+            tempStr = [[NSMutableString alloc] initWithString:@"select * from %@"];
             
             switch (DBType) {
                 case MessageCenterDBManagerTypeUSER:

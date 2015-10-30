@@ -233,7 +233,7 @@
             messageCenterMessageModel.MessageId  = [set stringForColumn:@"MessageId"];
             messageCenterMessageModel.MsgContent = [set stringForColumn:@"MsgContent"];
             messageCenterMessageModel.CreateTime = [set stringForColumn:@"CreateTime"];
-            messageCenterMessageModel.isSend     = [set intForColumn:@"isSend"];
+            messageCenterMessageModel.isSend     = [set stringForColumn:@"isSend"];
             messageCenterMessageModel.PersonName   = [set stringForColumn:@"PersonName"];
             messageCenterMessageModel.Avatar       = [set stringForColumn:@"Avatar"];
             
