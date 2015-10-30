@@ -58,10 +58,6 @@
     // Dispose of any resources that can be recreated.
 }
 
-/**
- *  (分区命名：方法名+method，eg:viewDidLoad methods)
- */
-
 #pragma mark viewDidLoad methods
 
 - (void)configData {

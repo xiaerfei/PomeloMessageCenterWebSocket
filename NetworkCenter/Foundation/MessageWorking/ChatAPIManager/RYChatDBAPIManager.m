@@ -20,6 +20,12 @@ static RYChatDBAPIManager *shareManager = nil;
 @property (nonatomic, copy) NSArray  *UserMessageNoSendCols;
 @property (nonatomic, copy) NSArray  *MsgMetadataCols;
 
+//需要integer的字段数组
+@property (nonatomic, copy) NSArray  *integerArr;
+//需要text的字段数组
+@property (nonatomic, copy) NSArray  *textArr;
+
+
 @end
 
 @implementation RYChatDBAPIManager
@@ -52,73 +58,195 @@ static RYChatDBAPIManager *shareManager = nil;
     self.UserMessageNoSendCols = @[@"UserMessageId",@"UserId",@"MessageId",@"GroupId",@"MsgContent",@"CreateTime"];
     self.MsgMetadataCols = @[@"MsgMetadataId",@"UserId",@"GroupId",@"GroupName",@"Avatar",@"AvatarCache",@"GroupType",@"CompanyName",@"ApproveStatus",@"LastedReadMsgId",@"LastedReadTime",@"LastedMsgId",@"LastedMsgSenderName",@"LastedMsgTime",@"LastedMsgContent",@"UnReadMsgCount",@"CreateTime"];
     
+    self.integerArr = @[@"GroupType",@"GroupType",@"UnReadMsgCount"];
+    self.textArr    = @[@"MsgContent",@"LastedMsgContent"];
+    
+}
+
+- (NSString *)tableNameWithTableType:(MessageCenterDBManagerType)type {
+    return self.tablesName[type];
 }
 
 - (NSString *)createTableSQLWithTableType:(MessageCenterDBManagerType)type {
     
-    NSString *SQLStr = nil;
-    
-    switch (type) {
-        case MessageCenterDBManagerTypeUSER:
-            break;
-        case MessageCenterDBManagerTypeMESSAGE:
-            break;
-        case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
-            break;
-        case MessageCenterDBManagerTypeMETADATA:
-            break;
-        default:
-            break;
-    }
-    
-    return nil;
+    return [self getSQLPartStrWithType:SQLTypeCreate DBType:type key:@""];
 }
 
 - (NSString *)addTableSQLWithTableType:(MessageCenterDBManagerType)type {
     
-    NSString *SQLStr = nil;
-    
-    switch (type) {
-        case MessageCenterDBManagerTypeUSER:
-            break;
-        case MessageCenterDBManagerTypeMESSAGE:
-            break;
-        case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
-            break;
-        case MessageCenterDBManagerTypeMETADATA:
-            break;
-        default:
-            break;
-    }
-    
-    return nil;
+    return [self getSQLPartStrWithType:SQLTypeAdd DBType:type key:@""];
 }
 
 
-- (NSString *)updateTableSQLWithTableType:(MessageCenterDBManagerType)type {
+- (NSString *)updateTableSQLWithTableType:(MessageCenterDBManagerType)type key:(NSString *)keyStr{
     
-    NSString *SQLStr = nil;
-    
-    switch (type) {
-        case MessageCenterDBManagerTypeUSER:
-            break;
-        case MessageCenterDBManagerTypeMESSAGE:
-            break;
-        case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
-            break;
-        case MessageCenterDBManagerTypeMETADATA:
-            break;
-        default:
-            break;
-    }
-    
-    return nil;
+    return [self getSQLPartStrWithType:SQLTypeUpdate DBType:type key:(NSString *)keyStr];
 }
 
-- (NSString *)getSQLPartStrWithType:(NSInteger)type {
+- (NSString *)getSQLPartStrWithType:(SQLType)type DBType:(MessageCenterDBManagerType)DBType key:(NSString *)keyStr{
+    
     NSString *commonSQL = @"";
+    
+    switch (DBType) {
+        case MessageCenterDBManagerTypeUSER:{
+            commonSQL = [self getColStrWithArr:self.UserCols type:type DBType:DBType key:@"UserId"];
+        }
+            break;
+        case MessageCenterDBManagerTypeMESSAGE:{
+            commonSQL = [self getColStrWithArr:self.UserMessageCols type:type DBType:DBType key:@"MessageId"];
+        }
+            break;
+        case MessageCenterDBManagerTypeMESSAGE_NO_SEND:{
+            commonSQL = [self getColStrWithArr:self.UserMessageNoSendCols type:type DBType:DBType key:@"MessageId"];
+        }
+            break;
+        case MessageCenterDBManagerTypeMETADATA:{
+            commonSQL = [self getColStrWithArr:self.MsgMetadataCols type:type DBType:DBType key:@"MsgMetadataId"];
+        }
+            break;
+        default:
+            break;
+    }
+    
     return commonSQL;
 }
 
+- (NSString *)getColStrWithArr:(NSArray *)colsArr type:(SQLType)type DBType:(MessageCenterDBManagerType)DBType  key:(NSString *)keyStr{
+    NSMutableString *tempStr = nil;
+    
+    switch (type) {
+        case SQLTypeCreate:{
+            
+            tempStr = [[NSMutableString alloc] initWithString:@"(MID integer PRIMARY KEY autoincrement,"];
+            
+            for (int i = 0; i < colsArr.count; i ++) {
+                
+                if (i != colsArr.count - 1) {
+                    
+                    if ([self containsKeyWithArray:self.integerArr key:colsArr[i]]) {
+                        [tempStr appendFormat:@"%@    integer,",colsArr[i]];
+                    }else if ([self containsKeyWithArray:self.textArr key:colsArr[i]]) {
+                        [tempStr appendFormat:@"%@    TEXT,",colsArr[i]];
+                    }else{
+                        [tempStr appendFormat:@"%@    varchar(100),",colsArr[i]];
+                    }
+                    
+                }else{
+                    
+                    if ([self containsKeyWithArray:self.integerArr key:colsArr[i]]) {
+                        [tempStr appendFormat:@"%@    integer);",colsArr[i]];
+                    }else if ([self containsKeyWithArray:self.textArr key:colsArr[i]]) {
+                        [tempStr appendFormat:@"%@    TEXT);",colsArr[i]];
+                    }else{
+                        [tempStr appendFormat:@"%@    varchar(100));",colsArr[i]];
+                    }
+                }
+            }
+            
+        }
+            break;
+        case SQLTypeAdd:{
+            
+            tempStr = [[NSMutableString alloc] initWithString:@"insert into %@ "];
+            
+            switch (DBType) {
+                case MessageCenterDBManagerTypeUSER:
+                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeUSER]];
+                    break;
+                case MessageCenterDBManagerTypeMESSAGE:
+                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE]];
+                    break;
+                case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
+                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE_NO_SEND]];
+                    break;
+                case MessageCenterDBManagerTypeMETADATA:
+                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMETADATA]];
+                    break;
+                default:
+                    break;
+            }
+            
+            NSMutableString *foreAddStr = [[NSMutableString alloc] initWithString:@" ("];
+            
+            for (int i = 0 ; i < colsArr.count ; i ++) {
+                
+                if (i != colsArr.count - 1) {
+                    [foreAddStr appendFormat:@"%@,",colsArr[i]];
+                }else{
+                    [foreAddStr appendFormat:@"%@) ",colsArr[i]];
+                }
+            }
+            
+            NSMutableString *backAddStr = [[NSMutableString alloc] initWithString:@" values ("];
+            
+            for (int i = 0 ; i < colsArr.count ; i ++) {
+                
+                if (i != colsArr.count - 1) {
+                    [foreAddStr appendString:@"?,"];
+                }else{
+                    [foreAddStr appendString:@"?);"];
+                }
+            }
+            
+            [tempStr appendFormat:@"%@%@",foreAddStr,backAddStr];
+        }
+            break;
+        case SQLTypeUpdate:{
+            
+            tempStr = [[NSMutableString alloc] initWithString:@"(update %@ "];
+            
+            switch (DBType) {
+                case MessageCenterDBManagerTypeUSER:
+                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeUSER]];
+                    break;
+                case MessageCenterDBManagerTypeMESSAGE:
+                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE]];
+                    break;
+                case MessageCenterDBManagerTypeMESSAGE_NO_SEND:
+                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMESSAGE_NO_SEND]];
+                    break;
+                case MessageCenterDBManagerTypeMETADATA:
+                    [tempStr appendFormat:tempStr,self.tablesName[MessageCenterDBManagerTypeMETADATA]];
+                    break;
+                default:
+                    break;
+            }
+            
+            NSMutableString *foreAddStr = [[NSMutableString alloc] initWithString:@" set "];
+            
+            for (int i = 0 ; i < colsArr.count ; i ++) {
+                
+                if (i != colsArr.count - 1) {
+                    [foreAddStr appendFormat:@"%@ = ?,",colsArr[i]];
+                }else{
+                    [foreAddStr appendFormat:@"%@ = ?",colsArr[i]];
+                }
+            }
+            
+            NSMutableString *backUpdateStr = [[NSMutableString alloc] initWithFormat:@" where %@ = ",keyStr];
+            
+            [backUpdateStr appendString:@"'%@');"];
+            
+            [tempStr appendString:backUpdateStr];
+            
+        }
+            break;
+        default:
+            break;
+    }
+    
+    return tempStr;
+}
+
+- (BOOL)containsKeyWithArray:(NSArray *)array key:(NSString *)key {
+    
+    for (NSString *subStr in array) {
+        if ([subStr isEqualToString:key]) {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
 
 @end
