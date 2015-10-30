@@ -25,6 +25,7 @@
 
 @property (nonatomic, strong) LoginAPICmd *loginAPICmd;
 
+//服务器连接及获取数据
 @property (nonatomic, strong) RYChatHandler *RYChatHandler;
 @property (nonatomic, strong) RYChatHandler *clientInfoChatHandler;
 
@@ -32,7 +33,13 @@
 @property (nonatomic, strong) RYChatHandler *readChatHandler;
 @property (nonatomic, strong) RYChatHandler *getMessageChatHandler;
 
+@property (nonatomic, strong) RYChatHandler *getGroupInfoChatHandler;
+
+//推送消息
+//设置推送监听，并根据类型进行操作
+@property (nonatomic, strong) RYNotifyHandler *onAllNotifyHandler;
 @property (nonatomic, strong) RYNotifyHandler *chatNotifyHandler;
+@property (nonatomic, strong) RYNotifyHandler *onGroupMsgListNotifyHandler;
 
 @property (nonatomic, strong) ConnectToServer *connectToSever;
 
@@ -48,7 +55,6 @@
 {
     [super viewDidLoad];
     
-    [self configUI];
     [self configData];
 }
 
@@ -65,37 +71,6 @@
     self.connectToSever.delegate = self;
     
     [self.loginAPICmd loadData];
-}
-
-- (void)configUI {
-    
-    UIButton *btn0 = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
-    btn0.backgroundColor = [UIColor redColor];
-    [btn0 setTitle:@"connect" forState:UIControlStateNormal];
-    [btn0 addTarget:self action:@selector(connect) forControlEvents:UIControlEventTouchUpInside];
-    
-    [self.view addSubview:btn0];
-    
-    UIButton *btn1 = [[UIButton alloc] initWithFrame:CGRectMake(50, 0, 100, 50)];
-    btn1.backgroundColor = [UIColor redColor];
-    [btn1 setTitle:@"initRoute" forState:UIControlStateNormal];
-    [btn1 addTarget:self action:@selector(initRoute) forControlEvents:UIControlEventTouchUpInside];
-    
-    [self.view addSubview:btn1];
-    
-    UIButton *btn2 = [[UIButton alloc] initWithFrame:CGRectMake(50, 50, 100, 50)];
-    btn2.backgroundColor = [UIColor redColor];
-    [btn2 setTitle:@"notify" forState:UIControlStateNormal];
-    [btn2 addTarget:self action:@selector(notify) forControlEvents:UIControlEventTouchUpInside];
-    
-    [self.view addSubview:btn2];
-    
-    UIButton *btn3 = [[UIButton alloc] initWithFrame:CGRectMake(100, 200, 150, 50)];
-    btn3.backgroundColor = [UIColor redColor];
-    [btn3 setTitle:@"send" forState:UIControlStateNormal];
-    [btn3 addTarget:self action:@selector(send) forControlEvents:UIControlEventTouchUpInside];
-    
-    [self.view addSubview:btn3];
 }
 
 #pragma mark - SystemDelegate
@@ -130,6 +105,10 @@
 - (void)connectToServerSuccessWithData:(id)data
 {
     NSLog(@"connectToServerSuccess--->\n %@",data);
+    
+    //用于连接到分配的连接服务器
+    [self.RYChatHandler chat];
+    
 }
 
 - (void)connectToServerFailureWithData:(id)data
@@ -149,15 +128,23 @@
     if (chatHandler.chatServerType == RouteConnectorTypeInit) {
         
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
-            
+
             NSLog(@"获取客户信息成功");
             
             NSDictionary *userInfos = data[@"userInfo"];
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
             
+            //连接服务器成功之后提交App Client信息
+            [self.clientInfoChatHandler chat];
+            
+            //连接服务器成功之后注册所有通知
+            [self.onAllNotifyHandler onAllNotify];
+            
         }
         
     }else if (chatHandler.chatServerType == RouteChatTypeWriteClientInfo) {
+        
+        NSLog(@"WriteClientInfo = %@",data);
         
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
@@ -177,8 +164,22 @@
 
 #pragma mark RYNotifyHandlerDelegate
 
+//针对单个推送通知回调函数
 - (void)notifyCallBack:(id)callBackData notifyHandler:(RYNotifyHandler *)notifyHandler {
-    NSLog(@"callBackData = %@",callBackData);
+    
+    if (notifyHandler == self.chatNotifyHandler) {
+        NSLog(@"chatNotifyHandler's callBackData = %@",callBackData);
+    }else if (notifyHandler == self.onGroupMsgListNotifyHandler) {
+        NSLog(@"onGroupMsgListNotifyHandler's callBackData = %@",callBackData);
+    }
+    
+}
+
+//注册所有推送通知监听，获取需要的数据
+- (void)notifyAllCallBack:(id)callBackData notifyType:(NotifyType)notifyType {
+    
+    NSLog(@" %d  %@ ",notifyType,callBackData);
+    
 }
 
 #pragma mark event response
@@ -187,24 +188,18 @@
 }
 
 //服务器连接
-- (void)connect{
+- (IBAction)connect:(id)sender {
     //连接server
     [self.connectToSever connectToSeverGate];
 }
 
-//连接到分配的连接服务器（同时获取用户信息）
-- (void)initRoute {
-    [self.RYChatHandler chat];
-}
-
-- (void)notify {
-    
-    [self.chatNotifyHandler onNotify];
-}
-
-- (void)send {
-    
+- (IBAction)send:(id)sender {
     [self.sendHandler chat];
+}
+
+- (IBAction)getGroupInfo:(id)sender {
+    
+    [self.getGroupInfoChatHandler chat];
 }
 
 #pragma mark - getters and setters
@@ -269,7 +264,26 @@
     return _getMessageChatHandler;
 }
 
+- (RYChatHandler *)getGroupInfoChatHandler {
+    if (!_getGroupInfoChatHandler) {
+        _getGroupInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _getGroupInfoChatHandler.chatServerType = RouteChatTypeGetGroupInfo;
+        _getGroupInfoChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+                                              @"userId":@"ea4184cc-f124-4952-a2a9-65f808e25f94"};
+        
+    }
+    return _getGroupInfoChatHandler;
+}
+
 /*--------------------消息推送--------------------*/
+
+- (RYNotifyHandler *)onAllNotifyHandler {
+    if (!_onAllNotifyHandler) {
+        _onAllNotifyHandler = [[RYNotifyHandler alloc] init];
+        _onAllNotifyHandler.delegate = self;
+    }
+    return _onAllNotifyHandler;
+}
 
 - (RYNotifyHandler *)chatNotifyHandler {
     if (!_chatNotifyHandler) {
@@ -281,6 +295,14 @@
     return _chatNotifyHandler;
 }
 
-
+- (RYNotifyHandler *)onGroupMsgListNotifyHandler {
+    if (!_onGroupMsgListNotifyHandler) {
+        _onGroupMsgListNotifyHandler = [[RYNotifyHandler alloc] init];
+        _onGroupMsgListNotifyHandler.notifyType = NotifyTypeOnGroupMsgList;
+        _onGroupMsgListNotifyHandler.delegate = self;
+        
+    }
+    return _onGroupMsgListNotifyHandler;
+}
 
 @end

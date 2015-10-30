@@ -9,4 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "PomeloClient.h"
 @interface ViewController : UIViewController
+
+- (IBAction)connect:(id)sender;
+- (IBAction)routeInit:(id)sender;
+- (IBAction)getNotify:(id)sender;
+- (IBAction)send:(id)sender;
+- (IBAction)getGroupInfo:(id)sender;
+- (IBAction)notifyGroupList:(id)sender;
+
 @end
