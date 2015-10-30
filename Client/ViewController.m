@@ -34,6 +34,7 @@
 @property (nonatomic, strong) RYChatHandler *getMessageChatHandler;
 
 @property (nonatomic, strong) RYChatHandler *getGroupInfoChatHandler;
+@property (nonatomic, strong) RYChatHandler *getGroupIdChatHandler;
 
 //推送消息
 //设置推送监听，并根据类型进行操作
@@ -203,7 +204,9 @@
 
 - (IBAction)getGroupInfo:(id)sender {
     
-    [self.getGroupInfoChatHandler chat];
+//    [self.getGroupInfoChatHandler chat];
+    
+    [self.getGroupIdChatHandler chat];
 }
 
 #pragma mark - getters and setters
@@ -279,7 +282,17 @@
     return _getGroupInfoChatHandler;
 }
 
-/*--------------------消息推送--------------------*/
+- (RYChatHandler *)getGroupIdChatHandler {
+    
+    if (!_getGroupIdChatHandler) {
+        _getGroupIdChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _getGroupIdChatHandler.chatServerType = RouteChatTypeGetGroupId;
+        _getGroupIdChatHandler.parameters = @{@"targetUserId":@"ea4184cc-f124-4952-a2a9-65f808e25f94"};
+    }
+    return _getGroupIdChatHandler;
+}
+
+/*--------------------------------------消息推送--------------------------------------*/
 
 - (RYNotifyHandler *)onAllNotifyHandler {
     if (!_onAllNotifyHandler) {
