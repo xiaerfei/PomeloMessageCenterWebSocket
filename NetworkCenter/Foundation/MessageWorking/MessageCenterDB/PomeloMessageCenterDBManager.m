@@ -333,6 +333,7 @@
                 SQLStr = [NSString stringWithFormat:
                           [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE key:@"MessageId"],markID];
                 
+                
             }else{
                 
                 SQLStr = [NSString stringWithFormat:
@@ -342,6 +343,7 @@
             [_dataBaseStore updateDataWithSql:SQLStr,
              messageCenterMessageModel.UserMessageId,
              messageCenterMessageModel.UserId,
+             messageCenterMessageModel.MessageId,
              messageCenterMessageModel.GroupId,
              messageCenterMessageModel.MsgContent,
              messageCenterMessageModel.CreateTime
@@ -353,9 +355,11 @@
             MessageCenterUserModel *messageCenterUserModel = [[MessageCenterUserModel alloc] init];
             [messageCenterUserModel setValuesForKeysWithDictionary:tempDict];
             
+            
             SQLStr = [NSString stringWithFormat:[_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeUSER key:@"UserId"],markID];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
+             messageCenterUserModel.UserId,
              messageCenterUserModel.PersonName,
              messageCenterUserModel.UserRole,
              messageCenterUserModel.Avatar,
@@ -370,6 +374,7 @@
                       [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA key:@"MsgMetadataId"],markID];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
+             messageCenterMetadataModel.MsgMetadataId,
              messageCenterMetadataModel.UserId,
              messageCenterMetadataModel.GroupId,
              messageCenterMetadataModel.GroupName,

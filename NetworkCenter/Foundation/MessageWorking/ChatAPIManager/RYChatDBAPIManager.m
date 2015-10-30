@@ -193,7 +193,7 @@ static RYChatDBAPIManager *shareManager = nil;
             break;
         case SQLTypeUpdate:{
             
-            tempStr = [[NSMutableString alloc] initWithString:@"(update %@ "];
+            tempStr = [[NSMutableString alloc] initWithString:@"update %@ "];
             
             switch (DBType) {
                 case MessageCenterDBManagerTypeUSER:
@@ -211,22 +211,24 @@ static RYChatDBAPIManager *shareManager = nil;
                 default:
                     break;
             }
-            NSMutableString *foreAddStr = [[NSMutableString alloc] initWithString:@" set "];
+            NSMutableString *foreUpdateStr = [[NSMutableString alloc] initWithString:@"set "];
             
             for (int i = 0 ; i < colsArr.count ; i ++) {
                 
                 if (i != colsArr.count - 1) {
-                    [foreAddStr appendFormat:@"%@ = ?,",colsArr[i]];
+                    [foreUpdateStr appendFormat:@"%@ = ?,",colsArr[i]];
                 }else{
-                    [foreAddStr appendFormat:@"%@ = ?",colsArr[i]];
+                    [foreUpdateStr appendFormat:@"%@ = ?",colsArr[i]];
                 }
             }
             
+            
+            
             NSMutableString *backUpdateStr = [[NSMutableString alloc] initWithFormat:@" where %@ = ",keyStr];
             
-            [backUpdateStr appendString:@"'%@');"];
+            [backUpdateStr appendString:@"'%@'"];
             
-            [tempStr appendString:backUpdateStr];
+            [tempStr appendFormat:@"%@%@",foreUpdateStr,backUpdateStr];
             
         }
             break;
