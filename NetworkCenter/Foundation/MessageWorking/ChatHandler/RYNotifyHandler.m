@@ -10,6 +10,7 @@
 #import "PomeloClient.h"
 #import "RYChatAPIManager.h"
 #import "ConnectToServer.h"
+#import "MessageTool.h"
 
 static RYNotifyHandler *shareHandler = nil;
 
@@ -36,11 +37,15 @@ static RYNotifyHandler *shareHandler = nil;
     
     [connectToServer.chatClient onRoute:[RYChatAPIManager notifyWithType:self.notifyType] withCallback:^(id arg) {
         
+        [[NSNotificationCenter defaultCenter] postNotificationName:[MessageTool PushGlobalNotificationStr] object:arg userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:weakSelf.notifyType],@"notifyType", nil]];
+        
+        /*
         if ([weakSelf.delegate respondsToSelector:@selector(notifyCallBack:notifyHandler:)]) {
             [weakSelf.delegate notifyCallBack:arg notifyHandler:weakSelf];
         }else{
             NSAssert(0,@"connectToConnectorSuccess-方法必须实现");
         }
+        */
         
     }];
     
@@ -60,11 +65,15 @@ static RYNotifyHandler *shareHandler = nil;
         
         [connectToServer.chatClient onRoute:[RYChatAPIManager notifyWithType:self.notifyType] withCallback:^(id arg) {
             
+            [[NSNotificationCenter defaultCenter] postNotificationName:[MessageTool PushGlobalNotificationStr] object:arg userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:weakSelf.notifyType],@"notifyType", nil]];
+            
+            /*
             if ([weakSelf.delegate respondsToSelector:@selector(notifyAllCallBack:notifyType:)]) {
                 [weakSelf.delegate notifyAllCallBack:arg notifyType:weakSelf.notifyType];
             }else{
                 NSAssert(0,@"connectToConnectorSuccess-方法必须实现");
             }
+             */
             
         }];
     }

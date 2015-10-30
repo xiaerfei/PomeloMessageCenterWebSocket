@@ -18,7 +18,7 @@
 
 static RYChatHandler *shareHandler = nil;
 
-@interface RYChatHandler () <RYNotifyHandlerDelegate>
+@interface RYChatHandler ()
 
 @property (nonatomic, weak) id <RYChatHandlerDelegate> chatDelegate;
 
