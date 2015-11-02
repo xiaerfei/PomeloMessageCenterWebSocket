@@ -31,13 +31,11 @@ static RYNotifyHandler *shareHandler = nil;
 
 - (void)onNotify {
     
-    __weak __typeof(self) weakSelf= self;
-    
     ConnectToServer *connectToServer = [ConnectToServer shareInstance];
     
     [connectToServer.chatClient onRoute:[RYChatAPIManager notifyWithType:self.notifyType] withCallback:^(id arg) {
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:[MessageTool PushGlobalNotificationStr] object:arg userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:weakSelf.notifyType],@"notifyType", nil]];
+        [[NSNotificationCenter defaultCenter] postNotificationName:[MessageTool PushGlobalNotificationStr] object:arg userInfo:nil];
         
         /*
         if ([weakSelf.delegate respondsToSelector:@selector(notifyCallBack:notifyHandler:)]) {
@@ -57,15 +55,13 @@ static RYNotifyHandler *shareHandler = nil;
     
     for (NSNumber *subNumber in tempNotifyArr) {
         
-        __weak __typeof(self) weakSelf= self;
-        
         ConnectToServer *connectToServer = [ConnectToServer shareInstance];
         
         self.notifyType = [subNumber intValue];
         
         [connectToServer.chatClient onRoute:[RYChatAPIManager notifyWithType:self.notifyType] withCallback:^(id arg) {
             
-            [[NSNotificationCenter defaultCenter] postNotificationName:[MessageTool PushGlobalNotificationStr] object:arg userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:weakSelf.notifyType],@"notifyType", nil]];
+            [[NSNotificationCenter defaultCenter] postNotificationName:[MessageTool PushGlobalNotificationStr] object:arg userInfo:nil];
             
             /*
             if ([weakSelf.delegate respondsToSelector:@selector(notifyAllCallBack:notifyType:)]) {
