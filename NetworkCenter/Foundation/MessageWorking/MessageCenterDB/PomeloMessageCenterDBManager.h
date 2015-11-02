@@ -69,7 +69,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *
  */
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID markID:(NSString *)markID currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber;
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName value:(NSString *)value currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber;
 
 /**
  *
@@ -77,7 +77,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *
  */
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID markID:(NSString *)markID;
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName value:(NSString *)value;
 
 /**
  *
@@ -85,7 +85,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *
  */
 
-- (void)updateTableWithType:(MessageCenterDBManagerType)tableType markID:(NSString *)markID data:(NSArray *)datas;
+- (void)updateTableWithType:(MessageCenterDBManagerType)tableType value:(NSString *)value data:(NSArray *)datas;
 
 /**
  *  设置消息置顶
@@ -93,7 +93,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *  @param tableTyp MessageCenterDBManagerType
  */
 
-- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID topTime:(NSString *)topTime;
+- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName topTime:(NSString *)topTime;
 
 /*---------------------------------本地存储简化对外接口-------------------------------*/
 

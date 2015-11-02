@@ -265,7 +265,7 @@
         
         //如果MsgMetadata中没有该组信息，需要获取有关组和组成员信息（第一步，如果没有该组，获取信息。第二步，如果有，则不作处理，如果后期添加了某个人，但是在当前表中没有该记录，则重新请求，填补缺失信息，删除某个人无需关心，在显示群聊信息时，重新获取（不用本地数据库））
         
-        if ([[[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMETADATA keyID:@"GroupId" markID:tempDict[@"GroupId"]] count] == 0) {
+        if ([[[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMETADATA conditionName:@"GroupId" value:tempDict[@"GroupId"]] count] == 0) {
             
             self.getGroupInfoChatHandler.parameters = @{@"groupId":tempDict[@"GroupId"]};
             
@@ -278,7 +278,7 @@
         //置顶操作
         NSString *groupID = callBackData[@"groupId"];
         NSDate *nowDate = [NSDate date];
-        [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA keyID:groupID topTime:[NSString stringWithFormat:@"%f",[nowDate timeIntervalSince1970]]];
+        [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA conditionName:groupID topTime:[NSString stringWithFormat:@"%f",[nowDate timeIntervalSince1970]]];
         
     }else if ([callBackData[@"__route__"] isEqualToString:[RYChatAPIManager routeWithType:RouteChatTypeDisturbed]]) {
         //全局设置
@@ -308,7 +308,7 @@
 
 - (IBAction)getGroupInfo:(id)sender {
     
-    NSArray *tempArr = [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE keyID:@"MessageId" markID:@"56371b9ff88f26a4219abbaf"];
+    NSArray *tempArr = [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"MessageId" value:@"56371b9ff88f26a4219abbaf"];
     
     NSLog(@"tempArr = %@",tempArr);
     

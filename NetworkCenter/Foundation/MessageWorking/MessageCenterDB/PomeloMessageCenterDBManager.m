@@ -192,11 +192,11 @@
     }
 }
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID markID:(NSString *)markID currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber{
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName value:(NSString *)value currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber{
     
     
     
-    NSMutableArray *resultDatas = [[NSMutableArray alloc] initWithArray:[self fetchUserInfosWithType:tableType keyID:keyID markID:markID]];
+    NSMutableArray *resultDatas = [[NSMutableArray alloc] initWithArray:[self fetchUserInfosWithType:tableType conditionName:(NSString *)conditionName value:(NSString *)value]];
     
     NSMutableArray *datas = [[NSMutableArray alloc] init];
     
@@ -214,7 +214,7 @@
     return datas;
 }
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID markID:(NSString *)markID{
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName value:(NSString *)value{
     
     NSMutableArray *resultDatas = [[NSMutableArray alloc] init];
     NSString       *SQLStr      = nil;
@@ -224,7 +224,7 @@
         
         //群组取出消息(根据groupid或者targetid查找消息，然后根据消息查找对应用户（获取用户信息）)
         
-        SQLStr = [NSString stringWithFormat:@"select * from UserMessage join User on UserMessage.UserId = User.UserId where %@ = '%@'",keyID,markID];
+        SQLStr = [NSString stringWithFormat:@"select * from UserMessage join User on UserMessage.UserId = User.UserId where %@ = '%@'",conditionName,value];
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
@@ -245,7 +245,7 @@
         
     }else if (tableType == MessageCenterDBManagerTypeUSER) {
         
-        SQLStr = [NSString stringWithFormat:@"select * from User where %@ = '%@'",keyID,markID];
+        SQLStr = [NSString stringWithFormat:@"select * from User where %@ = '%@'",conditionName,value];
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
@@ -263,8 +263,8 @@
         
     }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
-        if (markID) {
-            SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata where %@ = '%@'",keyID,markID];
+        if (value && conditionName) {
+            SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata where %@ = '%@'",conditionName,value];
         }else {
             SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata"];
         }
@@ -298,7 +298,7 @@
             
         } Sql:SQLStr];
         
-        if (!markID) {
+        if (!value || !conditionName) {
             
             [resultDatas sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
                 
