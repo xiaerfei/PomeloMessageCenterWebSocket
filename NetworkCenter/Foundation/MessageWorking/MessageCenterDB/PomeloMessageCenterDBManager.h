@@ -93,8 +93,6 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
 - (void)storeUserInfoWithDatas:(NSArray *)userDatas;
 //存储消息      ---  对应message表
 - (void)storeMessageInfoWithDatas:(NSArray *)messageDatas;
-//存储本地未发送消息
-- (void)storeMessageNoSendInfoWithDatas:(NSArray *)messageDatas;
 //消息Metadata --- 对应Metadata表
 - (void)storeMetaDataWithDatas:(NSArray *)metaDatas;
 

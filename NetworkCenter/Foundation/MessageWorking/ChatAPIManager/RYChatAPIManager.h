@@ -68,7 +68,9 @@ typedef NS_ENUM(NSInteger, RouteChatTypeName){
     /// Web端消息中心获取组列表
     RouteChatTypeGetGroups        = 3 << 7,
     /// 进入群组后取当前群组的n条消息，下拉获取之前的n条消息
-    RouteChatTypeGetMsg           = 3 << 8
+    RouteChatTypeGetMsg           = 3 << 8,
+    /// 查找用户信息（参数userId单个，参数userIds多个）
+    RouteChatTypeFindUser         = 3 << 9
 };
 
 //获取成功或失败之后枚举值

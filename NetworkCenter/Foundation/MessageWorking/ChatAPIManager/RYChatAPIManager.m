@@ -58,14 +58,10 @@ static RYChatAPIManager *shareManager = nil;
             routeStr = @"chat.chatHandler.getMsg";
             break;
         case RouteChatTypeGetGroupInfo:
-            routeStr = @"chat.ChatHandler.getGroupInfo";
+            routeStr = @"chat.chatHandler.getGroupInfo";
             break;
-        case RouteConnectorTypePush:
-            routeStr = @"connector.entryHandler.push";
-            break;
-        case RouteConnectorTypeProto:
-            routeStr = @"connector.entryHandler.proto";
-            break;
+        case RouteChatTypeFindUser:
+            routeStr = @"chat.chatHandler.findUser";
 
         default:
             break;

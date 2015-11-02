@@ -157,7 +157,7 @@
                  messageCenterMessageModel.GroupId,
                  messageCenterMessageModel.MsgContent,
                  messageCenterMessageModel.CreateTime,
-                 messageCenterMessageModel.isSend];
+                 messageCenterMessageModel.Status];
                 
             }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
                 
@@ -233,7 +233,7 @@
             messageCenterMessageModel.MessageId  = [set stringForColumn:@"MessageId"];
             messageCenterMessageModel.MsgContent = [set stringForColumn:@"MsgContent"];
             messageCenterMessageModel.CreateTime = [set stringForColumn:@"CreateTime"];
-            messageCenterMessageModel.isSend     = [set stringForColumn:@"isSend"];
+            messageCenterMessageModel.Status     = [set stringForColumn:@"Status"];
             messageCenterMessageModel.PersonName   = [set stringForColumn:@"PersonName"];
             messageCenterMessageModel.Avatar       = [set stringForColumn:@"Avatar"];
             
@@ -326,7 +326,7 @@
              messageCenterMessageModel.GroupId,
              messageCenterMessageModel.MsgContent,
              messageCenterMessageModel.CreateTime,
-             messageCenterMessageModel.isSend
+             messageCenterMessageModel.Status
              ];
             
             
