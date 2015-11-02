@@ -69,7 +69,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *
  */
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName value:(NSString *)value currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber;
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber;
 
 /**
  *
@@ -77,7 +77,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *
  */
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName value:(NSString *)value;
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue;
 
 /**
  *
@@ -85,15 +85,28 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *
  */
 
-- (void)updateTableWithType:(MessageCenterDBManagerType)tableType value:(NSString *)value data:(NSArray *)datas;
+//- (void)updateTableWithType:(MessageCenterDBManagerType)tableType value:(NSString *)value data:(NSArray *)datas;
+
 
 /**
  *  设置消息置顶
  *
- *  @param tableTyp MessageCenterDBManagerType
+ *  @param tableType MessageCenterDBManagerType表类型
+ *  @param SQLvalue  SQLvalue需要拼合的sql字段
+ *  @param topTime   topTime
  */
 
-- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName topTime:(NSString *)topTime;
+- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue topTime:(NSString *)topTime;
+
+/**
+ *  设置已读
+ *
+ *  @param tableType  MessageCenterDBManagerType
+ *  @param SQLvalue   SQLvalue
+ *  @param parameters parameters
+ */
+
+- (void)markReadTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue parameters:(NSDictionary *)parameters;
 
 /*---------------------------------本地存储简化对外接口-------------------------------*/
 

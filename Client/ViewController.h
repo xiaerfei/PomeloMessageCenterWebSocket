@@ -13,5 +13,6 @@
 - (IBAction)connect:(id)sender;
 - (IBAction)send:(id)sender;
 - (IBAction)getGroupInfo:(id)sender;
-
+- (IBAction)disturbedBtnClick:(id)sender;
+- (IBAction)disturbedNoBtnClick:(id)sender;
 @end

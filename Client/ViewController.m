@@ -14,6 +14,7 @@
 #import "PomeloMessageCenterDBManager.h"
 #import "MessageCenterUserModel.h"
 #import "ConnectToServer.h"
+#import "MessageCenterMessageModel.h"
 
 @interface ViewController () <APICmdApiCallBackDelegate ,RYChatHandlerDelegate,ConnectToServerDelegate>
 
@@ -232,6 +233,15 @@
             
         }
         
+    }else if (chatHandler.chatServerType == RouteChatTypeRead) {
+        //设置已读
+        
+        if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+            //成功之后更新组MsgMetadata表中的
+            
+            [[PomeloMessageCenterDBManager shareInstance] markReadTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:chatHandler.parameters[@"groupId"] parameters:[NSDictionary dictionaryWithObjectsAndKeys:chatHandler.parameters[@"lastedReadMsgId"],@"LastedReadMsgId",chatHandler.parameters[@"time"],@"LastedReadTime", nil]];
+            
+        }
     }
 }
 
@@ -265,7 +275,7 @@
         
         //如果MsgMetadata中没有该组信息，需要获取有关组和组成员信息（第一步，如果没有该组，获取信息。第二步，如果有，则不作处理，如果后期添加了某个人，但是在当前表中没有该记录，则重新请求，填补缺失信息，删除某个人无需关心，在显示群聊信息时，重新获取（不用本地数据库））
         
-        if ([[[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMETADATA conditionName:@"GroupId" value:tempDict[@"GroupId"]] count] == 0) {
+        if ([[[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMETADATA conditionName:@"GroupId" SQLvalue:tempDict[@"GroupId"]] count] == 0) {
             
             self.getGroupInfoChatHandler.parameters = @{@"groupId":tempDict[@"GroupId"]};
             
@@ -278,13 +288,15 @@
         //置顶操作
         NSString *groupID = callBackData[@"groupId"];
         NSDate *nowDate = [NSDate date];
-        [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA conditionName:groupID topTime:[NSString stringWithFormat:@"%f",[nowDate timeIntervalSince1970]]];
+        [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:groupID topTime:[NSString stringWithFormat:@"%f",[nowDate timeIntervalSince1970]]];
         
     }else if ([callBackData[@"__route__"] isEqualToString:[RYChatAPIManager routeWithType:RouteChatTypeDisturbed]]) {
         //全局设置
         
         if (1 == [callBackData[@"isDisturbed"] intValue]) {
-            
+            [MessageTool setDisturbed:@"YES"];
+        }else {
+            [MessageTool setDisturbed:@"NO"];
         }
     }
     
@@ -297,8 +309,13 @@
 
 //服务器连接
 - (IBAction)connect:(id)sender {
-    //连接server
-    [self.connectToSever connectToSeverGate];
+    
+    //如果是YES，则为免打扰模式
+    if ([[MessageTool getDisturbed] isEqualToString:@"NO"] || ![MessageTool getDisturbed] || [[MessageTool getDisturbed] isKindOfClass:[NSNull class]]) {
+        //连接server
+        [self.connectToSever connectToSeverGate];
+    }
+    
 }
 
 - (IBAction)send:(id)sender {
@@ -308,18 +325,58 @@
 
 - (IBAction)getGroupInfo:(id)sender {
     
-    NSArray *tempArr = [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"MessageId" value:@"56371b9ff88f26a4219abbaf"];
+    //根据groupID获取关联的message
+    NSArray *messages = [[PomeloMessageCenterDBManager  shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"groupId" SQLvalue:@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904"];
     
-    NSLog(@"tempArr = %@",tempArr);
+    NSLog(@"messages = %@",messages);
+    
+    for (MessageCenterMessageModel *message in messages) {
+        
+        //根据MessageId获取关联的user信息(数组中其实只有一个值)
+        NSArray *userInfoArr = [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"MessageId" SQLvalue:message.MessageId];
+        
+        NSLog(@"userinfo = %@",userInfoArr);
+        
+    }
+    
+    MessageCenterMessageModel *lastMessageModel = messages[messages.count - 1];
+    //设置已读
+    self.readChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+                                        @"lastedReadMsgId":lastMessageModel.MessageId,
+                                        @"time":lastMessageModel.CreateTime};
+    [self.readChatHandler chat];
+    
     
     //OK
-    [self.getGroupInfoChatHandler chat];
+    //[self.getGroupInfoChatHandler chat];
     
     //OK
     //[self.getGroupIdChatHandler chat];
     
     //OK
     //[self.findUserChatHandler chat];
+}
+
+- (IBAction)disturbedBtnClick:(id)sender {
+    
+    //这里的userid应该为客户ID
+    _disturbedHandler.parameters = @{@"userId":@"ea4184cc-f124-4952-a2a9-65f808e25f94",
+                                     @"isDisturbed":@"1"};
+    
+    //accountID,这里的userid其实不是userid而是用户ID
+    [self.disturbedHandler chat];
+    
+}
+
+- (IBAction)disturbedNoBtnClick:(id)sender {
+    
+    //这里的userid应该为客户ID
+    _disturbedHandler.parameters = @{@"userId":@"ea4184cc-f124-4952-a2a9-65f808e25f94",
+                                     @"isDisturbed":@"0"};
+    
+    //accountID,这里的userid其实不是userid而是用户ID
+    [self.disturbedHandler chat];
+    
 }
 
 - (IBAction)sendData:(id)sender {
@@ -336,35 +393,16 @@
     //[self.readChatHandler chat];
     
     //top  －－－－ OK
-    [self.topChatHandler chat];
+    //[self.topChatHandler chat];
     
     //disturbed －－－－ OK
-    [self.disturbedHandler chat];
+    //[self.disturbedHandler chat];
+    
 }
 
 
 #pragma mark - getters and setters
 
-/**
- *   @author xiaerfei, 15-10-29 13:10:28
- *
- *   18601793005    rongyu100   bbd75913-edcd-49c0-bcb9-d9a30138e86b
-     100200300	    代理商       234d4bba-aced-4251-8a4f-fafcb6afbce6
-     13122258882	客户
- 
- 13918549186	 	3
- 13604049697	 	3
- 13817658400	 	2
- 15021503868	 	1
- 18601793005	 	1
- 
- 
- *
- *   @return
- 
- 11111111121  11111a
- 
- */
 
 - (LoginAPICmd *)loginAPICmd {
     if (!_loginAPICmd) {
@@ -390,8 +428,9 @@
     if (!_readChatHandler) {
         _readChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _readChatHandler.chatServerType = RouteChatTypeRead;
-        _readChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
-                                        @"lastedReadMsgId":@"5636cd42c726764c1e41b8c2"};
+//        _readChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+//                                        @"lastedReadMsgId":@"5636cd42c726764c1e41b8c2",
+//                                        @"time":@""};
     }
     return _readChatHandler;
 }
@@ -410,9 +449,6 @@
     if (!_disturbedHandler) {
         _disturbedHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _disturbedHandler.chatServerType = RouteChatTypeDisturbed;
-        _disturbedHandler.parameters = @{@"userId":@"ea4184cc-f124-4952-a2a9-65f808e25f94",
-                                         @"isDisturbed":@"1"};
-        
     }
     return _disturbedHandler;
 }
