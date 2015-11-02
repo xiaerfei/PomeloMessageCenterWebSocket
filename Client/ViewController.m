@@ -35,7 +35,10 @@
 
 @property (nonatomic, strong) RYChatHandler *sendHandler;
 @property (nonatomic, strong) RYChatHandler *readChatHandler;
+@property (nonatomic, strong) RYChatHandler *topChatHandler;
+@property (nonatomic, strong) RYChatHandler *disturbedHandler;
 @property (nonatomic, strong) RYChatHandler *getMessageChatHandler;
+@property (nonatomic, strong) RYChatHandler *findUserChatHandler;
 
 @property (nonatomic, strong) RYChatHandler *getGroupInfoChatHandler;
 
@@ -160,14 +163,14 @@
         
     } else if (chatHandler.chatServerType == RouteChatTypeWriteClientInfo) {
         
-        NSLog(@"WriteClientInfo = %@",data);
-        
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
             NSLog(@"发送客户信息成功");
         }
 
     } else if (chatHandler.chatServerType == RouteChatTypeGetGroupInfo) {
+        
+        //获取组和组成员信息
         
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
@@ -188,10 +191,10 @@
         
         if (![[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
-            //如果code = 200发送成功则无需处理，在推送通知里也会存在发送过的消息，如果发送失败标记信息isSend = 0
+            //如果code = 200发送成功则无需处理，在推送通知里也会存在发送过的消息，如果发送失败标记信息Status = 0
             
             NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:chatHandler.parameters];
-            [tempDict setValue:@"NO" forKey:@"isSend"];
+            [tempDict setValue:@"NO" forKey:@"Status"];
             [tempDict setValue:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"CreateTime"];
             
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
@@ -204,46 +207,6 @@
     NSLog(@"-----连接chat失败----- %@",error);
 }
 
-/*
-#pragma mark RYNotifyHandlerDelegate
-
-//针对单个推送通知回调函数
-- (void)notifyCallBack:(id)callBackData notifyHandler:(RYNotifyHandler *)notifyHandler {
-    
-    if (notifyHandler == self.chatNotifyHandler) {
-        NSLog(@"chatNotifyHandler's callBackData = %@",callBackData);
-    }else if (notifyHandler == self.onGroupMsgListNotifyHandler) {
-        NSLog(@"onGroupMsgListNotifyHandler's callBackData = %@",callBackData);
-    }
-    
-}
-
-//注册所有推送通知监听，获取需要的数据
-- (void)notifyAllCallBack:(id)callBackData notifyType:(NotifyType)notifyType {
-    
-    NSLog(@" %d  %@ ",notifyType,callBackData);
-    
-    //写入数据表UserMessage
-    //设置该消息发送或者是获取到的
-    NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:callBackData];
-    [tempDict setValue:tempDict[@"_id"] forKey:@"MessageId"];
-    [tempDict setValue:tempDict[@"time"] forKey:@"CreateTime"];
-    [tempDict setValue:tempDict[@"from"] forKey:@"UserId"];
-    [tempDict setValue:tempDict[@"content"] forKey:@"MsgContent"];
-    [tempDict setValue:@"YES" forKey:@"isSend"];
-    
-    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
-    
-    {
-        //首先检查本地是否存在该客户，如果存在，用本地的，否则调用该接口获取数据
-        self.getGroupIdChatHandler.parameters = @{@"targetUserId":tempDict[@"UserId"]};
-        [self.getGroupIdChatHandler chat];
-    }
-    
-}
- 
- */
-
 #pragma mark event response
 
 - (void)notifyCallBack:(NSNotification *)notification {
@@ -253,24 +216,26 @@
     
     NSLog(@" %@  %@ ",userInfo,callBackData);
     
-    //写入数据表UserMessage
+    //推送信息首先存储到数据表UserMessage中，然后根据groupInfo中users字段下的userid获取user信息存储user表（如果存在即更新，如果不存在即添加）、lastedMsg字段代表了最后发送消息信息
+    //写入
     //设置该消息发送或者是获取到的
     NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:callBackData];
+    [tempDict setValue:tempDict[@"_id"] forKey:@"UserMessageId"];
     [tempDict setValue:tempDict[@"_id"] forKey:@"MessageId"];
     [tempDict setValue:tempDict[@"time"] forKey:@"CreateTime"];
     [tempDict setValue:tempDict[@"from"] forKey:@"UserId"];
     [tempDict setValue:tempDict[@"content"] forKey:@"MsgContent"];
-    [tempDict setValue:@"YES" forKey:@"isSend"];
+    [tempDict setValue:@"YES" forKey:@"Status"];
     
     [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
     
+    /*
     {
         //首先检查本地是否存在该客户，如果存在，用本地的，否则调用该接口获取数据
-        self.getGroupIdChatHandler.parameters = @{@"targetUserId":tempDict[@"UserId"]};
+        self.getGroupIdChatHandler.parameters = @{@"targetUserId":@"beb790c0-6f91-41e7-a1e6-13ee8db02bf1",@"UserId":@"ea4184cc-f124-4952-a2a9-65f808e25f94"};
         [self.getGroupIdChatHandler chat];
     }
-    
-    
+    */
 }
 
 
@@ -291,10 +256,18 @@
 
 - (IBAction)getGroupInfo:(id)sender {
     
+    //OK
     [self.getGroupInfoChatHandler chat];
+    
+    //OK
+    //[self.getGroupIdChatHandler chat];
+    
+    //OK
+    //[self.findUserChatHandler chat];
 }
 
 - (IBAction)sendData:(id)sender {
+    
     self.sendChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
                                                       @"content":self.textField.text};
     [self.sendChatHandler chat];
@@ -302,7 +275,15 @@
 }
 
 - (IBAction)readData:(id)sender {
-    [self.readChatHandler chat];
+    
+    //read －－－－ OK
+    //[self.readChatHandler chat];
+    
+    //top  －－－－ OK
+    //[self.topChatHandler chat];
+    
+    //disturbed －－－－ OK
+    //[self.disturbedHandler chat];
 }
 
 
@@ -334,7 +315,7 @@
         _loginAPICmd = [[LoginAPICmd alloc] init];
         _loginAPICmd.delegate = self;
         _loginAPICmd.path = @"API/User/OnLogon";
-        _loginAPICmd.reformParams = [NSDictionary dictionaryWithObjectsAndKeys:@"15021503868", @"userName",
+        _loginAPICmd.reformParams = [NSDictionary dictionaryWithObjectsAndKeys:@"18601793005", @"userName",
                                      @"11", @"password",
                                      nil];
     }
@@ -353,19 +334,31 @@
     if (!_readChatHandler) {
         _readChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _readChatHandler.chatServerType = RouteChatTypeRead;
-        
+        _readChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+                                        @"lastedReadMsgId":@"5636cd42c726764c1e41b8c2"};
     }
     return _readChatHandler;
 }
 
-- (RYChatHandler *)groupInfoChatHandler {
-    if (!_groupInfoChatHandler) {
-        _groupInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
-        _groupInfoChatHandler.chatServerType = RouteChatTypeGetGroupInfo;
-        _groupInfoChatHandler.parameters = @{@"target":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904"};
+- (RYChatHandler *)topChatHandler {
+    if (!_topChatHandler) {
+        _topChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _topChatHandler.chatServerType = RouteChatTypeTop;
+        _topChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904"};
         
     }
-    return _groupInfoChatHandler;
+    return _topChatHandler;
+}
+
+- (RYChatHandler *)disturbedHandler {
+    if (!_disturbedHandler) {
+        _disturbedHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _disturbedHandler.chatServerType = RouteChatTypeDisturbed;
+        _disturbedHandler.parameters = @{@"userId":@"ea4184cc-f124-4952-a2a9-65f808e25f94",
+                                         @"isDisturbed":@"1"};
+        
+    }
+    return _disturbedHandler;
 }
 
 - (RYChatHandler *)sendChatHandler {
@@ -383,7 +376,9 @@
     if (!_getGroupIdChatHandler) {
         _getGroupIdChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _getGroupIdChatHandler.chatServerType = RouteChatTypeGetGroupId;
-        _getGroupIdChatHandler.parameters = @{@"targetUserId":@"43aa53b1-32aa-4d39-a86b-137cc190cb19"};
+        
+        _getGroupIdChatHandler.parameters = @{@"targetUserId":@"ea4184cc-f124-4952-a2a9-65f808e25f94",
+                                              @"userId":@"b6cf2bcb-390c-4729-be71-a03ec6399731"};
         
     }
     return _getGroupIdChatHandler;
@@ -423,11 +418,21 @@
     if (!_getGroupInfoChatHandler) {
         _getGroupInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _getGroupInfoChatHandler.chatServerType = RouteChatTypeGetGroupInfo;
-        _getGroupInfoChatHandler.parameters = @{@"target":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
-                                              @"userId":[MessageTool token]};
+        _getGroupInfoChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
+                                              @"userId":@"b6cf2bcb-390c-4729-be71-a03ec6399731"};
         
     }
     return _getGroupInfoChatHandler;
+}
+
+- (RYChatHandler *)findUserChatHandler {
+    
+    if (!_findUserChatHandler) {
+        _findUserChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _findUserChatHandler.chatServerType = RouteChatTypeFindUser;
+        _findUserChatHandler.parameters = @{@"userId":@"b6cf2bcb-390c-4729-be71-a03ec6399731"};
+    }
+    return _findUserChatHandler;
 }
 
 /*--------------------------------------消息推送--------------------------------------*/

@@ -54,7 +54,7 @@ static RYChatDBAPIManager *shareManager = nil;
     self.tablesName = @[@"User",@"UserMessage",@"MsgMetadata"];
     
     self.UserCols = @[@"UserId",@"PersonName",@"UserRole",@"Avatar",@"AvatarCache"];
-    self.UserMessageCols = @[@"UserMessageId",@"UserId",@"MessageId",@"GroupId",@"MsgContent",@"CreateTime",@"isSend"];
+    self.UserMessageCols = @[@"UserMessageId",@"UserId",@"MessageId",@"GroupId",@"MsgContent",@"CreateTime",@"Status"];
     self.MsgMetadataCols = @[@"MsgMetadataId",@"UserId",@"GroupId",@"GroupName",@"Avatar",@"AvatarCache",@"GroupType",@"CompanyName",@"ApproveStatus",@"LastedReadMsgId",@"LastedReadTime",@"LastedMsgId",@"LastedMsgSenderName",@"LastedMsgTime",@"LastedMsgContent",@"UnReadMsgCount",@"CreateTime"];
     
     self.integerArr = @[@"GroupType",@"GroupType",@"UnReadMsgCount"];
