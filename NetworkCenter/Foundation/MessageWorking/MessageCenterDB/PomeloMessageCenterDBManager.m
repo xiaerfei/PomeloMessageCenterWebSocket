@@ -166,7 +166,7 @@
                 
                 [_dataBaseStore updateDataWithSql:SQLStr,
                  messageCenterMetadataModel.MsgMetadataId,
-                 messageCenterMetadataModel.UserId,
+                 messageCenterMetadataModel.AccountId,
                  messageCenterMetadataModel.GroupId,
                  messageCenterMetadataModel.GroupName,
                  messageCenterMetadataModel.Avatar,
@@ -181,7 +181,9 @@
                  messageCenterMetadataModel.LastedMsgTime,
                  messageCenterMetadataModel.LastedMsgContent,
                  messageCenterMetadataModel.UnReadMsgCount,
-                 messageCenterMetadataModel.CreateTime];
+                 messageCenterMetadataModel.CreateTime,
+                 messageCenterMetadataModel.isTop,
+                 messageCenterMetadataModel.topTime];
                 
             }
             
@@ -190,11 +192,11 @@
     }
 }
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType markID:(NSString *)markID  currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber {
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID markID:(NSString *)markID currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber{
     
     
     
-    NSMutableArray *resultDatas = [[NSMutableArray alloc] initWithArray:[self fetchUserInfosWithType:tableType markID:markID]];
+    NSMutableArray *resultDatas = [[NSMutableArray alloc] initWithArray:[self fetchUserInfosWithType:tableType keyID:keyID markID:markID]];
     
     NSMutableArray *datas = [[NSMutableArray alloc] init];
     
@@ -212,7 +214,7 @@
     return datas;
 }
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType markID:(NSString *)markID {
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID markID:(NSString *)markID{
     
     NSMutableArray *resultDatas = [[NSMutableArray alloc] init];
     NSString       *SQLStr      = nil;
@@ -222,18 +224,18 @@
         
         //群组取出消息(根据groupid或者targetid查找消息，然后根据消息查找对应用户（获取用户信息）)
         
-        SQLStr = [NSString stringWithFormat:@"select * from UserMessage join User on UserMessage.UserId = User.UserId where MessageId = '%@'",markID];
+        SQLStr = [NSString stringWithFormat:@"select * from UserMessage join User on UserMessage.UserId = User.UserId where %@ = '%@'",keyID,markID];
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
             
             messageCenterMessageModel.UserMessageId = [set stringForColumn:@"UserMessageId"];
-            messageCenterMessageModel.UserId     = [set stringForColumn:@"UserId"];
-            messageCenterMessageModel.MessageId  = [set stringForColumn:@"MessageId"];
-            messageCenterMessageModel.MsgContent = [set stringForColumn:@"MsgContent"];
-            messageCenterMessageModel.CreateTime = [set stringForColumn:@"CreateTime"];
-            messageCenterMessageModel.Status     = [set stringForColumn:@"Status"];
+            messageCenterMessageModel.UserId       = [set stringForColumn:@"UserId"];
+            messageCenterMessageModel.MessageId    = [set stringForColumn:@"MessageId"];
+            messageCenterMessageModel.MsgContent   = [set stringForColumn:@"MsgContent"];
+            messageCenterMessageModel.CreateTime   = [set stringForColumn:@"CreateTime"];
+            messageCenterMessageModel.Status       = [set stringForColumn:@"Status"];
             messageCenterMessageModel.PersonName   = [set stringForColumn:@"PersonName"];
             messageCenterMessageModel.Avatar       = [set stringForColumn:@"Avatar"];
             
@@ -243,7 +245,7 @@
         
     }else if (tableType == MessageCenterDBManagerTypeUSER) {
         
-        SQLStr = @"select * from User";
+        SQLStr = [NSString stringWithFormat:@"select * from User where %@ = '%@'",keyID,markID];
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
@@ -261,13 +263,18 @@
         
     }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
-        SQLStr = @"select * from MsgMetadata";
+        if (markID) {
+            SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata where %@ = '%@'",keyID,markID];
+        }else {
+            SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata"];
+        }
+        
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
             MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
             messageCenterMetadataModel.MsgMetadataId = [set stringForColumn:@"MsgMetadataId"];
-            messageCenterMetadataModel.UserId = [set stringForColumn:@"UserId"];
+            messageCenterMetadataModel.AccountId = [set stringForColumn:@"AccountId"];
             messageCenterMetadataModel.GroupId = [set stringForColumn:@"GroupId"];
             messageCenterMetadataModel.GroupName = [set stringForColumn:@"GroupName"];
             messageCenterMetadataModel.Avatar = [set stringForColumn:@"Avatar"];
@@ -283,11 +290,32 @@
             messageCenterMetadataModel.LastedMsgContent = [set stringForColumn:@"LastedMsgContent"];
             messageCenterMetadataModel.UnReadMsgCount = [set stringForColumn:@"UnReadMsgCount"];
             messageCenterMetadataModel.CreateTime = [set stringForColumn:@"CreateTime"];
+            messageCenterMetadataModel.isTop = [set stringForColumn:@"isTop"];
+            messageCenterMetadataModel.topTime = [set stringForColumn:@"topTime"];
             
             [resultDatas addObject:messageCenterMetadataModel];
             
             
         } Sql:SQLStr];
+        
+        if (!markID) {
+            
+            [resultDatas sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+                
+                MessageCenterMetadataModel *tempObj1 = (MessageCenterMetadataModel *)obj1;
+                MessageCenterMetadataModel *tempObj2 = (MessageCenterMetadataModel *)obj2;
+                
+                if ([tempObj1.isTop isEqualToString:@"YES"] && [tempObj2.isTop isEqualToString:@"YES"]) {
+                    return [tempObj1.topTime compare:tempObj2.topTime];
+                }else if ([tempObj1.isTop isEqualToString:@"YES"] && (!tempObj2.isTop || [tempObj2.isTop isKindOfClass:[NSNull class]])) {
+                    return NSOrderedAscending;
+                }else if ([tempObj2.isTop isEqualToString:@"YES"] && (!tempObj1.isTop || [tempObj1.isTop isKindOfClass:[NSNull class]])) {
+                    return NSOrderedDescending;
+                }
+                
+                return NSOrderedSame;
+            }];
+        }
     }
     
     return resultDatas;
@@ -355,7 +383,7 @@
             
             [_dataBaseStore updateDataWithSql:SQLStr,
              messageCenterMetadataModel.MsgMetadataId,
-             messageCenterMetadataModel.UserId,
+             messageCenterMetadataModel.AccountId,
              messageCenterMetadataModel.GroupId,
              messageCenterMetadataModel.GroupName,
              messageCenterMetadataModel.Avatar,
@@ -370,10 +398,23 @@
              messageCenterMetadataModel.LastedMsgTime,
              messageCenterMetadataModel.LastedMsgContent,
              messageCenterMetadataModel.UnReadMsgCount,
-             messageCenterMetadataModel.CreateTime
+             messageCenterMetadataModel.CreateTime,
+             messageCenterMetadataModel.isTop,
+             messageCenterMetadataModel.topTime
              ];
         }
     }
+}
+
+- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID topTime:(NSString *)topTime {
+    
+    if (tableType == MessageCenterDBManagerTypeMETADATA) {
+        
+        NSString *SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@',topTime = '%@' where GroupId = '%@'",@"YES",topTime,keyID];
+        [_dataBaseStore updateDataWithSql:SQLStr];
+        
+    }
+    
 }
 
 /**

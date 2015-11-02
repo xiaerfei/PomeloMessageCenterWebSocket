@@ -165,7 +165,7 @@
         
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
-            NSLog(@"发送客户信息成功");
+            NSLog(@"WriteClientInfo －－ 发送客户信息成功");
         }
 
     } else if (chatHandler.chatServerType == RouteChatTypeGetGroupInfo) {
@@ -174,11 +174,57 @@
         
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
-            NSLog(@"%@",data);
+            //如果获取组和组成员成功，更新MsgMetadata表
+            //暂时暴露处理方法，以后再调整
+            
+            NSDictionary *tempDict = (NSDictionary *)data[@"groupInfo"];
+            
+            NSMutableDictionary *groupInfo = [[NSMutableDictionary alloc] init];
+            
+            [groupInfo setValue:tempDict[@"_id"] forKey:@"MsgMetadataId"];
+            [groupInfo setValue:tempDict[@"createTime"] forKey:@"CreateTime"];
+            [groupInfo setValue:[MessageTool token] forKey:@"AccountId"];
+            [groupInfo setValue:tempDict[@"groupId"] forKey:@"GroupId"];
+            [groupInfo setValue:tempDict[@"lastedMsg"][@"msgId"] forKey:@"LastedMsgId"];
+            [groupInfo setValue:tempDict[@"lastedMsg"][@"sender"] forKey:@"LastedMsgSenderName"];
+            [groupInfo setValue:tempDict[@"lastedMsg"][@"LastedMsgTime"] forKey:@"time"];
+            [groupInfo setValue:tempDict[@"lastedMsg"][@"content"] forKey:@"LastedMsgContent"];
+
+            [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMETADATA data:[NSArray arrayWithObjects:groupInfo, nil]];
+            
+            
+            
+            if (tempDict[@"users"] && ![tempDict[@"users"] isKindOfClass:[NSNull class]]) {
+                
+                //根据user获取user信息，聊天时如果查找不到user，则根据userid重新获取user信息并更新数据库
+                //再组内获取组员信息，需要重新getGroupInfo
+                
+                for (NSDictionary *subDict in tempDict[@"users"]) {
+                    
+                    self.findUserChatHandler.parameters = @{@"userId":subDict[@"userId"]};
+                    [self.findUserChatHandler chat];
+                    
+                }
+
+            }
             
         }
         
-    } else if (chatHandler.chatServerType == RouteChatTypeGetGroupId) {
+    }else if (chatHandler.chatServerType == RouteChatTypeFindUser) {
+        
+        if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+            
+            
+            NSDictionary *userInfos = data[@"user"];
+            
+            if (userInfos && ![userInfos isKindOfClass:[NSNull class]]) {
+                [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
+            }
+            
+        }
+        
+        
+    }else if (chatHandler.chatServerType == RouteChatTypeGetGroupId) {
         
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
@@ -186,20 +232,6 @@
             
         }
         
-    } else if (chatHandler.chatServerType == RouteChatTypeSend) {
-        NSLog(@"%@",data);
-        
-        if (![[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
-            
-            //如果code = 200发送成功则无需处理，在推送通知里也会存在发送过的消息，如果发送失败标记信息Status = 0
-            
-            NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:chatHandler.parameters];
-            [tempDict setValue:@"NO" forKey:@"Status"];
-            [tempDict setValue:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"CreateTime"];
-            
-            [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
-            
-        }
     }
 }
 
@@ -210,32 +242,52 @@
 #pragma mark event response
 
 - (void)notifyCallBack:(NSNotification *)notification {
-
-    NSDictionary *userInfo = notification.userInfo;
+    
     id     callBackData = notification.object;
     
-    NSLog(@" %@  %@ ",userInfo,callBackData);
+    NSLog(@" %@ ",callBackData);
     
-    //推送信息首先存储到数据表UserMessage中，然后根据groupInfo中users字段下的userid获取user信息存储user表（如果存在即更新，如果不存在即添加）、lastedMsg字段代表了最后发送消息信息
-    //写入
-    //设置该消息发送或者是获取到的
-    NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:callBackData];
-    [tempDict setValue:tempDict[@"_id"] forKey:@"UserMessageId"];
-    [tempDict setValue:tempDict[@"_id"] forKey:@"MessageId"];
-    [tempDict setValue:tempDict[@"time"] forKey:@"CreateTime"];
-    [tempDict setValue:tempDict[@"from"] forKey:@"UserId"];
-    [tempDict setValue:tempDict[@"content"] forKey:@"MsgContent"];
-    [tempDict setValue:@"YES" forKey:@"Status"];
-    
-    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
-    
-    /*
-    {
-        //首先检查本地是否存在该客户，如果存在，用本地的，否则调用该接口获取数据
-        self.getGroupIdChatHandler.parameters = @{@"targetUserId":@"beb790c0-6f91-41e7-a1e6-13ee8db02bf1",@"UserId":@"ea4184cc-f124-4952-a2a9-65f808e25f94"};
-        [self.getGroupIdChatHandler chat];
+    if ([callBackData[@"__route__"] isEqualToString:[RYChatAPIManager routeWithType:RouteChatTypeSend]]) {
+        
+        //推送信息首先存储到数据表UserMessage表和MsgMetadata表中，然后根据groupInfo中users字段下的userid获取user信息存储user表（如果存在即更新，如果不存在即添加）
+        //设置该消息发送或者是获取到的
+        NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:callBackData];
+        [tempDict setValue:tempDict[@"_id"]     forKey:@"UserMessageId"];
+        [tempDict setValue:tempDict[@"_id"]     forKey:@"MessageId"];
+        [tempDict setValue:tempDict[@"time"]    forKey:@"CreateTime"];
+        [tempDict setValue:tempDict[@"from"]    forKey:@"UserId"];
+        [tempDict setValue:tempDict[@"groupId"] forKey:@"GroupId"];
+        [tempDict setValue:tempDict[@"content"] forKey:@"MsgContent"];
+        [tempDict setValue:@"YES"               forKey:@"Status"];
+        
+        //存储信息
+        [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
+        
+        //如果MsgMetadata中没有该组信息，需要获取有关组和组成员信息（第一步，如果没有该组，获取信息。第二步，如果有，则不作处理，如果后期添加了某个人，但是在当前表中没有该记录，则重新请求，填补缺失信息，删除某个人无需关心，在显示群聊信息时，重新获取（不用本地数据库））
+        
+        if ([[[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMETADATA keyID:@"GroupId" markID:tempDict[@"GroupId"]] count] == 0) {
+            
+            self.getGroupInfoChatHandler.parameters = @{@"groupId":tempDict[@"GroupId"]};
+            
+            [self.getGroupInfoChatHandler chat];
+            
+        }
+        
+    }else if ([callBackData[@"__route__"] isEqualToString:[RYChatAPIManager routeWithType:RouteChatTypeTop]]) {
+        
+        //置顶操作
+        NSString *groupID = callBackData[@"groupId"];
+        NSDate *nowDate = [NSDate date];
+        [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA keyID:groupID topTime:[NSString stringWithFormat:@"%f",[nowDate timeIntervalSince1970]]];
+        
+    }else if ([callBackData[@"__route__"] isEqualToString:[RYChatAPIManager routeWithType:RouteChatTypeDisturbed]]) {
+        //全局设置
+        
+        if (1 == [callBackData[@"isDisturbed"] intValue]) {
+            
+        }
     }
-    */
+    
 }
 
 
@@ -255,6 +307,10 @@
 }
 
 - (IBAction)getGroupInfo:(id)sender {
+    
+    NSArray *tempArr = [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE keyID:@"MessageId" markID:@"56371b9ff88f26a4219abbaf"];
+    
+    NSLog(@"tempArr = %@",tempArr);
     
     //OK
     [self.getGroupInfoChatHandler chat];
@@ -280,10 +336,10 @@
     //[self.readChatHandler chat];
     
     //top  －－－－ OK
-    //[self.topChatHandler chat];
+    [self.topChatHandler chat];
     
     //disturbed －－－－ OK
-    //[self.disturbedHandler chat];
+    [self.disturbedHandler chat];
 }
 
 
@@ -403,25 +459,12 @@
     return _sendHandler;
 }
 
-- (RYChatHandler *)getMessageChatHandler {
-    if (!_getMessageChatHandler) {
-        _getMessageChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
-        _getMessageChatHandler.chatServerType = RouteChatTypeGetMsg;
-        _getMessageChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
-                                                  @"lastMsgId":@"",@"count":@"10"};
-        
-    }
-    return _getMessageChatHandler;
-}
-
 - (RYChatHandler *)getGroupInfoChatHandler {
     if (!_getGroupInfoChatHandler) {
         _getGroupInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _getGroupInfoChatHandler.chatServerType = RouteChatTypeGetGroupInfo;
-        _getGroupInfoChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
-                                              @"userId":@"b6cf2bcb-390c-4729-be71-a03ec6399731"};
-        
     }
+    _getGroupInfoChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904"};
     return _getGroupInfoChatHandler;
 }
 
@@ -430,7 +473,6 @@
     if (!_findUserChatHandler) {
         _findUserChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
         _findUserChatHandler.chatServerType = RouteChatTypeFindUser;
-        _findUserChatHandler.parameters = @{@"userId":@"b6cf2bcb-390c-4729-be71-a03ec6399731"};
     }
     return _findUserChatHandler;
 }
