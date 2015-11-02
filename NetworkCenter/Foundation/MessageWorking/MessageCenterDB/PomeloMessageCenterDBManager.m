@@ -263,7 +263,12 @@
         
     }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
-        SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata where %@ = '%@'",keyID,markID];
+        if (markID) {
+            SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata where %@ = '%@'",keyID,markID];
+        }else {
+            SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata"];
+        }
+        
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
@@ -293,22 +298,24 @@
             
         } Sql:SQLStr];
         
-        
-        [resultDatas sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        if (!markID) {
             
-            MessageCenterMetadataModel *tempObj1 = (MessageCenterMetadataModel *)obj1;
-            MessageCenterMetadataModel *tempObj2 = (MessageCenterMetadataModel *)obj2;
-            
-            if ([tempObj1.isTop isEqualToString:@"YES"] && [tempObj2.isTop isEqualToString:@"YES"]) {
-                return [tempObj1.topTime compare:tempObj2.topTime];
-            }else if ([tempObj1.isTop isEqualToString:@"YES"] && (!tempObj2.isTop || [tempObj2.isTop isKindOfClass:[NSNull class]])) {
-                return NSOrderedAscending;
-            }else if ([tempObj2.isTop isEqualToString:@"YES"] && (!tempObj1.isTop || [tempObj1.isTop isKindOfClass:[NSNull class]])) {
-                return NSOrderedDescending;
-            }
-            
-            return NSOrderedSame;
-        }];
+            [resultDatas sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+                
+                MessageCenterMetadataModel *tempObj1 = (MessageCenterMetadataModel *)obj1;
+                MessageCenterMetadataModel *tempObj2 = (MessageCenterMetadataModel *)obj2;
+                
+                if ([tempObj1.isTop isEqualToString:@"YES"] && [tempObj2.isTop isEqualToString:@"YES"]) {
+                    return [tempObj1.topTime compare:tempObj2.topTime];
+                }else if ([tempObj1.isTop isEqualToString:@"YES"] && (!tempObj2.isTop || [tempObj2.isTop isKindOfClass:[NSNull class]])) {
+                    return NSOrderedAscending;
+                }else if ([tempObj2.isTop isEqualToString:@"YES"] && (!tempObj1.isTop || [tempObj1.isTop isKindOfClass:[NSNull class]])) {
+                    return NSOrderedDescending;
+                }
+                
+                return NSOrderedSame;
+            }];
+        }
     }
     
     return resultDatas;
