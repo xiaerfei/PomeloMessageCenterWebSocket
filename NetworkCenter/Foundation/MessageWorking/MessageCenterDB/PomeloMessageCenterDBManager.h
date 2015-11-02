@@ -69,7 +69,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *
  */
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber;
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos endPos:(NSInteger)endPos;
 
 /**
  *

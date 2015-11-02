@@ -192,23 +192,32 @@
     }
 }
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber{
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos endPos:(NSInteger)endPos{
     
-    NSMutableArray *resultDatas = [[NSMutableArray alloc] initWithArray:[self fetchUserInfosWithType:tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue]];
+    NSString       *SQLStr      = nil;
+    NSMutableArray *resultDatas = [[NSMutableArray alloc] init];
     
-    NSMutableArray *datas = [[NSMutableArray alloc] init];
-    
-    if (pageNumber != -1) {
+    if (tableType == MessageCenterDBManagerTypeMESSAGE) {
         
-        for (int i = 0; i < resultDatas.count; i ++) {
+        SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@') limit %d,%d",conditionName,SQLvalue,(int)startPos,(int)endPos];
+        
+        [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
-            if (i < page * pageNumber) {
-                [datas addObject:resultDatas[i]];
-            }
-        }
+            MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
+            
+            messageCenterMessageModel.UserMessageId = [set stringForColumn:@"UserMessageId"];
+            messageCenterMessageModel.UserId       = [set stringForColumn:@"UserId"];
+            messageCenterMessageModel.MessageId    = [set stringForColumn:@"MessageId"];
+            messageCenterMessageModel.MsgContent   = [set stringForColumn:@"MsgContent"];
+            messageCenterMessageModel.CreateTime   = [set stringForColumn:@"CreateTime"];
+            messageCenterMessageModel.Status       = [set stringForColumn:@"Status"];
+            
+            [resultDatas addObject:messageCenterMessageModel];
+            
+        } Sql:SQLStr];
     }
     
-    return datas;
+    return resultDatas;
 }
 
 - (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue{

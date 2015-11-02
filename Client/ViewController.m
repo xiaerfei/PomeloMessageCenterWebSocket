@@ -304,6 +304,10 @@
 
 
 - (IBAction)disconnect:(id)sender {
+    
+    //测试,分页查询
+    [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"groupId" SQLvalue:@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904" startPos:0 endPos:2];
+    
     [self.connectToSever chatClientDisconnect];
 }
 
