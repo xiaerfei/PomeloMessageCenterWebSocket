@@ -12,18 +12,25 @@
 @class PomeloClient;
 @class RYNotifyHandler;
 
+/*
+
 @protocol RYNotifyHandlerDelegate <NSObject>
 @optional
 - (void)notifyCallBack:(id)callBackData notifyHandler:(RYNotifyHandler *)notifyHandler;
 - (void)notifyAllCallBack:(id)callBackData notifyType:(NotifyType)notifyType;
 
 @end
+ 
+ */
 
 @interface RYNotifyHandler : NSObject
 
 @property (nonatomic, assign) NotifyType notifyType;
 @property (nonatomic, strong) PomeloClient *client;
+
+/*
 @property (nonatomic, weak) id <RYNotifyHandlerDelegate> delegate;
+ */
 
 - (void)onNotify;
 - (void)onAllNotify;

@@ -22,4 +22,8 @@
     return [settings objectForKey:@"token"];
 }
 
++ (NSString *)PushGlobalNotificationStr {
+    return @"PushGlobalNotification";
+}
+
 @end

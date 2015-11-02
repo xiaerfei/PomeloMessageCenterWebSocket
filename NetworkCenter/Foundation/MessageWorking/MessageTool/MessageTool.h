@@ -12,5 +12,6 @@
 
 + (void)setToken:(NSString *)token;
 + (NSString *)token;
++ (NSString *)PushGlobalNotificationStr;
 
 @end
