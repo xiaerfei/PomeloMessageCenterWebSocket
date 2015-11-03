@@ -77,34 +77,11 @@
         case MessageCenterDBManagerTypeUSER:
             SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeUSER];
             break;
-        case MessageCenterDBManagerTypeMESSAGE:{
-            
-            
-            
+        case MessageCenterDBManagerTypeMESSAGE:
             SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE];
-        }
             break;
-        case MessageCenterDBManagerTypeMETADATA:{
-            
-            NSMutableDictionary *groupInfo = [[NSMutableDictionary alloc] init];
-            
-            [groupInfo setValue:datas[0][@"_id"] forKey:@"MsgMetadataId"];
-            [groupInfo setValue:datas[0][@"createTime"] forKey:@"CreateTime"];
-            [groupInfo setValue:[MessageTool token] forKey:@"AccountId"];
-            [groupInfo setValue:datas[0][@"groupId"] forKey:@"GroupId"];
-            
-            if (datas[0][@"lastedMsg"] && ![datas[0][@"lastedMsg"] isKindOfClass:[NSNull class]]) {
-                
-                [groupInfo setValue:datas[0][@"lastedMsg"][@"msgId"] forKey:@"LastedMsgId"];
-                [groupInfo setValue:datas[0][@"lastedMsg"][@"sender"] forKey:@"LastedMsgSenderName"];
-                [groupInfo setValue:datas[0][@"lastedMsg"][@"LastedMsgTime"] forKey:@"time"];
-                [groupInfo setValue:datas[0][@"lastedMsg"][@"content"] forKey:@"LastedMsgContent"];
-                
-            }
-            
-            datas = [NSArray arrayWithObjects:groupInfo, nil];
+        case MessageCenterDBManagerTypeMETADATA:
             SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA];
-        }
             break;
         default:
             break;

@@ -68,8 +68,7 @@ static RYNotifyHandler *shareHandler = nil;
                 //推送信息首先存储到数据表UserMessage表和MsgMetadata表中，然后根据groupInfo中users字段下的userid获取user信息存储user表（如果存在即更新，如果不存在即添加）
                 //设置该消息发送或者是获取到的
                 NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:arg];
-                
-                /*
+            
                 [tempDict setValue:tempDict[@"_id"]     forKey:@"UserMessageId"];
                 [tempDict setValue:tempDict[@"_id"]     forKey:@"MessageId"];
                 [tempDict setValue:tempDict[@"time"]    forKey:@"CreateTime"];
@@ -77,7 +76,6 @@ static RYNotifyHandler *shareHandler = nil;
                 [tempDict setValue:tempDict[@"groupId"] forKey:@"GroupId"];
                 [tempDict setValue:tempDict[@"content"] forKey:@"MsgContent"];
                 [tempDict setValue:@"YES"               forKey:@"Status"];
-                 */
                 
                 //存储信息
                 [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
