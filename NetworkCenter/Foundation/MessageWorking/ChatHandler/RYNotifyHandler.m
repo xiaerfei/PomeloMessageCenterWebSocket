@@ -102,7 +102,7 @@ static RYNotifyHandler *shareHandler = nil;
                         MessageCenterUserModel *userModel = (MessageCenterUserModel *)users[0];
                         
                         //未读消息做＋1操作
-                        [[PomeloMessageCenterDBManager shareInstance] updateGroupLastedMessageWithTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:tempDict[@"GroupId"] parameters:[NSDictionary dictionaryWithObjectsAndKeys:@"UnReadMsgCount",@"UnReadMsgCount++1",tempDict[@"MessageId"],@"LastedMsgId",userModel.PersonName,@"LastedMsgSenderName",tempDict[@"CreateTime"],@"LastedMsgTime",tempDict[@"MsgContent"],@"LastedMsgContent", nil]];
+                        [[PomeloMessageCenterDBManager shareInstance] updateGroupLastedMessageWithTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:tempDict[@"GroupId"] parameters:[NSDictionary dictionaryWithObjectsAndKeys:@"UnReadMsgCount",@"UnReadMsgCount+1",tempDict[@"MessageId"],@"LastedMsgId",userModel.PersonName,@"LastedMsgSenderName",tempDict[@"CreateTime"],@"LastedMsgTime",tempDict[@"MsgContent"],@"LastedMsgContent", nil]];
                         
                     }else{
                         
