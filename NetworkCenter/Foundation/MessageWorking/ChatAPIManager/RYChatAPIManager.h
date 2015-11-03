@@ -65,12 +65,14 @@ typedef NS_ENUM(NSInteger, RouteChatTypeName){
     RouteChatTypeGetGroupInfo     = 3 << 5,
     /// 获取一对一聊天组
     RouteChatTypeGetGroupId       = 3 << 6,
-    /// Web端消息中心获取组列表
+    /// Web端消息中心获取组列表(不需要)
     RouteChatTypeGetGroups        = 3 << 7,
     /// 进入群组后取当前群组的n条消息，下拉获取之前的n条消息
     RouteChatTypeGetMsg           = 3 << 8,
     /// 查找用户信息（参数userId单个，参数userIds多个）
-    RouteChatTypeFindUser         = 3 << 9
+    RouteChatTypeFindUser         = 3 << 9,
+    /// 查找多个用户信息
+    RouteChatTypeFindUsers         = 3 << 10
 };
 
 //获取成功或失败之后枚举值
@@ -82,6 +84,18 @@ typedef NS_ENUM(NSInteger, ResultCodeType){
     ResultCodeTypeNoLogin = 401,
     /// 用户未登录
     ResultCodeTypeOtherError = 500
+};
+
+//列表类型0:全部组;1:未读组;2:已读组
+
+typedef NS_ENUM(NSInteger, ReadTypeName){
+    /// 0:全部组
+    ReadTypeAll    = 111,
+    /// 1:未读组
+    ReadTypeNoRead = 222,
+    /// 2:已读组
+    ReadTypeRead   = 333
+    
 };
 
 /**

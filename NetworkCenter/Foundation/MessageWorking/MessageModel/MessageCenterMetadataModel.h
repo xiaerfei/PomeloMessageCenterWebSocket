@@ -24,7 +24,7 @@
 @property (nonatomic, copy) NSString *LastedMsgId;         //最新消息id
 @property (nonatomic, copy) NSString *LastedMsgSenderName; //最新消息发送者
 @property (nonatomic, copy) NSString *LastedMsgTime;       //最新消息的发送时间
-@property (nonatomic, copy) NSString *LastedMsgContent;    //最后消息内容
+@property (nonatomic, copy) NSString *LastedMsgContent;    //最新消息内容
 @property (nonatomic, copy) NSString *UnReadMsgCount;      //未读消息数量
 @property (nonatomic, copy) NSString *CreateTime;          //创建时间
 

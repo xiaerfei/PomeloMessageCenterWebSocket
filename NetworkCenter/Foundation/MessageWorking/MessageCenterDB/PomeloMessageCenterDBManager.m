@@ -12,6 +12,7 @@
 #import "MessageCenterMessageModel.h"
 #import "MessageCenterMetadataModel.h"
 #import "RYChatDBAPIManager.h"
+#import "MessageTool.h"
 
 @interface PomeloMessageCenterDBManager ()
 
@@ -76,11 +77,34 @@
         case MessageCenterDBManagerTypeUSER:
             SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeUSER];
             break;
-        case MessageCenterDBManagerTypeMESSAGE:
+        case MessageCenterDBManagerTypeMESSAGE:{
+            
+            
+            
             SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE];
+        }
             break;
-        case MessageCenterDBManagerTypeMETADATA:
+        case MessageCenterDBManagerTypeMETADATA:{
+            
+            NSMutableDictionary *groupInfo = [[NSMutableDictionary alloc] init];
+            
+            [groupInfo setValue:datas[0][@"_id"] forKey:@"MsgMetadataId"];
+            [groupInfo setValue:datas[0][@"createTime"] forKey:@"CreateTime"];
+            [groupInfo setValue:[MessageTool token] forKey:@"AccountId"];
+            [groupInfo setValue:datas[0][@"groupId"] forKey:@"GroupId"];
+            
+            if (datas[0][@"lastedMsg"] && ![datas[0][@"lastedMsg"] isKindOfClass:[NSNull class]]) {
+                
+                [groupInfo setValue:datas[0][@"lastedMsg"][@"msgId"] forKey:@"LastedMsgId"];
+                [groupInfo setValue:datas[0][@"lastedMsg"][@"sender"] forKey:@"LastedMsgSenderName"];
+                [groupInfo setValue:datas[0][@"lastedMsg"][@"LastedMsgTime"] forKey:@"time"];
+                [groupInfo setValue:datas[0][@"lastedMsg"][@"content"] forKey:@"LastedMsgContent"];
+                
+            }
+            
+            datas = [NSArray arrayWithObjects:groupInfo, nil];
             SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA];
+        }
             break;
         default:
             break;
@@ -163,6 +187,9 @@
                 
                 MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
                 [messageCenterMetadataModel setValuesForKeysWithDictionary:datas[i]];
+                
+                //这里使用用户ID，而不是聊天中的userID
+                messageCenterMetadataModel.AccountId = [MessageTool token];
                 
                 [_dataBaseStore updateDataWithSql:SQLStr,
                  messageCenterMetadataModel.MsgMetadataId,
@@ -387,6 +414,9 @@
             SQLStr = [NSString stringWithFormat:
                       [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA key:@"GroupId"],SQLvalue];
             
+            //同上
+            messageCenterMetadataModel.AccountId = [MessageTool token];
+            
             [_dataBaseStore updateDataWithSql:SQLStr,
              messageCenterMetadataModel.MsgMetadataId,
              messageCenterMetadataModel.AccountId,
@@ -416,14 +446,17 @@
     
     if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
-        NSString *SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@',topTime = '%@' where GroupId = '%@'",@"YES",topTime,SQLvalue];
+        NSString *SQLStr = @"update MsgMetadata set isTop = 'NO'";
+        [_dataBaseStore updateDataWithSql:SQLStr];
+        
+        SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@',topTime = '%@' where GroupId = '%@'",@"YES",topTime,SQLvalue];
         [_dataBaseStore updateDataWithSql:SQLStr];
         
     }
     
 }
 
-- (void)markReadTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue parameters:(NSDictionary *)parameters {
+- (void)updateDataTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue parameters:(NSDictionary *)parameters {
     
     if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
@@ -437,9 +470,21 @@
             NSString *valueStr = parameters[keyStr];
             
             if (i != keysArr.count - 1) {
-                [resultSQLStr appendFormat:@"%@ = '%@', ",keyStr,valueStr];
+                
+                if ([keyStr isEqualToString:@"UnReadMsgCount"]) {
+                    [resultSQLStr appendFormat:@"%@ = %@, ",keyStr,valueStr];
+                }else{
+                    [resultSQLStr appendFormat:@"%@ = '%@', ",keyStr,valueStr];
+                }
+                
             }else{
-                [resultSQLStr appendFormat:@"%@ = '%@'",keyStr,valueStr];
+                
+                if ([keyStr isEqualToString:@"UnReadMsgCount"]) {
+                    [resultSQLStr appendFormat:@"%@ = '%@'",keyStr,valueStr];
+                }else{
+                    [resultSQLStr appendFormat:@"%@ = '%@'",keyStr,valueStr];
+                }
+                
             }
             
         }
@@ -449,6 +494,18 @@
         [_dataBaseStore updateDataWithSql:resultSQLStr];
         
     }
+    
+}
+
+- (void)markReadTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue parameters:(NSDictionary *)parameters {
+    
+    [self updateDataTableWithType:tableType SQLvalue:SQLvalue parameters:parameters];
+    
+}
+
+- (void)updateGroupLastedMessageWithTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue parameters:(NSDictionary *)parameters {
+    
+    [self updateDataTableWithType:tableType SQLvalue:SQLvalue parameters:parameters];
     
 }
 

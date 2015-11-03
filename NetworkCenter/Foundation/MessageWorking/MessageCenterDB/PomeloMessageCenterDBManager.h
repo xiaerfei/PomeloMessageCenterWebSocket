@@ -109,12 +109,22 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
 /**
  *  设置已读
  *
- *  @param tableType  MessageCenterDBManagerType
- *  @param SQLvalue   SQLvalue
- *  @param parameters parameters
+ *  @param tableType  MessageCenterDBManagerType表类型
+ *  @param SQLvalue   SQLvalue需要拼合的sql字段
+ *  @param parameters 所需要更新的参数列表
  */
 
 - (void)markReadTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue parameters:(NSDictionary *)parameters;
+
+/**
+ *  设置组最新消息信息和未读消息个数
+ *
+ *  @param tableType  MessageCenterDBManagerType表类型
+ *  @param SQLvalue   SQLvalue需要拼合的sql字段
+ *  @param parameters 所需要更新的参数列表
+ */
+
+- (void)updateGroupLastedMessageWithTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue parameters:(NSDictionary *)parameters;
 
 /*---------------------------------本地存储简化对外接口-------------------------------*/
 

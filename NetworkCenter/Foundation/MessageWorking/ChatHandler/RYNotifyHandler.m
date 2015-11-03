@@ -13,12 +13,14 @@
 #import "MessageTool.h"
 #import "PomeloMessageCenterDBManager.h"
 #import "RYChatHandler.h"
+#import "MessageCenterUserModel.h"
 
 static RYNotifyHandler *shareHandler = nil;
 
 @interface RYNotifyHandler ()
 
 @property (nonatomic, strong) RYChatHandler *getGroupInfoChatHandler;
+@property (nonatomic, strong) RYChatHandler *findUserChatHandler;
 
 @end
 
@@ -55,6 +57,8 @@ static RYNotifyHandler *shareHandler = nil;
         
         self.notifyType = [subNumber intValue];
         
+        __block RYNotifyHandler *weakSelf = self;
+        
         [connectToServer.chatClient onRoute:[RYChatAPIManager notifyWithType:self.notifyType] withCallback:^(id arg) {
             
             [[NSNotificationCenter defaultCenter] postNotificationName:[MessageTool PushGlobalNotificationStr] object:arg userInfo:nil];
@@ -64,6 +68,8 @@ static RYNotifyHandler *shareHandler = nil;
                 //推送信息首先存储到数据表UserMessage表和MsgMetadata表中，然后根据groupInfo中users字段下的userid获取user信息存储user表（如果存在即更新，如果不存在即添加）
                 //设置该消息发送或者是获取到的
                 NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:arg];
+                
+                /*
                 [tempDict setValue:tempDict[@"_id"]     forKey:@"UserMessageId"];
                 [tempDict setValue:tempDict[@"_id"]     forKey:@"MessageId"];
                 [tempDict setValue:tempDict[@"time"]    forKey:@"CreateTime"];
@@ -71,6 +77,7 @@ static RYNotifyHandler *shareHandler = nil;
                 [tempDict setValue:tempDict[@"groupId"] forKey:@"GroupId"];
                 [tempDict setValue:tempDict[@"content"] forKey:@"MsgContent"];
                 [tempDict setValue:@"YES"               forKey:@"Status"];
+                 */
                 
                 //存储信息
                 [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMESSAGE data:[NSArray arrayWithObjects:tempDict, nil]];
@@ -79,9 +86,41 @@ static RYNotifyHandler *shareHandler = nil;
                 
                 if ([[[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMETADATA conditionName:@"GroupId" SQLvalue:tempDict[@"GroupId"]] count] == 0) {
                     
-                    self.getGroupInfoChatHandler.parameters = @{@"groupId":tempDict[@"GroupId"]};
+                    weakSelf.getGroupInfoChatHandler.parameters = @{@"groupId":tempDict[@"GroupId"]};
                     
-                    [self.getGroupInfoChatHandler chat];
+                    [weakSelf.getGroupInfoChatHandler chat];
+                    
+                }else {
+                    
+                    //如果列表中存在该组，则更新组中最新消息信息和记录最新消息个数
+                    
+                    //关联user表，获取userid关联的personname，然后再用personname进行下面更新
+                    
+                    NSArray *users =  [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeUSER conditionName:@"UserId" SQLvalue:tempDict[@"UserId"]];
+                    
+                    if (users.count != 0) {
+                        
+                        //如果存在用户信息，则使用用户信息更新METADATA表,并统计UnReadMsgCount个数＋1
+                        MessageCenterUserModel *userModel = (MessageCenterUserModel *)users[0];
+                        
+                        //未读消息做＋1操作
+                        [[PomeloMessageCenterDBManager shareInstance] updateGroupLastedMessageWithTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:tempDict[@"GroupId"] parameters:[NSDictionary dictionaryWithObjectsAndKeys:@"UnReadMsgCount",@"UnReadMsgCount++1",tempDict[@"MessageId"],@"LastedMsgId",userModel.PersonName,@"LastedMsgSenderName",tempDict[@"CreateTime"],@"LastedMsgTime",tempDict[@"MsgContent"],@"LastedMsgContent", nil]];
+                        
+                    }else{
+                        
+                        //如果不存在该用户，则需要获取该用户信息
+                        weakSelf.findUserChatHandler.parameters = @{@"userId":tempDict[@"UserId"]};
+                        
+                        __block RYNotifyHandler *weakSelfFind = weakSelf;
+                        
+                        //block保证更新成功
+                        weakSelf.findUserChatHandler.RefreshUserSuccess = ^ () {
+                            [weakSelfFind updateMetedateTableWithDict:tempDict];
+                        };
+                        
+                        [weakSelf.findUserChatHandler chat];
+                        
+                    }
                     
                 }
                 
@@ -116,7 +155,32 @@ static RYNotifyHandler *shareHandler = nil;
     [self.client offAllRoute];
 }
 
+#pragma mark private method 
+
+- (void)updateMetedateTableWithDict:(NSDictionary *)tempDict {
+    
+    NSArray *users =  [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeUSER conditionName:@"UserId" SQLvalue:tempDict[@"UserId"]];
+    
+    if (users.count != 0) {
+        
+        //如果存在用户信息，则使用用户信息更新METADATA表
+        MessageCenterUserModel *userModel = (MessageCenterUserModel *)users[0];
+        
+        [[PomeloMessageCenterDBManager shareInstance] updateGroupLastedMessageWithTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:tempDict[@"GroupId"] parameters:[NSDictionary dictionaryWithObjectsAndKeys:tempDict[@"MessageId"],@"LastedMsgId",userModel.PersonName,@"LastedMsgSenderName",tempDict[@"CreateTime"],@"LastedMsgTime",tempDict[@"MsgContent"],@"LastedMsgContent", nil]];
+        
+    }
+}
+
 #pragma mark getters & setters
+
+- (RYChatHandler *)findUserChatHandler {
+    
+    if (!_findUserChatHandler) {
+        _findUserChatHandler = [[RYChatHandler alloc] initWithDelegate:[[ConnectToServer shareInstance] delegate]];
+        _findUserChatHandler.chatServerType = RouteChatTypeFindUser;
+    }
+    return _findUserChatHandler;
+}
 
 - (RYChatHandler *)getGroupInfoChatHandler {
     if (!_getGroupInfoChatHandler) {

@@ -42,6 +42,7 @@
 @property (nonatomic, strong) RYChatHandler *findUserChatHandler;
 
 @property (nonatomic, strong) RYChatHandler *getGroupInfoChatHandler;
+@property (nonatomic, strong) RYChatHandler *getGroupsChatHandler;
 
 //推送消息
 //设置推送监听，并根据类型进行操作
@@ -119,7 +120,7 @@
 #pragma mark ConnectToServerDelegate
 - (void)connectToServerSuccessWithData:(id)data
 {
-    NSLog(@"connectToServerSuccess--->\n %@",data);
+    NSLog(@"connectToServerSuccess--->\n");
     
     //用于连接到分配的连接服务器
     [self.RYChatHandler chat];
@@ -133,16 +134,20 @@
 
 - (void)connectToServerDisconnectSuccessWithData:(id)data
 {
-    NSLog(@"connectToServerDisconnectSuccess--->\n %@",data);
+    NSLog(@"connectToServerDisconnectSuccess--->\n");
 }
 
 - (void)pomeloDisconnect:(PomeloClient *)pomelo withError:(NSError *)error {
+    
+    NSLog(@"disconnect = %@",error);
     
 }
 
 #pragma mark RYChatHandlerDelegate
 
 - (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data requestId:(NSInteger)requestId{
+    
+    NSLog(@"data = %@",data);
     
     /*
     if (chatHandler.chatServerType == RouteConnectorTypeInit) {
@@ -415,6 +420,8 @@
 
 - (IBAction)readData:(id)sender {
     
+    [self.getGroupsChatHandler chat];
+    
     //read －－－－ OK
     //[self.readChatHandler chat];
     
@@ -537,6 +544,17 @@
         _findUserChatHandler.chatServerType = RouteChatTypeFindUser;
     }
     return _findUserChatHandler;
+}
+
+- (RYChatHandler *)getGroupsChatHandler {
+    
+    if (!_getGroupsChatHandler) {
+        _getGroupsChatHandler = [[RYChatHandler alloc] initWithDelegate:self];
+        _getGroupsChatHandler.chatServerType = RouteChatTypeGetGroups;
+    }
+    //分页
+    _getGroupsChatHandler.parameters = @{@"skipCount":[NSNumber numberWithInt:0],@"readType":[NSNumber numberWithInt:0],@"count":[NSNumber numberWithInt:100]};
+    return _getGroupsChatHandler;
 }
 
 /*--------------------------------------消息推送--------------------------------------*/
