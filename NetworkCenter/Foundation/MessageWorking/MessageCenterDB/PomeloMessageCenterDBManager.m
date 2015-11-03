@@ -310,21 +310,23 @@
         
         if (!SQLvalue || !conditionName) {
             
-            [resultDatas sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            int pos = -1;
+            
+            for (int i = 0 ; i < resultDatas.count ; i ++) {
                 
-                MessageCenterMetadataModel *tempObj1 = (MessageCenterMetadataModel *)obj1;
-                MessageCenterMetadataModel *tempObj2 = (MessageCenterMetadataModel *)obj2;
+                MessageCenterMetadataModel *model = resultDatas[i];
                 
-                if ([tempObj1.isTop isEqualToString:@"YES"] && [tempObj2.isTop isEqualToString:@"YES"]) {
-                    return [tempObj1.topTime compare:tempObj2.topTime];
-                }else if ([tempObj1.isTop isEqualToString:@"YES"] && (!tempObj2.isTop || [tempObj2.isTop isKindOfClass:[NSNull class]])) {
-                    return NSOrderedAscending;
-                }else if ([tempObj2.isTop isEqualToString:@"YES"] && (!tempObj1.isTop || [tempObj1.isTop isKindOfClass:[NSNull class]])) {
-                    return NSOrderedDescending;
+                if ([model.isTop isEqualToString:@"YES"]) {
+                    pos = i;
+                    break;
                 }
                 
-                return NSOrderedSame;
-            }];
+            }
+            
+            if (-1 != pos) {
+                [resultDatas exchangeObjectAtIndex:0 withObjectAtIndex:pos];
+            }
+            
         }
     }
     
