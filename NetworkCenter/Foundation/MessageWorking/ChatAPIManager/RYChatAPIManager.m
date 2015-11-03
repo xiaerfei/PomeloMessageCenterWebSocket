@@ -52,7 +52,7 @@ static RYChatAPIManager *shareManager = nil;
             routeStr = @"chat.chatHandler.Disturbed";
             break;
         case RouteChatTypeGetGroups:
-            routeStr = @"chat.ChatHandler.getGroups";
+            routeStr = @"chat.chatHandler.getGroups";
             break;
         case RouteChatTypeGetMsg:
             routeStr = @"chat.chatHandler.getMsg";
@@ -62,7 +62,9 @@ static RYChatAPIManager *shareManager = nil;
             break;
         case RouteChatTypeFindUser:
             routeStr = @"chat.chatHandler.findUser";
-
+            break;
+        case RouteChatTypeFindUsers:
+            routeStr = @"chat.chatHandler.findUsers";
         default:
             break;
     }

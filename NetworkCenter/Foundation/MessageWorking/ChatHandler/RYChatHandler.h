@@ -14,6 +14,8 @@
 @class RYChatHandler;
 @class CommonModel;
 
+typedef void (^RefreshUserSuccess)();
+
 /*---------------------------------RYChatHandlerDelegate------------------------------------*/
 
 //连接chat服务器之后，不论是何种请求，返回结果和chatHandler即可，具体viewController处理
@@ -38,6 +40,8 @@
 @property (nonatomic, assign) NSInteger chatServerType;
 //chat数据模型
 @property (nonatomic, strong) CommonModel *commonModel;
+//消息推送,如果存在groupID,则更新表数据，首先获取user信息，如果user信息获取到，则更新，如果获取不到，则需要服务器获取信息，然后再更新！
+@property (nonatomic, copy) RefreshUserSuccess RefreshUserSuccess;
 
 
 - (instancetype)initWithDelegate:(id)delegate;
