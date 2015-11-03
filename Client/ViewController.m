@@ -46,7 +46,6 @@
 //推送消息
 //设置推送监听，并根据类型进行操作
 @property (nonatomic, strong) RYNotifyHandler *onAllNotifyHandler;
-@property (nonatomic, strong) RYNotifyHandler *chatNotifyHandler;
 @property (nonatomic, strong) RYNotifyHandler *onGroupMsgListNotifyHandler;
 
 @property (nonatomic, strong) ConnectToServer *connectToSever;
@@ -145,6 +144,7 @@
 
 - (void)connectToChatSuccess:(RYChatHandler *)chatHandler result:(id)data requestId:(NSInteger)requestId{
     
+    /*
     if (chatHandler.chatServerType == RouteConnectorTypeInit) {
         
         if ([[NSString stringWithFormat:@"%@",data[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
@@ -153,7 +153,6 @@
             
             NSDictionary *userInfos = data[@"userInfo"];
             [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
-            [self.chatNotifyHandler onNotify];
             
             //连接服务器成功之后提交App Client信息
             [self.clientInfoChatHandler chat];
@@ -243,6 +242,8 @@
             
         }
     }
+     
+     */
 }
 
 - (void)connectToChatFailure:(RYChatHandler *)chatHandler result:(id)error requestId:(NSInteger)requestId{
@@ -256,6 +257,8 @@
     id     callBackData = notification.object;
     
     NSLog(@" %@ ",callBackData);
+    
+    /*
     
     if ([callBackData[@"__route__"] isEqualToString:[RYChatAPIManager routeWithType:RouteChatTypeSend]]) {
         
@@ -299,14 +302,33 @@
             [MessageTool setDisturbed:@"NO"];
         }
     }
+     
+     */
     
 }
 
 
 - (IBAction)disconnect:(id)sender {
     
+    
+    
+    //获取组和组成员
+    self.getGroupInfoChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904"};
+    [self.getGroupInfoChatHandler chat];
+    
+    //置顶
+    [self.topChatHandler chat];
+    
+    //免打扰
+    //这里的userid应该为客户ID
+    _disturbedHandler.parameters = @{@"userId":@"ea4184cc-f124-4952-a2a9-65f808e25f94",
+                                     @"isDisturbed":@"1"};
+    //accountID,这里的userid其实不是userid而是用户ID
+    [self.disturbedHandler chat];
+    
+    
     //测试,分页查询
-    [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"groupId" SQLvalue:@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904" startPos:0 endPos:2];
+    [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"groupId" SQLvalue:@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904" startPos:0 number:2];
     
     [self.connectToSever chatClientDisconnect];
 }
@@ -524,15 +546,6 @@
         _onAllNotifyHandler = [[RYNotifyHandler alloc] init];
     }
     return _onAllNotifyHandler;
-}
-
-- (RYNotifyHandler *)chatNotifyHandler {
-    if (!_chatNotifyHandler) {
-        _chatNotifyHandler = [[RYNotifyHandler alloc] init];
-        _chatNotifyHandler.notifyType = NotifyTypeOnChat;
-        
-    }
-    return _chatNotifyHandler;
 }
 
 

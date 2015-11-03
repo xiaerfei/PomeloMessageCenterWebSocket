@@ -17,9 +17,6 @@
 @property (nonatomic, assign) NotifyType notifyType;
 @property (nonatomic, strong) PomeloClient *client;
 
-/*
-@property (nonatomic, weak) id <RYNotifyHandlerDelegate> delegate;
- */
 
 - (void)onNotify;
 - (void)onAllNotify;

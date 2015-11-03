@@ -192,14 +192,14 @@
     }
 }
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos endPos:(NSInteger)endPos{
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos number:(NSInteger)number{
     
     NSString       *SQLStr      = nil;
     NSMutableArray *resultDatas = [[NSMutableArray alloc] init];
     
     if (tableType == MessageCenterDBManagerTypeMESSAGE) {
         
-        SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@') limit %d,%d",conditionName,SQLvalue,(int)startPos,(int)endPos];
+        SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@') limit %d,%d",conditionName,SQLvalue,(int)startPos,(int)number];
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
