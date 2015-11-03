@@ -39,8 +39,6 @@
 //chat数据模型
 @property (nonatomic, strong) CommonModel *commonModel;
 
-@property (nonatomic, strong) id delegate;
-
 
 - (instancetype)initWithDelegate:(id)delegate;
 

@@ -15,6 +15,7 @@
 #import "PomeloMessageCenterDBManager.h"
 #import "RYNotifyHandler.h"
 #import "ConnectToServer.h"
+#import "MessageTool.h"
 
 static RYChatHandler *shareHandler = nil;
 
@@ -28,6 +29,13 @@ static RYChatHandler *shareHandler = nil;
 //connector的host和port
 @property (nonatomic, copy) NSString *hostStr;
 @property (nonatomic, copy) NSString *portStr;
+
+@property (nonatomic, strong) RYChatHandler *clientInfoChatHandler;
+@property (nonatomic, strong) RYChatHandler *findUserChatHandler;
+
+//推送消息
+//设置推送监听，并根据类型进行操作
+@property (nonatomic, strong) RYNotifyHandler *onAllNotifyHandler;
 
 @end
 
@@ -66,6 +74,8 @@ static RYChatHandler *shareChatHandler = nil;
         
         NSDictionary *connectorInitDict = (NSDictionary *)arg;
         
+        /*
+        
         NSMutableString *logString = [NSMutableString stringWithString:@"\n\n**************************************************************\n*                       message chat                        *\n**************************************************************\n\n"];
         [logString appendFormat:@"Route:\t\t%@\n", [RYChatAPIManager routeWithType:self.chatServerType]];
         [logString appendFormat:@"params:\t\t\n%@", weakSelf.parameters];
@@ -74,19 +84,120 @@ static RYChatHandler *shareChatHandler = nil;
         [logString appendFormat:@"\n\n**************************************************************\n*                         message End                        *\n**************************************************************\n\n\n\n"];
         NSLog(@"%@", logString);
         
+        */
+        
         
         if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
             
             if ([weakSelf.chatDelegate respondsToSelector:@selector(connectToChatSuccess:result:requestId:)]) {
-                [weakSelf.chatDelegate connectToChatSuccess:weakSelf result:arg requestId:chatNumber.integerValue];
+                [weakSelf.chatDelegate connectToChatSuccess:weakSelf result:connectorInitDict requestId:chatNumber.integerValue];
             }else{
                 NSAssert(0,@"connectToChatSuccess:result:-方法必须实现");
             }
             
+            if (weakSelf.chatServerType == RouteConnectorTypeInit) {
+                
+                if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+                    
+                    NSLog(@"获取客户信息成功");
+                    
+                    NSDictionary *userInfos = connectorInitDict[@"userInfo"];
+                    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
+                    
+                    //连接服务器成功之后提交App Client信息
+                    [self.clientInfoChatHandler chat];
+                    
+                    //连接服务器成功之后注册所有通知
+                    [self.onAllNotifyHandler onAllNotify];
+                }
+                
+            }else if (weakSelf.chatServerType == RouteChatTypeWriteClientInfo) {
+                
+                if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+                    
+                    NSLog(@"WriteClientInfo －－ 发送客户信息成功");
+                }
+                
+            } else if (weakSelf.chatServerType == RouteChatTypeGetGroupInfo) {
+                
+                //获取组和组成员信息
+                
+                if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+                    
+                    //如果获取组和组成员成功，更新MsgMetadata表
+                    //暂时暴露处理方法，以后再调整
+                    
+                    NSDictionary *tempDict = (NSDictionary *)connectorInitDict[@"groupInfo"];
+                    
+                    NSMutableDictionary *groupInfo = [[NSMutableDictionary alloc] init];
+                    
+                    [groupInfo setValue:tempDict[@"_id"] forKey:@"MsgMetadataId"];
+                    [groupInfo setValue:tempDict[@"createTime"] forKey:@"CreateTime"];
+                    [groupInfo setValue:[MessageTool token] forKey:@"AccountId"];
+                    [groupInfo setValue:tempDict[@"groupId"] forKey:@"GroupId"];
+                    [groupInfo setValue:tempDict[@"lastedMsg"][@"msgId"] forKey:@"LastedMsgId"];
+                    [groupInfo setValue:tempDict[@"lastedMsg"][@"sender"] forKey:@"LastedMsgSenderName"];
+                    [groupInfo setValue:tempDict[@"lastedMsg"][@"LastedMsgTime"] forKey:@"time"];
+                    [groupInfo setValue:tempDict[@"lastedMsg"][@"content"] forKey:@"LastedMsgContent"];
+                    
+                    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMETADATA data:[NSArray arrayWithObjects:groupInfo, nil]];
+                    
+                    
+                    
+                    if (tempDict[@"users"] && ![tempDict[@"users"] isKindOfClass:[NSNull class]]) {
+                        
+                        //根据user获取user信息，聊天时如果查找不到user，则根据userid重新获取user信息并更新数据库
+                        //再组内获取组员信息，需要重新getGroupInfo
+                        
+                        for (NSDictionary *subDict in tempDict[@"users"]) {
+                            
+                            self.findUserChatHandler.parameters = @{@"userId":subDict[@"userId"]};
+                            [self.findUserChatHandler chat];
+                            
+                        }
+                        
+                    }
+                    
+                }
+                
+            }else if (weakSelf.chatServerType == RouteChatTypeFindUser) {
+                
+                if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+                    
+                    
+                    NSDictionary *userInfos = connectorInitDict[@"user"];
+                    
+                    if (userInfos && ![userInfos isKindOfClass:[NSNull class]]) {
+                        [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
+                    }
+                    
+                }
+                
+                
+            }else if (weakSelf.chatServerType == RouteChatTypeGetGroupId) {
+                
+                if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+                    
+                    NSLog(@"%@",arg);
+                    
+                }
+                
+            }else if (weakSelf.chatServerType == RouteChatTypeRead) {
+                //设置已读
+                
+                if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
+                    //成功之后更新组MsgMetadata表中的
+                    
+                    [[PomeloMessageCenterDBManager shareInstance] markReadTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:weakSelf.parameters[@"groupId"] parameters:[NSDictionary dictionaryWithObjectsAndKeys:weakSelf.parameters[@"lastedReadMsgId"],@"LastedReadMsgId",weakSelf.parameters[@"time"],@"LastedReadTime", nil]];
+                    
+                }
+            }
+            
+            
         }else{
             
             if ([weakSelf.chatDelegate respondsToSelector:@selector(connectToChatFailure:result:requestId:)]) {
-                [weakSelf.chatDelegate connectToChatFailure:weakSelf result:arg requestId:chatNumber.integerValue];
+                [weakSelf.chatDelegate connectToChatFailure:weakSelf result:connectorInitDict requestId:chatNumber.integerValue];
             }else{
                 NSAssert(0,@"connectToChatFailure:result:-方法必须实现");
             }
@@ -98,40 +209,6 @@ static RYChatHandler *shareChatHandler = nil;
 
 
 #pragma mark - inner Method
-
-/**
- *
- *  标记已读，客户端已读消息，存储数据到表MsgMetadata，并调用消息中心推送消息已读同步到APP端/web端
- *
- */
-
-- (void)markReadMessage {
-    
-    //如果是标记已读，则需要更改表MsgMetadata
-    NSArray *readMessageArray = [NSArray arrayWithObjects:self.commonModel,nil];
-    [[PomeloMessageCenterDBManager shareInstance] storeMetaDataWithDatas:readMessageArray];
-    
-}
-
-/**
- *
- *  将组成员添加至User表
- *
- */
-
-- (void)storeGroupMemberInfoWithArray:(NSArray *)groupMembers{
-    
-    NSMutableArray *userDatas = [[NSMutableArray alloc] initWithCapacity:20];
-    
-    for (int i = 0; i < groupMembers.count; i ++) {
-        
-        MessageCenterUserModel *messageCenterUserModel = [[MessageCenterUserModel alloc] init];
-        [messageCenterUserModel setValuesForKeysWithDictionary:groupMembers[i]];
-        
-        [userDatas addObject:messageCenterUserModel];
-    }
-    [[PomeloMessageCenterDBManager shareInstance] storeUserInfoWithDatas:userDatas];
-}
 
 /**
  *   @author xiaerfei, 15-10-30 17:10:04
@@ -155,5 +232,37 @@ static RYChatHandler *shareChatHandler = nil;
 }
 
 #pragma mark - getters and setters
+
+- (RYChatHandler *)clientInfoChatHandler {
+    if (!_clientInfoChatHandler) {
+        _clientInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:[[ConnectToServer shareInstance] delegate]];
+        _clientInfoChatHandler.chatServerType = RouteChatTypeWriteClientInfo;
+        _clientInfoChatHandler.parameters = @{@"appClientId":@"1219041c8c3b9bdff326f0f3e3615930",
+                                              @"deviceToken":@"f4a52dbda1af30249c27421214468d24bfdacbea16298f4cd2da35a3929daad5"};
+    }
+    return _clientInfoChatHandler;
+}
+
+- (RYChatHandler *)findUserChatHandler {
+    
+    if (!_findUserChatHandler) {
+        _findUserChatHandler = [[RYChatHandler alloc] initWithDelegate:[[ConnectToServer shareInstance] delegate]];
+        _findUserChatHandler.chatServerType = RouteChatTypeFindUser;
+    }
+    return _findUserChatHandler;
+}
+
+
+//推送消息
+- (RYNotifyHandler *)onAllNotifyHandler {
+    if (!_onAllNotifyHandler) {
+        _onAllNotifyHandler = [[RYNotifyHandler alloc] init];
+    }
+    return _onAllNotifyHandler;
+}
+
+
+
+
 
 @end

@@ -67,14 +67,22 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *
  *  根据不同的表类型获取表中信息,如果 pageNumber == -1 表示要取表中所有数据，否则读取指定个数(存在分页)
  *
+ *  @param tableType      MessageCenterDBManagerType表类型
+ *  @param conditionName  conditionName sql字段
+ *  @param SQLvalue       需要拼合的sql字段
+ *  @param startPos       从第几条开始取数据
+ *  @param number         取多少条数据
  */
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos endPos:(NSInteger)endPos;
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos number:(NSInteger)number;
 
 /**
  *
  *  根据不同的表类型获取表中信息(无分页)
- *
+ *  
+ *  @param tableType MessageCenterDBManagerType表类型
+ *  @param conditionName  conditionName sql字段
+ *  @param SQLvalue   需要拼合的sql字段
  */
 
 - (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue;
