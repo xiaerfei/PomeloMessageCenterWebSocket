@@ -99,6 +99,24 @@
                                     <action selector="getGroupInfo:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="h89-RG-YQv"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hIz-5W-fDt">
+                                <rect key="frame" x="107" y="187" width="106" height="30"/>
+                                <state key="normal" title="免打扰">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="disturbedBtnClick:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="Bl3-lG-l5u"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ogv-ch-AgD">
+                                <rect key="frame" x="137" y="225" width="46" height="30"/>
+                                <state key="normal" title="打扰">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="disturbedNoBtnClick:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="oEA-cM-TUt"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>

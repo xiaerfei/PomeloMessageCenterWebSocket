@@ -26,19 +26,15 @@
     return @"PushGlobalNotification";
 }
 
-+ (void)disturbedDisable {
-    
++ (void)setDisturbed:(NSString *)disturbedStr {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setValue:@"YES" forKey:[NSString stringWithFormat:@"%@disturbDisable",[MessageTool token]]];
+    [defaults setValue:disturbedStr forKey:[NSString stringWithFormat:@"%@disturb",[MessageTool token]]];
     [defaults synchronize];
 }
 
-+ (void)disturbedAble {
-    
++ (NSString *)getDisturbed {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setValue:@"NO" forKey:[NSString stringWithFormat:@"%@disturbAble",[MessageTool token]]];
-    [defaults synchronize];
-    
+    return [defaults objectForKey:[NSString stringWithFormat:@"%@disturb",[MessageTool token]]];
 }
 
 @end

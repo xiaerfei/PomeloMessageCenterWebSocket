@@ -129,7 +129,7 @@
         
         if (exist) {
             
-            [self updateTableWithType:tableType markID:markID data:[NSArray arrayWithObjects:tempDict, nil]];
+            [self updateTableWithType:tableType SQLvalue:markID data:[NSArray arrayWithObjects:tempDict, nil]];
             
         }else{
             
@@ -192,29 +192,35 @@
     }
 }
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID markID:(NSString *)markID currentPage:(NSInteger)page pageNumber:(NSInteger)pageNumber{
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos endPos:(NSInteger)endPos{
     
+    NSString       *SQLStr      = nil;
+    NSMutableArray *resultDatas = [[NSMutableArray alloc] init];
     
-    
-    NSMutableArray *resultDatas = [[NSMutableArray alloc] initWithArray:[self fetchUserInfosWithType:tableType keyID:keyID markID:markID]];
-    
-    NSMutableArray *datas = [[NSMutableArray alloc] init];
-    
-    if (pageNumber != -1) {
+    if (tableType == MessageCenterDBManagerTypeMESSAGE) {
         
-        for (int i = 0; i < resultDatas.count; i ++) {
+        SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@') limit %d,%d",conditionName,SQLvalue,(int)startPos,(int)endPos];
+        
+        [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
-            if (i < page * pageNumber) {
-                [datas addObject:resultDatas[i]];
-            }
+            MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
             
-        }
+            messageCenterMessageModel.UserMessageId = [set stringForColumn:@"UserMessageId"];
+            messageCenterMessageModel.UserId       = [set stringForColumn:@"UserId"];
+            messageCenterMessageModel.MessageId    = [set stringForColumn:@"MessageId"];
+            messageCenterMessageModel.MsgContent   = [set stringForColumn:@"MsgContent"];
+            messageCenterMessageModel.CreateTime   = [set stringForColumn:@"CreateTime"];
+            messageCenterMessageModel.Status       = [set stringForColumn:@"Status"];
+            
+            [resultDatas addObject:messageCenterMessageModel];
+            
+        } Sql:SQLStr];
     }
     
-    return datas;
+    return resultDatas;
 }
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID markID:(NSString *)markID{
+- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue{
     
     NSMutableArray *resultDatas = [[NSMutableArray alloc] init];
     NSString       *SQLStr      = nil;
@@ -224,7 +230,7 @@
         
         //群组取出消息(根据groupid或者targetid查找消息，然后根据消息查找对应用户（获取用户信息）)
         
-        SQLStr = [NSString stringWithFormat:@"select * from UserMessage join User on UserMessage.UserId = User.UserId where %@ = '%@'",keyID,markID];
+        SQLStr = [NSString stringWithFormat:@"select * from UserMessage join User on UserMessage.UserId = User.UserId where %@ = '%@'",conditionName,SQLvalue];
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
@@ -245,7 +251,7 @@
         
     }else if (tableType == MessageCenterDBManagerTypeUSER) {
         
-        SQLStr = [NSString stringWithFormat:@"select * from User where %@ = '%@'",keyID,markID];
+        SQLStr = [NSString stringWithFormat:@"select * from User where %@ = '%@'",conditionName,SQLvalue];
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
@@ -263,8 +269,8 @@
         
     }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
-        if (markID) {
-            SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata where %@ = '%@'",keyID,markID];
+        if (SQLvalue && conditionName) {
+            SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata where %@ = '%@'",conditionName,SQLvalue];
         }else {
             SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata"];
         }
@@ -298,7 +304,7 @@
             
         } Sql:SQLStr];
         
-        if (!markID) {
+        if (!SQLvalue || !conditionName) {
             
             [resultDatas sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
                 
@@ -330,7 +336,7 @@
  *  @param datas     需要更新的数据
  */
 
-- (void)updateTableWithType:(MessageCenterDBManagerType)tableType markID:(NSString *)markID data:(NSArray *)datas{
+- (void)updateTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue data:(NSArray *)datas{
     
     NSString*     SQLStr = nil;
     
@@ -345,7 +351,7 @@
             [messageCenterMessageModel setValuesForKeysWithDictionary:tempDict];
             
             SQLStr = [NSString stringWithFormat:
-                      [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE key:@"MessageId"],markID];
+                      [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE key:@"MessageId"],SQLvalue];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
              messageCenterMessageModel.UserMessageId,
@@ -364,7 +370,7 @@
             [messageCenterUserModel setValuesForKeysWithDictionary:tempDict];
             
             
-            SQLStr = [NSString stringWithFormat:[_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeUSER key:@"UserId"],markID];
+            SQLStr = [NSString stringWithFormat:[_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeUSER key:@"UserId"],SQLvalue];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
              messageCenterUserModel.UserId,
@@ -379,7 +385,7 @@
             [messageCenterMetadataModel setValuesForKeysWithDictionary:tempDict];
             
             SQLStr = [NSString stringWithFormat:
-                      [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA key:@"MsgMetadataId"],markID];
+                      [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA key:@"GroupId"],SQLvalue];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
              messageCenterMetadataModel.MsgMetadataId,
@@ -406,12 +412,41 @@
     }
 }
 
-- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType keyID:(NSString *)keyID topTime:(NSString *)topTime {
+- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue topTime:(NSString *)topTime {
     
     if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
-        NSString *SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@',topTime = '%@' where GroupId = '%@'",@"YES",topTime,keyID];
+        NSString *SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@',topTime = '%@' where GroupId = '%@'",@"YES",topTime,SQLvalue];
         [_dataBaseStore updateDataWithSql:SQLStr];
+        
+    }
+    
+}
+
+- (void)markReadTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue parameters:(NSDictionary *)parameters {
+    
+    if (tableType == MessageCenterDBManagerTypeMETADATA) {
+        
+        NSMutableString *resultSQLStr = [[NSMutableString alloc] initWithString:@"update MsgMetadata set "];
+        
+        NSArray *keysArr = parameters.allKeys;
+        
+        for (int i = 0; i < keysArr.count; i ++ ) {
+            
+            NSString *keyStr = keysArr[i];
+            NSString *valueStr = parameters[keyStr];
+            
+            if (i != keysArr.count - 1) {
+                [resultSQLStr appendFormat:@"%@ = '%@', ",keyStr,valueStr];
+            }else{
+                [resultSQLStr appendFormat:@"%@ = '%@'",keyStr,valueStr];
+            }
+            
+        }
+        
+        [resultSQLStr appendFormat:@"where GroupId = '%@'",SQLvalue];
+        
+        [_dataBaseStore updateDataWithSql:resultSQLStr];
         
     }
     

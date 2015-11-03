@@ -17,7 +17,6 @@
 + (NSString *)PushGlobalNotificationStr;
 
 //消息免打扰（全局disable）-------区分用户
-+ (void)disturbedDisable;
-//able
-+ (void)disturbedAble;
++ (void)setDisturbed:(NSString *)disturbedStr;
++ (NSString *)getDisturbed;
 @end
