@@ -207,7 +207,7 @@
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
-
+            messageCenterMessageModel.userMessageId = [set stringForColumn:@"UserMessageId"];
             messageCenterMessageModel.userId       = [set stringForColumn:@"UserId"];
             messageCenterMessageModel.messageId    = [set stringForColumn:@"MessageId"];
             messageCenterMessageModel.msgContent   = [set stringForColumn:@"MsgContent"];
@@ -237,7 +237,7 @@
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
-            
+            messageCenterMessageModel.userMessageId = [set stringForColumn:@"UserMessageId"];
             messageCenterMessageModel.userId       = [set stringForColumn:@"UserId"];
             messageCenterMessageModel.messageId    = [set stringForColumn:@"MessageId"];
             messageCenterMessageModel.msgContent   = [set stringForColumn:@"MsgContent"];
@@ -257,7 +257,7 @@
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
             MessageCenterUserModel *messageCenterUserModel = [[MessageCenterUserModel alloc] init];
-            
+            messageCenterUserModel.mID      = [set stringForColumn:@"MID"];
             messageCenterUserModel.userId   = [set stringForColumn:@"UserId"];
             messageCenterUserModel.personName = [set stringForColumn:@"PersonName"];
             messageCenterUserModel.userRole = [set stringForColumn:@"UserRole"];
@@ -278,6 +278,7 @@
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
             MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
+            messageCenterMetadataModel.msgMetadataId = [set stringForColumn:@"MsgMetadataId"];
             messageCenterMetadataModel.accountId = [set stringForColumn:@"AccountId"];
             messageCenterMetadataModel.groupId = [set stringForColumn:@"GroupId"];
             messageCenterMetadataModel.groupName = [set stringForColumn:@"GroupName"];
@@ -485,6 +486,7 @@
     [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
         
         MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
+        messageCenterMetadataModel.msgMetadataId = [set stringForColumn:@"MsgMetadataId"];
         messageCenterMetadataModel.accountId = [set stringForColumn:@"AccountId"];
         messageCenterMetadataModel.groupId = [set stringForColumn:@"GroupId"];
         messageCenterMetadataModel.groupName = [set stringForColumn:@"GroupName"];
