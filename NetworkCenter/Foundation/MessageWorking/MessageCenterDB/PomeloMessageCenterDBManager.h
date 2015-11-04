@@ -101,10 +101,9 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *
  *  @param tableType MessageCenterDBManagerType表类型
  *  @param SQLvalue  SQLvalue需要拼合的sql字段
- *  @param topTime   topTime
  */
 
-- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue topTime:(NSString *)topTime;
+- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue;
 
 /**
  *  设置已读

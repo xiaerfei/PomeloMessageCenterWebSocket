@@ -105,8 +105,7 @@ static RYChatHandler *shareChatHandler = nil;
                     //如果有置顶信息，则设置置顶
                     if (userInfos[@"topGroupId"] && ![userInfos[@"topGroupId"] isKindOfClass:[NSNull class]] && [userInfos[@"topGroupId"] length] != 0) {
                         
-                        NSDate *nowDate = [NSDate date];
-                        [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:userInfos[@"topGroupId"] topTime:[NSString stringWithFormat:@"%f",[nowDate timeIntervalSince1970]]];
+                        [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:userInfos[@"topGroupId"]];
                         
                     }
                     
@@ -136,17 +135,17 @@ static RYChatHandler *shareChatHandler = nil;
                     
                     NSMutableDictionary *groupInfo = [[NSMutableDictionary alloc] init];
                     
-                    [groupInfo setValue:tempDict[@"_id"] forKey:@"MsgMetadataId"];
-                    [groupInfo setValue:tempDict[@"createTime"] forKey:@"CreateTime"];
+                    [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"_id"]] forKey:@"MsgMetadataId"];
+                    [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"createTime"]] forKey:@"CreateTime"];
                     [groupInfo setValue:[MessageTool token] forKey:@"AccountId"];
-                    [groupInfo setValue:tempDict[@"groupId"] forKey:@"GroupId"];
+                    [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"groupId"]] forKey:@"GroupId"];
                     
                     if (tempDict[@"lastedMsg"] && ![tempDict[@"lastedMsg"] isKindOfClass:[NSNull class]]) {
                         
-                        [groupInfo setValue:tempDict[@"lastedMsg"][@"msgId"] forKey:@"LastedMsgId"];
-                        [groupInfo setValue:tempDict[@"lastedMsg"][@"sender"] forKey:@"LastedMsgSenderName"];
-                        [groupInfo setValue:tempDict[@"lastedMsg"][@"LastedMsgTime"] forKey:@"time"];
-                        [groupInfo setValue:tempDict[@"lastedMsg"][@"content"] forKey:@"LastedMsgContent"];
+                        [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"lastedMsg"][@"msgId"]] forKey:@"LastedMsgId"];
+                        [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"lastedMsg"][@"sender"]] forKey:@"LastedMsgSenderName"];
+                        [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"lastedMsg"][@"LastedMsgTime"]] forKey:@"time"];
+                        [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"lastedMsg"][@"content"]] forKey:@"LastedMsgContent"];
                         
                     }
                      

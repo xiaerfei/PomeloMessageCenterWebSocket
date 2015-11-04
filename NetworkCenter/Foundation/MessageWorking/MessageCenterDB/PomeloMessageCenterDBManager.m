@@ -109,20 +109,20 @@
             MessageCenterUserModel *messageCenterUserModel = [[MessageCenterUserModel alloc] init];
             [messageCenterUserModel setValuesForKeysWithDictionary:datas[i]];
             
-            markID = messageCenterUserModel.UserId;
+            markID = messageCenterUserModel.userId;
             
         }else if (tableType == MessageCenterDBManagerTypeMESSAGE){
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
             [messageCenterMessageModel setValuesForKeysWithDictionary:datas[i]];
-            markID = messageCenterMessageModel.MessageId;
+            markID = messageCenterMessageModel.messageId;
             
         }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
             
             MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
             [messageCenterMetadataModel setValuesForKeysWithDictionary:datas[i]];
             
-            markID = messageCenterMetadataModel.MsgMetadataId;
+            markID = messageCenterMetadataModel.msgMetadataId;
             
         }
         
@@ -140,11 +140,13 @@
                 [messageCenterUserModel setValuesForKeysWithDictionary:datas[i]];
                 
                 [_dataBaseStore updateDataWithSql:SQLStr,
-                 messageCenterUserModel.UserId,
-                 messageCenterUserModel.PersonName,
-                 messageCenterUserModel.UserRole,
-                 messageCenterUserModel.Avatar,
-                 messageCenterUserModel.AvatarCache];
+                 messageCenterUserModel.userId,
+                 messageCenterUserModel.personName,
+                 messageCenterUserModel.userRole,
+                 messageCenterUserModel.avatar,
+                 messageCenterUserModel.avatarCache,
+                 messageCenterUserModel.userName,
+                 messageCenterUserModel.userType];
                 
             }else if (tableType == MessageCenterDBManagerTypeMESSAGE) {
                 
@@ -152,12 +154,12 @@
                 [messageCenterMessageModel setValuesForKeysWithDictionary:datas[i]];
                 
                 [_dataBaseStore updateDataWithSql:SQLStr,
-                 messageCenterMessageModel.UserMessageId,
-                 messageCenterMessageModel.UserId,
-                 messageCenterMessageModel.MessageId,
-                 messageCenterMessageModel.GroupId,
-                 messageCenterMessageModel.MsgContent,
-                 messageCenterMessageModel.CreateTime,
+                 messageCenterMessageModel.userMessageId,
+                 messageCenterMessageModel.userId,
+                 messageCenterMessageModel.messageId,
+                 messageCenterMessageModel.groupId,
+                 messageCenterMessageModel.msgContent,
+                 messageCenterMessageModel.createTime,
                  messageCenterMessageModel.Status];
                 
             }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
@@ -166,26 +168,26 @@
                 [messageCenterMetadataModel setValuesForKeysWithDictionary:datas[i]];
                 
                 //这里使用用户ID，而不是聊天中的userID
-                messageCenterMetadataModel.AccountId = [MessageTool token];
+                messageCenterMetadataModel.accountId = [MessageTool token];
                 
                 [_dataBaseStore updateDataWithSql:SQLStr,
-                 messageCenterMetadataModel.MsgMetadataId,
-                 messageCenterMetadataModel.AccountId,
-                 messageCenterMetadataModel.GroupId,
-                 messageCenterMetadataModel.GroupName,
-                 messageCenterMetadataModel.Avatar,
-                 messageCenterMetadataModel.AvatarCache,
-                 messageCenterMetadataModel.GroupType,
-                 messageCenterMetadataModel.CompanyName,
-                 messageCenterMetadataModel.ApproveStatus,
-                 messageCenterMetadataModel.LastedReadMsgId,
-                 messageCenterMetadataModel.LastedReadTime,
-                 messageCenterMetadataModel.LastedMsgId,
-                 messageCenterMetadataModel.LastedMsgSenderName,
-                 messageCenterMetadataModel.LastedMsgTime,
-                 messageCenterMetadataModel.LastedMsgContent,
-                 messageCenterMetadataModel.UnReadMsgCount,
-                 messageCenterMetadataModel.CreateTime,
+                 messageCenterMetadataModel.msgMetadataId,
+                 messageCenterMetadataModel.accountId,
+                 messageCenterMetadataModel.groupId,
+                 messageCenterMetadataModel.groupName,
+                 messageCenterMetadataModel.avatar,
+                 messageCenterMetadataModel.avatarCache,
+                 messageCenterMetadataModel.groupType,
+                 messageCenterMetadataModel.companyName,
+                 messageCenterMetadataModel.approveStatus,
+                 messageCenterMetadataModel.lastedReadMsgId,
+                 messageCenterMetadataModel.lastedReadTime,
+                 messageCenterMetadataModel.lastedMsgId,
+                 messageCenterMetadataModel.lastedMsgSenderName,
+                 messageCenterMetadataModel.lastedMsgTime,
+                 messageCenterMetadataModel.lastedMsgContent,
+                 messageCenterMetadataModel.unReadMsgCount,
+                 messageCenterMetadataModel.createTime,
                  messageCenterMetadataModel.isTop,
                  messageCenterMetadataModel.topTime];
                 
@@ -209,11 +211,11 @@
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
             
-            messageCenterMessageModel.UserMessageId = [set stringForColumn:@"UserMessageId"];
-            messageCenterMessageModel.UserId       = [set stringForColumn:@"UserId"];
-            messageCenterMessageModel.MessageId    = [set stringForColumn:@"MessageId"];
-            messageCenterMessageModel.MsgContent   = [set stringForColumn:@"MsgContent"];
-            messageCenterMessageModel.CreateTime   = [set stringForColumn:@"CreateTime"];
+            messageCenterMessageModel.userMessageId = [set stringForColumn:@"UserMessageId"];
+            messageCenterMessageModel.userId       = [set stringForColumn:@"UserId"];
+            messageCenterMessageModel.messageId    = [set stringForColumn:@"MessageId"];
+            messageCenterMessageModel.msgContent   = [set stringForColumn:@"MsgContent"];
+            messageCenterMessageModel.createTime   = [set stringForColumn:@"CreateTime"];
             messageCenterMessageModel.Status       = [set stringForColumn:@"Status"];
             
             [resultDatas addObject:messageCenterMessageModel];
@@ -240,14 +242,14 @@
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
             
-            messageCenterMessageModel.UserMessageId = [set stringForColumn:@"UserMessageId"];
-            messageCenterMessageModel.UserId       = [set stringForColumn:@"UserId"];
-            messageCenterMessageModel.MessageId    = [set stringForColumn:@"MessageId"];
-            messageCenterMessageModel.MsgContent   = [set stringForColumn:@"MsgContent"];
-            messageCenterMessageModel.CreateTime   = [set stringForColumn:@"CreateTime"];
+            messageCenterMessageModel.userMessageId = [set stringForColumn:@"UserMessageId"];
+            messageCenterMessageModel.userId       = [set stringForColumn:@"UserId"];
+            messageCenterMessageModel.messageId    = [set stringForColumn:@"MessageId"];
+            messageCenterMessageModel.msgContent   = [set stringForColumn:@"MsgContent"];
+            messageCenterMessageModel.createTime   = [set stringForColumn:@"CreateTime"];
             messageCenterMessageModel.Status       = [set stringForColumn:@"Status"];
-            messageCenterMessageModel.PersonName   = [set stringForColumn:@"PersonName"];
-            messageCenterMessageModel.Avatar       = [set stringForColumn:@"Avatar"];
+            messageCenterMessageModel.personName   = [set stringForColumn:@"PersonName"];
+            messageCenterMessageModel.avatar       = [set stringForColumn:@"Avatar"];
             
             [resultDatas addObject:messageCenterMessageModel];
             
@@ -261,11 +263,13 @@
             
             MessageCenterUserModel *messageCenterUserModel = [[MessageCenterUserModel alloc] init];
             
-            messageCenterUserModel.UserId   = [set stringForColumn:@"UserId"];
-            messageCenterUserModel.PersonName = [set stringForColumn:@"PersonName"];
-            messageCenterUserModel.UserRole = [set stringForColumn:@"UserRole"];
-            messageCenterUserModel.Avatar     = [set stringForColumn:@"Avatar"];
-            messageCenterUserModel.AvatarCache = [set stringForColumn:@"AvatarCache"];
+            messageCenterUserModel.userId   = [set stringForColumn:@"UserId"];
+            messageCenterUserModel.personName = [set stringForColumn:@"PersonName"];
+            messageCenterUserModel.userRole = [set stringForColumn:@"UserRole"];
+            messageCenterUserModel.avatar     = [set stringForColumn:@"Avatar"];
+            messageCenterUserModel.avatarCache = [set stringForColumn:@"AvatarCache"];
+            messageCenterUserModel.userName    = [set stringForColumn:@"UserName"];
+            messageCenterUserModel.userType    = [set stringForColumn:@"UserType"];
             
             [resultDatas addObject:messageCenterUserModel];
             
@@ -283,23 +287,23 @@
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
             MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
-            messageCenterMetadataModel.MsgMetadataId = [set stringForColumn:@"MsgMetadataId"];
-            messageCenterMetadataModel.AccountId = [set stringForColumn:@"AccountId"];
-            messageCenterMetadataModel.GroupId = [set stringForColumn:@"GroupId"];
-            messageCenterMetadataModel.GroupName = [set stringForColumn:@"GroupName"];
-            messageCenterMetadataModel.Avatar = [set stringForColumn:@"Avatar"];
-            messageCenterMetadataModel.AvatarCache = [set stringForColumn:@"AvatarCache"];
-            messageCenterMetadataModel.GroupType = [set intForColumn:@"GroupType"];
-            messageCenterMetadataModel.CompanyName = [set stringForColumn:@"CompanyName"];
-            messageCenterMetadataModel.ApproveStatus = [set intForColumn:@"ApproveStatus"];
-            messageCenterMetadataModel.LastedReadMsgId = [set stringForColumn:@"LastedReadMsgId"];
-            messageCenterMetadataModel.LastedReadTime = [set stringForColumn:@"LastedReadTime"];
-            messageCenterMetadataModel.LastedMsgId = [set stringForColumn:@"LastedMsgId"];
-            messageCenterMetadataModel.LastedMsgSenderName = [set stringForColumn:@"LastedMsgSenderName"];
-            messageCenterMetadataModel.LastedMsgTime = [set stringForColumn:@"LastedMsgTime"];
-            messageCenterMetadataModel.LastedMsgContent = [set stringForColumn:@"LastedMsgContent"];
-            messageCenterMetadataModel.UnReadMsgCount = [set stringForColumn:@"UnReadMsgCount"];
-            messageCenterMetadataModel.CreateTime = [set stringForColumn:@"CreateTime"];
+            messageCenterMetadataModel.msgMetadataId = [set stringForColumn:@"MsgMetadataId"];
+            messageCenterMetadataModel.accountId = [set stringForColumn:@"AccountId"];
+            messageCenterMetadataModel.groupId = [set stringForColumn:@"GroupId"];
+            messageCenterMetadataModel.groupName = [set stringForColumn:@"GroupName"];
+            messageCenterMetadataModel.avatar = [set stringForColumn:@"Avatar"];
+            messageCenterMetadataModel.avatarCache = [set stringForColumn:@"AvatarCache"];
+            messageCenterMetadataModel.groupType = [set intForColumn:@"GroupType"];
+            messageCenterMetadataModel.companyName = [set stringForColumn:@"CompanyName"];
+            messageCenterMetadataModel.approveStatus = [set intForColumn:@"ApproveStatus"];
+            messageCenterMetadataModel.lastedReadMsgId = [set stringForColumn:@"LastedReadMsgId"];
+            messageCenterMetadataModel.lastedReadTime = [set stringForColumn:@"LastedReadTime"];
+            messageCenterMetadataModel.lastedMsgId = [set stringForColumn:@"LastedMsgId"];
+            messageCenterMetadataModel.lastedMsgSenderName = [set stringForColumn:@"LastedMsgSenderName"];
+            messageCenterMetadataModel.lastedMsgTime = [set stringForColumn:@"LastedMsgTime"];
+            messageCenterMetadataModel.lastedMsgContent = [set stringForColumn:@"LastedMsgContent"];
+            messageCenterMetadataModel.unReadMsgCount = [set stringForColumn:@"UnReadMsgCount"];
+            messageCenterMetadataModel.createTime = [set stringForColumn:@"CreateTime"];
             messageCenterMetadataModel.isTop = [set stringForColumn:@"isTop"];
             messageCenterMetadataModel.topTime = [set stringForColumn:@"topTime"];
             
@@ -360,12 +364,12 @@
                       [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE key:@"MessageId"],SQLvalue];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
-             messageCenterMessageModel.UserMessageId,
-             messageCenterMessageModel.UserId,
-             messageCenterMessageModel.MessageId,
-             messageCenterMessageModel.GroupId,
-             messageCenterMessageModel.MsgContent,
-             messageCenterMessageModel.CreateTime,
+             messageCenterMessageModel.userMessageId,
+             messageCenterMessageModel.userId,
+             messageCenterMessageModel.messageId,
+             messageCenterMessageModel.groupId,
+             messageCenterMessageModel.msgContent,
+             messageCenterMessageModel.createTime,
              messageCenterMessageModel.Status
              ];
             
@@ -379,11 +383,13 @@
             SQLStr = [NSString stringWithFormat:[_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeUSER key:@"UserId"],SQLvalue];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
-             messageCenterUserModel.UserId,
-             messageCenterUserModel.PersonName,
-             messageCenterUserModel.UserRole,
-             messageCenterUserModel.Avatar,
-             messageCenterUserModel.AvatarCache];
+             messageCenterUserModel.userId,
+             messageCenterUserModel.personName,
+             messageCenterUserModel.userRole,
+             messageCenterUserModel.avatar,
+             messageCenterUserModel.avatarCache,
+             messageCenterUserModel.userName,
+             messageCenterUserModel.userType];
             
         }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
             
@@ -394,26 +400,26 @@
                       [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA key:@"GroupId"],SQLvalue];
             
             //同上
-            messageCenterMetadataModel.AccountId = [MessageTool token];
+            messageCenterMetadataModel.accountId = [MessageTool token];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
-             messageCenterMetadataModel.MsgMetadataId,
-             messageCenterMetadataModel.AccountId,
-             messageCenterMetadataModel.GroupId,
-             messageCenterMetadataModel.GroupName,
-             messageCenterMetadataModel.Avatar,
-             messageCenterMetadataModel.AvatarCache,
-             messageCenterMetadataModel.GroupType,
-             messageCenterMetadataModel.CompanyName,
-             messageCenterMetadataModel.ApproveStatus,
-             messageCenterMetadataModel.LastedReadMsgId,
-             messageCenterMetadataModel.LastedReadTime,
-             messageCenterMetadataModel.LastedMsgId,
-             messageCenterMetadataModel.LastedMsgSenderName,
-             messageCenterMetadataModel.LastedMsgTime,
-             messageCenterMetadataModel.LastedMsgContent,
-             messageCenterMetadataModel.UnReadMsgCount,
-             messageCenterMetadataModel.CreateTime,
+             messageCenterMetadataModel.msgMetadataId,
+             messageCenterMetadataModel.accountId,
+             messageCenterMetadataModel.groupId,
+             messageCenterMetadataModel.groupName,
+             messageCenterMetadataModel.avatar,
+             messageCenterMetadataModel.avatarCache,
+             messageCenterMetadataModel.groupType,
+             messageCenterMetadataModel.companyName,
+             messageCenterMetadataModel.approveStatus,
+             messageCenterMetadataModel.lastedReadMsgId,
+             messageCenterMetadataModel.lastedReadTime,
+             messageCenterMetadataModel.lastedMsgId,
+             messageCenterMetadataModel.lastedMsgSenderName,
+             messageCenterMetadataModel.lastedMsgTime,
+             messageCenterMetadataModel.lastedMsgContent,
+             messageCenterMetadataModel.unReadMsgCount,
+             messageCenterMetadataModel.createTime,
              messageCenterMetadataModel.isTop,
              messageCenterMetadataModel.topTime
              ];
@@ -428,9 +434,10 @@
         NSString *SQLStr = @"update MsgMetadata set isTop = 'NO'";
         [_dataBaseStore updateDataWithSql:SQLStr];
         
-        SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@',topTime = '%@' where GroupId = '%@'",@"YES",topTime,SQLvalue];
-        [_dataBaseStore updateDataWithSql:SQLStr];
-        
+        if (!SQLvalue) {
+            SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@',topTime = '%@' where GroupId = '%@'",@"YES",topTime,SQLvalue];
+            [_dataBaseStore updateDataWithSql:SQLStr];
+        }
     }
     
 }

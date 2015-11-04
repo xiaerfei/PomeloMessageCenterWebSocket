@@ -364,7 +364,7 @@
     for (MessageCenterMessageModel *message in messages) {
         
         //根据MessageId获取关联的user信息(数组中其实只有一个值)
-        NSArray *userInfoArr = [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"MessageId" SQLvalue:message.MessageId];
+        NSArray *userInfoArr = [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"MessageId" SQLvalue:message.messageId];
         
         NSLog(@"userinfo = %@",userInfoArr);
         
@@ -373,8 +373,8 @@
     MessageCenterMessageModel *lastMessageModel = messages[messages.count - 1];
     //设置已读
     self.readChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904",
-                                        @"lastedReadMsgId":lastMessageModel.MessageId,
-                                        @"time":lastMessageModel.CreateTime};
+                                        @"lastedReadMsgId":lastMessageModel.messageId,
+                                        @"time":lastMessageModel.createTime};
     [self.readChatHandler chat];
     
     

@@ -69,12 +69,12 @@ static RYNotifyHandler *shareHandler = nil;
                 //设置该消息发送或者是获取到的
                 NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:arg];
             
-                [tempDict setValue:tempDict[@"_id"]     forKey:@"UserMessageId"];
-                [tempDict setValue:tempDict[@"_id"]     forKey:@"MessageId"];
-                [tempDict setValue:tempDict[@"time"]    forKey:@"CreateTime"];
-                [tempDict setValue:tempDict[@"from"]    forKey:@"UserId"];
-                [tempDict setValue:tempDict[@"groupId"] forKey:@"GroupId"];
-                [tempDict setValue:tempDict[@"content"] forKey:@"MsgContent"];
+                [tempDict setValue:[NSString stringWithFormat:@"%@",tempDict[@"_id"]]     forKey:@"UserMessageId"];
+                [tempDict setValue:[NSString stringWithFormat:@"%@",tempDict[@"_id"]]     forKey:@"MessageId"];
+                [tempDict setValue:[NSString stringWithFormat:@"%@",tempDict[@"time"]]    forKey:@"CreateTime"];
+                [tempDict setValue:[NSString stringWithFormat:@"%@",tempDict[@"from"]]    forKey:@"UserId"];
+                [tempDict setValue:[NSString stringWithFormat:@"%@",tempDict[@"groupId"]] forKey:@"GroupId"];
+                [tempDict setValue:[NSString stringWithFormat:@"%@",tempDict[@"content"]] forKey:@"MsgContent"];
                 [tempDict setValue:@"YES"               forKey:@"Status"];
                 
                 //存储信息
@@ -102,7 +102,7 @@ static RYNotifyHandler *shareHandler = nil;
                         MessageCenterUserModel *userModel = (MessageCenterUserModel *)users[0];
                         
                         //未读消息做＋1操作
-                        [[PomeloMessageCenterDBManager shareInstance] updateGroupLastedMessageWithTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:tempDict[@"GroupId"] parameters:[NSDictionary dictionaryWithObjectsAndKeys:@"UnReadMsgCount + 1",@"UnReadMsgCount",tempDict[@"MessageId"],@"LastedMsgId",userModel.PersonName,@"LastedMsgSenderName",tempDict[@"CreateTime"],@"LastedMsgTime",tempDict[@"MsgContent"],@"LastedMsgContent", nil]];
+                        [[PomeloMessageCenterDBManager shareInstance] updateGroupLastedMessageWithTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:tempDict[@"GroupId"] parameters:[NSDictionary dictionaryWithObjectsAndKeys:@"UnReadMsgCount + 1",@"UnReadMsgCount",tempDict[@"MessageId"],@"LastedMsgId",userModel.personName,@"LastedMsgSenderName",tempDict[@"CreateTime"],@"LastedMsgTime",tempDict[@"MsgContent"],@"LastedMsgContent", nil]];
                         
                     }else{
                         
@@ -126,8 +126,17 @@ static RYNotifyHandler *shareHandler = nil;
                 
                 //置顶操作
                 NSString *groupID = arg[@"groupId"];
-                NSDate *nowDate = [NSDate date];
-                [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:groupID topTime:[NSString stringWithFormat:@"%f",[nowDate timeIntervalSince1970]]];
+                
+                if (groupID && ![groupID isKindOfClass:[NSNull class]]) {
+                    
+                    //如果groupid存在，则为置顶组
+                    [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:groupID];
+                }else {
+                    
+                    //如果groupid不存在，则为取消置顶
+                    [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:nil];
+                    
+                }
                 
             }else if ([arg[@"__route__"] isEqualToString:[RYChatAPIManager routeWithType:RouteChatTypeDisturbed]]) {
                 //全局设置
@@ -164,7 +173,7 @@ static RYNotifyHandler *shareHandler = nil;
         //如果存在用户信息，则使用用户信息更新METADATA表
         MessageCenterUserModel *userModel = (MessageCenterUserModel *)users[0];
         
-        [[PomeloMessageCenterDBManager shareInstance] updateGroupLastedMessageWithTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:tempDict[@"GroupId"] parameters:[NSDictionary dictionaryWithObjectsAndKeys:tempDict[@"MessageId"],@"LastedMsgId",userModel.PersonName,@"LastedMsgSenderName",tempDict[@"CreateTime"],@"LastedMsgTime",tempDict[@"MsgContent"],@"LastedMsgContent", nil]];
+        [[PomeloMessageCenterDBManager shareInstance] updateGroupLastedMessageWithTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:tempDict[@"GroupId"] parameters:[NSDictionary dictionaryWithObjectsAndKeys:tempDict[@"MessageId"],@"LastedMsgId",userModel.personName,@"LastedMsgSenderName",tempDict[@"CreateTime"],@"LastedMsgTime",tempDict[@"MsgContent"],@"LastedMsgContent", nil]];
         
     }
 }
