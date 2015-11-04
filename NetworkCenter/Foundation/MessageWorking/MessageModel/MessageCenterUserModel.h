@@ -19,4 +19,5 @@
 @property (nonatomic, copy) NSString *userName;
 @property (nonatomic, copy) NSString *userType;
 
+
 @end

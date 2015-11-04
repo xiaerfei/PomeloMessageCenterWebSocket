@@ -333,7 +333,7 @@
     
     
     //测试,分页查询
-    [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"groupId" SQLvalue:@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904" startPos:0 number:2];
+    [[PomeloMessageCenterDBManager shareInstance] fetchDataInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"groupId" SQLvalue:@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904" startPos:0 number:2];
     
     [self.connectToSever chatClientDisconnect];
 }
@@ -357,14 +357,14 @@
 - (IBAction)getGroupInfo:(id)sender {
     
     //根据groupID获取关联的message
-    NSArray *messages = [[PomeloMessageCenterDBManager  shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"groupId" SQLvalue:@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904"];
+    NSArray *messages = [[PomeloMessageCenterDBManager  shareInstance] fetchDataInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"groupId" SQLvalue:@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904"];
     
     NSLog(@"messages = %@",messages);
     
     for (MessageCenterMessageModel *message in messages) {
         
         //根据MessageId获取关联的user信息(数组中其实只有一个值)
-        NSArray *userInfoArr = [[PomeloMessageCenterDBManager shareInstance] fetchUserInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"MessageId" SQLvalue:message.messageId];
+        NSArray *userInfoArr = [[PomeloMessageCenterDBManager shareInstance] fetchDataInfosWithType:MessageCenterDBManagerTypeMESSAGE conditionName:@"MessageId" SQLvalue:message.messageId];
         
         NSLog(@"userinfo = %@",userInfoArr);
         

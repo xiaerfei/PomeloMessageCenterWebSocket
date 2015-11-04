@@ -188,8 +188,7 @@
                  messageCenterMetadataModel.lastedMsgContent,
                  messageCenterMetadataModel.unReadMsgCount,
                  messageCenterMetadataModel.createTime,
-                 messageCenterMetadataModel.isTop,
-                 messageCenterMetadataModel.topTime];
+                 messageCenterMetadataModel.isTop];
                 
             }
             
@@ -198,7 +197,7 @@
     }
 }
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos number:(NSInteger)number{
+- (NSArray *)fetchDataInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos number:(NSInteger)number{
     
     NSString       *SQLStr      = nil;
     NSMutableArray *resultDatas = [[NSMutableArray alloc] init];
@@ -226,7 +225,7 @@
     return resultDatas;
 }
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue{
+- (NSArray *)fetchDataInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue{
     
     NSMutableArray *resultDatas = [[NSMutableArray alloc] init];
     NSString       *SQLStr      = nil;
@@ -277,11 +276,7 @@
         
     }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
-        if (SQLvalue && conditionName) {
-            SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata where %@ = '%@'",conditionName,SQLvalue];
-        }else {
-            SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata"];
-        }
+        SQLStr = [NSString stringWithFormat:@"select * from MsgMetadata where %@ = '%@'",conditionName,SQLvalue];
         
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
@@ -305,33 +300,13 @@
             messageCenterMetadataModel.unReadMsgCount = [set stringForColumn:@"UnReadMsgCount"];
             messageCenterMetadataModel.createTime = [set stringForColumn:@"CreateTime"];
             messageCenterMetadataModel.isTop = [set stringForColumn:@"isTop"];
-            messageCenterMetadataModel.topTime = [set stringForColumn:@"topTime"];
             
             [resultDatas addObject:messageCenterMetadataModel];
             
             
         } Sql:SQLStr];
         
-        if (!SQLvalue || !conditionName) {
-            
-            int pos = -1;
-            
-            for (int i = 0 ; i < resultDatas.count ; i ++) {
-                
-                MessageCenterMetadataModel *model = resultDatas[i];
-                
-                if ([model.isTop isEqualToString:@"YES"]) {
-                    pos = i;
-                    break;
-                }
-                
-            }
-            
-            if (-1 != pos) {
-                [resultDatas exchangeObjectAtIndex:0 withObjectAtIndex:pos];
-            }
-            
-        }
+        
     }
     
     return resultDatas;
@@ -420,14 +395,13 @@
              messageCenterMetadataModel.lastedMsgContent,
              messageCenterMetadataModel.unReadMsgCount,
              messageCenterMetadataModel.createTime,
-             messageCenterMetadataModel.isTop,
-             messageCenterMetadataModel.topTime
+             messageCenterMetadataModel.isTop
              ];
         }
     }
 }
 
-- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue topTime:(NSString *)topTime {
+- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue{
     
     if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
@@ -435,7 +409,7 @@
         [_dataBaseStore updateDataWithSql:SQLStr];
         
         if (!SQLvalue) {
-            SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@',topTime = '%@' where GroupId = '%@'",@"YES",topTime,SQLvalue];
+            SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@' where GroupId = '%@'",@"YES",SQLvalue];
             [_dataBaseStore updateDataWithSql:SQLStr];
         }
     }
@@ -493,6 +467,73 @@
     
     [self updateDataTableWithType:tableType SQLvalue:SQLvalue parameters:parameters];
     
+}
+
+- (NSArray *)fetchGroupsWithGroupReadType:(GroupReadType)readType {
+    
+    NSString *SQLStr = @"";
+    NSMutableArray *resultDatas = [[NSMutableArray alloc] init];
+    
+    switch (readType) {
+        case GroupReadTypeAll:
+            SQLStr = @"select * from MsgMetadata";
+            break;
+        case GroupReadTypeNoRead:
+            SQLStr = @"select * from MsgMetadata where UnReadMsgCount > '0'";
+            break;
+        case GroupReadTypeRead:
+            SQLStr = @"select * from MsgMetadata where UnReadMsgCount = '0'";
+            break;
+        default:
+            break;
+    }
+    
+    
+    [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
+        
+        MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
+        messageCenterMetadataModel.msgMetadataId = [set stringForColumn:@"MsgMetadataId"];
+        messageCenterMetadataModel.accountId = [set stringForColumn:@"AccountId"];
+        messageCenterMetadataModel.groupId = [set stringForColumn:@"GroupId"];
+        messageCenterMetadataModel.groupName = [set stringForColumn:@"GroupName"];
+        messageCenterMetadataModel.avatar = [set stringForColumn:@"Avatar"];
+        messageCenterMetadataModel.avatarCache = [set stringForColumn:@"AvatarCache"];
+        messageCenterMetadataModel.groupType = [set intForColumn:@"GroupType"];
+        messageCenterMetadataModel.companyName = [set stringForColumn:@"CompanyName"];
+        messageCenterMetadataModel.approveStatus = [set intForColumn:@"ApproveStatus"];
+        messageCenterMetadataModel.lastedReadMsgId = [set stringForColumn:@"LastedReadMsgId"];
+        messageCenterMetadataModel.lastedReadTime = [set stringForColumn:@"LastedReadTime"];
+        messageCenterMetadataModel.lastedMsgId = [set stringForColumn:@"LastedMsgId"];
+        messageCenterMetadataModel.lastedMsgSenderName = [set stringForColumn:@"LastedMsgSenderName"];
+        messageCenterMetadataModel.lastedMsgTime = [set stringForColumn:@"LastedMsgTime"];
+        messageCenterMetadataModel.lastedMsgContent = [set stringForColumn:@"LastedMsgContent"];
+        messageCenterMetadataModel.unReadMsgCount = [set stringForColumn:@"UnReadMsgCount"];
+        messageCenterMetadataModel.createTime = [set stringForColumn:@"CreateTime"];
+        messageCenterMetadataModel.isTop = [set stringForColumn:@"isTop"];
+        
+        [resultDatas addObject:messageCenterMetadataModel];
+        
+        
+    } Sql:SQLStr];
+    
+    int pos = -1;
+    
+    for (int i = 0 ; i < resultDatas.count ; i ++) {
+        
+        MessageCenterMetadataModel *model = resultDatas[i];
+        
+        if ([model.isTop isEqualToString:@"YES"]) {
+            pos = i;
+            break;
+        }
+        
+    }
+    
+    if (-1 != pos) {
+        [resultDatas exchangeObjectAtIndex:0 withObjectAtIndex:pos];
+    }
+    
+    return resultDatas;
 }
 
 /**

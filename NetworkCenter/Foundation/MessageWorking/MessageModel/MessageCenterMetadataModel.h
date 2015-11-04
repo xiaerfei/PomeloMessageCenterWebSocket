@@ -29,6 +29,5 @@
 @property (nonatomic, copy) NSString *createTime;          //创建时间
 
 @property (nonatomic, copy) NSString *isTop;               //本地设置置顶信息
-@property (nonatomic, copy) NSString *topTime;             //本地设置置顶时间
 
 @end

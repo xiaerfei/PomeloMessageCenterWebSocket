@@ -148,6 +148,9 @@ static RYChatHandler *shareChatHandler = nil;
                         [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"lastedMsg"][@"content"]] forKey:@"LastedMsgContent"];
                         
                     }
+                    
+                    //赋初值0
+                    [groupInfo setValue:@"1" forKey:@"UnReadMsgCount"];
                      
                     [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMETADATA data:[NSArray arrayWithObjects:groupInfo, nil]];
                     
