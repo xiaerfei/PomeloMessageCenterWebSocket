@@ -99,10 +99,16 @@ static RYChatHandler *shareChatHandler = nil;
                 
                 if ([[NSString stringWithFormat:@"%@",connectorInitDict[@"code"]] isEqualToString:[NSString stringWithFormat:@"%d",(int)ResultCodeTypeSuccess]]) {
                     
-                    NSLog(@"init信息成功");
-                    
                     NSDictionary *userInfos = connectorInitDict[@"userInfo"];
                     [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:userInfos, nil]];
+                    
+                    //如果有置顶信息，则设置置顶
+                    if (userInfos[@"topGroupId"] && ![userInfos[@"topGroupId"] isKindOfClass:[NSNull class]] && [userInfos[@"topGroupId"] length] != 0) {
+                        
+                        NSDate *nowDate = [NSDate date];
+                        [[PomeloMessageCenterDBManager shareInstance] markTopTableWithType:MessageCenterDBManagerTypeMETADATA SQLvalue:userInfos[@"topGroupId"] topTime:[NSString stringWithFormat:@"%f",[nowDate timeIntervalSince1970]]];
+                        
+                    }
                     
                     //连接服务器成功之后提交App Client信息
                     [weakSelf.clientInfoChatHandler chat];
@@ -127,15 +133,31 @@ static RYChatHandler *shareChatHandler = nil;
                     //如果获取组和组成员成功，更新MsgMetadata表
                     
                     NSDictionary *tempDict = (NSDictionary *)connectorInitDict[@"groupInfo"];
+                    
+                    NSMutableDictionary *groupInfo = [[NSMutableDictionary alloc] init];
+                    
+                    [groupInfo setValue:tempDict[@"_id"] forKey:@"MsgMetadataId"];
+                    [groupInfo setValue:tempDict[@"createTime"] forKey:@"CreateTime"];
+                    [groupInfo setValue:[MessageTool token] forKey:@"AccountId"];
+                    [groupInfo setValue:tempDict[@"groupId"] forKey:@"GroupId"];
+                    
+                    if (tempDict[@"lastedMsg"] && ![tempDict[@"lastedMsg"] isKindOfClass:[NSNull class]]) {
+                        
+                        [groupInfo setValue:tempDict[@"lastedMsg"][@"msgId"] forKey:@"LastedMsgId"];
+                        [groupInfo setValue:tempDict[@"lastedMsg"][@"sender"] forKey:@"LastedMsgSenderName"];
+                        [groupInfo setValue:tempDict[@"lastedMsg"][@"LastedMsgTime"] forKey:@"time"];
+                        [groupInfo setValue:tempDict[@"lastedMsg"][@"content"] forKey:@"LastedMsgContent"];
+                        
+                    }
                      
-                    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMETADATA data:[NSArray arrayWithObjects:tempDict, nil]];
+                    [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeMETADATA data:[NSArray arrayWithObjects:groupInfo, nil]];
                     
                     if (tempDict[@"users"] && ![tempDict[@"users"] isKindOfClass:[NSNull class]]) {
                         
                         //根据user获取user信息，聊天时如果查找不到user，则根据userid重新获取user信息并更新数据库
                         //再组内获取组员信息，需要重新getGroupInfo
                         
-                        [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:[NSArray arrayWithObjects:tempDict[@"users"], nil]];
+                        [[PomeloMessageCenterDBManager shareInstance] addDataToTableWithType:MessageCenterDBManagerTypeUSER data:tempDict[@"users"]];
                         
                     }
                     

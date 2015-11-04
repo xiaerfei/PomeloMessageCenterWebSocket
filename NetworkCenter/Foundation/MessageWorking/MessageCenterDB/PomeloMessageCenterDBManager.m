@@ -77,34 +77,11 @@
         case MessageCenterDBManagerTypeUSER:
             SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeUSER];
             break;
-        case MessageCenterDBManagerTypeMESSAGE:{
-            
-            
-            
+        case MessageCenterDBManagerTypeMESSAGE:
             SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE];
-        }
             break;
-        case MessageCenterDBManagerTypeMETADATA:{
-            
-            NSMutableDictionary *groupInfo = [[NSMutableDictionary alloc] init];
-            
-            [groupInfo setValue:datas[0][@"_id"] forKey:@"MsgMetadataId"];
-            [groupInfo setValue:datas[0][@"createTime"] forKey:@"CreateTime"];
-            [groupInfo setValue:[MessageTool token] forKey:@"AccountId"];
-            [groupInfo setValue:datas[0][@"groupId"] forKey:@"GroupId"];
-            
-            if (datas[0][@"lastedMsg"] && ![datas[0][@"lastedMsg"] isKindOfClass:[NSNull class]]) {
-                
-                [groupInfo setValue:datas[0][@"lastedMsg"][@"msgId"] forKey:@"LastedMsgId"];
-                [groupInfo setValue:datas[0][@"lastedMsg"][@"sender"] forKey:@"LastedMsgSenderName"];
-                [groupInfo setValue:datas[0][@"lastedMsg"][@"LastedMsgTime"] forKey:@"time"];
-                [groupInfo setValue:datas[0][@"lastedMsg"][@"content"] forKey:@"LastedMsgContent"];
-                
-            }
-            
-            datas = [NSArray arrayWithObjects:groupInfo, nil];
+        case MessageCenterDBManagerTypeMETADATA:
             SQLStr = [_DBAPIManager addTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA];
-        }
             break;
         default:
             break;
@@ -333,21 +310,23 @@
         
         if (!SQLvalue || !conditionName) {
             
-            [resultDatas sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            int pos = -1;
+            
+            for (int i = 0 ; i < resultDatas.count ; i ++) {
                 
-                MessageCenterMetadataModel *tempObj1 = (MessageCenterMetadataModel *)obj1;
-                MessageCenterMetadataModel *tempObj2 = (MessageCenterMetadataModel *)obj2;
+                MessageCenterMetadataModel *model = resultDatas[i];
                 
-                if ([tempObj1.isTop isEqualToString:@"YES"] && [tempObj2.isTop isEqualToString:@"YES"]) {
-                    return [tempObj1.topTime compare:tempObj2.topTime];
-                }else if ([tempObj1.isTop isEqualToString:@"YES"] && (!tempObj2.isTop || [tempObj2.isTop isKindOfClass:[NSNull class]])) {
-                    return NSOrderedAscending;
-                }else if ([tempObj2.isTop isEqualToString:@"YES"] && (!tempObj1.isTop || [tempObj1.isTop isKindOfClass:[NSNull class]])) {
-                    return NSOrderedDescending;
+                if ([model.isTop isEqualToString:@"YES"]) {
+                    pos = i;
+                    break;
                 }
                 
-                return NSOrderedSame;
-            }];
+            }
+            
+            if (-1 != pos) {
+                [resultDatas exchangeObjectAtIndex:0 withObjectAtIndex:pos];
+            }
+            
         }
     }
     
