@@ -193,7 +193,6 @@ static RYNotifyHandler *shareHandler = nil;
         _getGroupInfoChatHandler = [[RYChatHandler alloc] initWithDelegate:[[ConnectToServer shareInstance] delegate]];
         _getGroupInfoChatHandler.chatServerType = RouteChatTypeGetGroupInfo;
     }
-    _getGroupInfoChatHandler.parameters = @{@"groupId":@"4d3f8221-1cd7-44bc-80a6-c8bed5afe904"};
     return _getGroupInfoChatHandler;
 }
 
