@@ -11,10 +11,15 @@
 
 @interface MessageCenterUserModel : CommonModel
 
-@property (nonatomic, copy) NSString *UserId;
-@property (nonatomic, copy) NSString *PersonName;
-@property (nonatomic, copy) NSString *UserRole;
-@property (nonatomic, copy) NSString *Avatar;
-@property (nonatomic, copy) NSString *AvatarCache;
+//主键
+@property (nonatomic, copy) NSString *mID;
+@property (nonatomic, copy) NSString *userId;
+@property (nonatomic, copy) NSString *personName;
+@property (nonatomic, copy) NSString *userRole;
+@property (nonatomic, copy) NSString *avatar;
+@property (nonatomic, copy) NSString *avatarCache;
+@property (nonatomic, copy) NSString *userName;
+@property (nonatomic, copy) NSString *userType;
+
 
 @end

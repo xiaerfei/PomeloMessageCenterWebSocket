@@ -7,6 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RYChatAPIManager.h"
+
+
+@class MessageCenterMessageModel;
 
 /*
  
@@ -32,6 +36,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
     //组表（类似聊天界面包含个人和组的表）
     MessageCenterDBManagerTypeMETADATA = 2
 };
+
 
 
 //消息中心数据库操作
@@ -74,7 +79,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *  @param number         取多少条数据
  */
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos number:(NSInteger)number;
+- (NSArray *)fetchDataInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue messageModel:(MessageCenterMessageModel *)messageModel number:(NSInteger)number;
 
 /**
  *
@@ -85,7 +90,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *  @param SQLvalue   需要拼合的sql字段
  */
 
-- (NSArray *)fetchUserInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue;
+- (NSArray *)fetchDataInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue;
 
 /**
  *
@@ -101,10 +106,9 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *
  *  @param tableType MessageCenterDBManagerType表类型
  *  @param SQLvalue  SQLvalue需要拼合的sql字段
- *  @param topTime   topTime
  */
 
-- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue topTime:(NSString *)topTime;
+- (void)markTopTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue;
 
 /**
  *  设置已读
@@ -125,6 +129,14 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  */
 
 - (void)updateGroupLastedMessageWithTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue parameters:(NSDictionary *)parameters;
+
+/**
+ *  根据不同类型获取组列表（列表类型0:全部组;1:未读组;2:已读组）
+ *
+ *  @param readType ReadTypeName
+ */
+
+- (NSArray *)fetchGroupsWithGroupReadType:(GroupReadType)readType;
 
 /*---------------------------------本地存储简化对外接口-------------------------------*/
 

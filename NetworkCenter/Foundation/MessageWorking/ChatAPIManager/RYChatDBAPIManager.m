@@ -25,6 +25,9 @@ static RYChatDBAPIManager *shareManager = nil;
 //需要text的字段数组
 @property (nonatomic, copy) NSArray  *textArr;
 
+//主键
+@property (nonatomic, copy) NSArray  *keys;
+
 
 @end
 
@@ -52,10 +55,11 @@ static RYChatDBAPIManager *shareManager = nil;
     
     self.dbName = @"messageCenter.db";
     self.tablesName = @[@"User",@"UserMessage",@"MsgMetadata"];
+    self.keys = @[@"MID",@"UserMessageId",@"MsgMetadataId"];
     
-    self.UserCols = @[@"UserId",@"PersonName",@"UserRole",@"Avatar",@"AvatarCache"];
-    self.UserMessageCols = @[@"UserMessageId",@"UserId",@"MessageId",@"GroupId",@"MsgContent",@"CreateTime",@"Status"];
-    self.MsgMetadataCols = @[@"MsgMetadataId",@"AccountId",@"GroupId",@"GroupName",@"Avatar",@"AvatarCache",@"GroupType",@"CompanyName",@"ApproveStatus",@"LastedReadMsgId",@"LastedReadTime",@"LastedMsgId",@"LastedMsgSenderName",@"LastedMsgTime",@"LastedMsgContent",@"UnReadMsgCount",@"CreateTime",@"isTop",@"topTime"];
+    self.UserCols = @[@"UserId",@"PersonName",@"UserRole",@"Avatar",@"AvatarCache",@"UserName",@"UserType"];
+    self.UserMessageCols = @[@"UserId",@"MessageId",@"GroupId",@"MsgContent",@"CreateTime",@"Status"];
+    self.MsgMetadataCols = @[@"AccountId",@"GroupId",@"GroupName",@"Avatar",@"AvatarCache",@"GroupType",@"CompanyName",@"ApproveStatus",@"LastedReadMsgId",@"LastedReadTime",@"LastedMsgId",@"LastedMsgSenderName",@"LastedMsgTime",@"LastedMsgContent",@"UnReadMsgCount",@"CreateTime",@"isTop"];
     
     self.integerArr = @[@"GroupType",@"GroupType",@"UnReadMsgCount"];
     self.textArr    = @[@"MsgContent",@"LastedMsgContent"];
@@ -118,7 +122,16 @@ static RYChatDBAPIManager *shareManager = nil;
     switch (type) {
         case SQLTypeCreate:{
             
-            tempStr = [[NSMutableString alloc] initWithString:@"(MID integer PRIMARY KEY autoincrement,"];
+            if (DBType == MessageCenterDBManagerTypeUSER) {
+                
+                tempStr = [[NSMutableString alloc] initWithFormat:@"(%@ integer PRIMARY KEY autoincrement,",self.keys[0]];
+                
+            }else if (DBType == MessageCenterDBManagerTypeMESSAGE) {
+                tempStr = [[NSMutableString alloc] initWithFormat:@"(%@ integer PRIMARY KEY autoincrement,",self.keys[1]];
+            }else {
+                tempStr = [[NSMutableString alloc] initWithFormat:@"(%@ integer PRIMARY KEY autoincrement,",self.keys[2]];
+            }
+            
             
             for (int i = 0; i < colsArr.count; i ++) {
                 

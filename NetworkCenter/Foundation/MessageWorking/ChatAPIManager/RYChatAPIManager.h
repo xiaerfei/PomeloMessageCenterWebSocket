@@ -88,13 +88,13 @@ typedef NS_ENUM(NSInteger, ResultCodeType){
 
 //列表类型0:全部组;1:未读组;2:已读组
 
-typedef NS_ENUM(NSInteger, ReadTypeName){
+typedef NS_ENUM(NSInteger, GroupReadType){
     /// 0:全部组
-    ReadTypeAll    = 111,
+    GroupReadTypeAll    = 111,
     /// 1:未读组
-    ReadTypeNoRead = 222,
+    GroupReadTypeNoRead = 222,
     /// 2:已读组
-    ReadTypeRead   = 333
+    GroupReadTypeRead   = 333
     
 };
 
@@ -146,7 +146,9 @@ typedef NS_ENUM(NSInteger, NotifyType){
      *  接收到消息群组client端展示推送
      */
     
-    NotifyTypeOnClientShow
+    NotifyTypeOnClientShow     = 7 << 3,
+    
+    NotifyTypeOnGroupAddUser   = 7 << 4
     
 };
 
