@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "RYChatAPIManager.h"
 
+
+@class MessageCenterMessageModel;
+
 /*
  
  聊天本地处理过程：
@@ -76,7 +79,7 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
  *  @param number         取多少条数据
  */
 
-- (NSArray *)fetchDataInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos number:(NSInteger)number;
+- (NSArray *)fetchDataInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue messageModel:(MessageCenterMessageModel *)messageModel number:(NSInteger)number;
 
 /**
  *

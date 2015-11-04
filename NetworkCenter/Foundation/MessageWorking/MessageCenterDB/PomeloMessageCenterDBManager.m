@@ -122,7 +122,7 @@
             MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
             [messageCenterMetadataModel setValuesForKeysWithDictionary:datas[i]];
             
-            markID = messageCenterMetadataModel.msgMetadataId;
+            markID = messageCenterMetadataModel.groupId;
             
         }
         
@@ -154,7 +154,6 @@
                 [messageCenterMessageModel setValuesForKeysWithDictionary:datas[i]];
                 
                 [_dataBaseStore updateDataWithSql:SQLStr,
-                 messageCenterMessageModel.userMessageId,
                  messageCenterMessageModel.userId,
                  messageCenterMessageModel.messageId,
                  messageCenterMessageModel.groupId,
@@ -171,7 +170,6 @@
                 messageCenterMetadataModel.accountId = [MessageTool token];
                 
                 [_dataBaseStore updateDataWithSql:SQLStr,
-                 messageCenterMetadataModel.msgMetadataId,
                  messageCenterMetadataModel.accountId,
                  messageCenterMetadataModel.groupId,
                  messageCenterMetadataModel.groupName,
@@ -197,20 +195,19 @@
     }
 }
 
-- (NSArray *)fetchDataInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue startPos:(NSInteger)startPos number:(NSInteger)number{
+- (NSArray *)fetchDataInfosWithType:(MessageCenterDBManagerType)tableType conditionName:(NSString *)conditionName SQLvalue:(NSString *)SQLvalue messageModel:(MessageCenterMessageModel *)messageModel number:(NSInteger)number{
     
     NSString       *SQLStr      = nil;
     NSMutableArray *resultDatas = [[NSMutableArray alloc] init];
     
     if (tableType == MessageCenterDBManagerTypeMESSAGE) {
         
-        SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@') limit %d,%d",conditionName,SQLvalue,(int)startPos,(int)number];
+        SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@' and UserMessageId < '%@') limit %d,%d",conditionName,SQLvalue,messageModel.userMessageId,0,(int)number];
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
-            
-            messageCenterMessageModel.userMessageId = [set stringForColumn:@"UserMessageId"];
+
             messageCenterMessageModel.userId       = [set stringForColumn:@"UserId"];
             messageCenterMessageModel.messageId    = [set stringForColumn:@"MessageId"];
             messageCenterMessageModel.msgContent   = [set stringForColumn:@"MsgContent"];
@@ -241,7 +238,6 @@
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
             
-            messageCenterMessageModel.userMessageId = [set stringForColumn:@"UserMessageId"];
             messageCenterMessageModel.userId       = [set stringForColumn:@"UserId"];
             messageCenterMessageModel.messageId    = [set stringForColumn:@"MessageId"];
             messageCenterMessageModel.msgContent   = [set stringForColumn:@"MsgContent"];
@@ -282,7 +278,6 @@
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
             MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
-            messageCenterMetadataModel.msgMetadataId = [set stringForColumn:@"MsgMetadataId"];
             messageCenterMetadataModel.accountId = [set stringForColumn:@"AccountId"];
             messageCenterMetadataModel.groupId = [set stringForColumn:@"GroupId"];
             messageCenterMetadataModel.groupName = [set stringForColumn:@"GroupName"];
@@ -339,7 +334,6 @@
                       [_DBAPIManager updateTableSQLWithTableType:MessageCenterDBManagerTypeMESSAGE key:@"MessageId"],SQLvalue];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
-             messageCenterMessageModel.userMessageId,
              messageCenterMessageModel.userId,
              messageCenterMessageModel.messageId,
              messageCenterMessageModel.groupId,
@@ -378,7 +372,6 @@
             messageCenterMetadataModel.accountId = [MessageTool token];
             
             [_dataBaseStore updateDataWithSql:SQLStr,
-             messageCenterMetadataModel.msgMetadataId,
              messageCenterMetadataModel.accountId,
              messageCenterMetadataModel.groupId,
              messageCenterMetadataModel.groupName,
@@ -492,7 +485,6 @@
     [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
         
         MessageCenterMetadataModel *messageCenterMetadataModel = [[MessageCenterMetadataModel alloc] init];
-        messageCenterMetadataModel.msgMetadataId = [set stringForColumn:@"MsgMetadataId"];
         messageCenterMetadataModel.accountId = [set stringForColumn:@"AccountId"];
         messageCenterMetadataModel.groupId = [set stringForColumn:@"GroupId"];
         messageCenterMetadataModel.groupName = [set stringForColumn:@"GroupName"];
@@ -540,7 +532,7 @@
  *  判断数据库中是否存在指定ID的数据
  *
  *  @param tableType 表类型
- *  @param markID    userid或者MessageId或者MsgMetadataId
+ *  @param markID    userid或者MessageId或者groupid
  *
  *  @return BOOL
  *
@@ -561,7 +553,7 @@
         
     }else if (tableType == MessageCenterDBManagerTypeMETADATA) {
         
-        SQLStr = [NSString stringWithFormat:[_DBAPIManager selectTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA key:@"MsgMetadataId"],markID];
+        SQLStr = [NSString stringWithFormat:[_DBAPIManager selectTableSQLWithTableType:MessageCenterDBManagerTypeMETADATA key:@"groupId"],markID];
         
     }
     

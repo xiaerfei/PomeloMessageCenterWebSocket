@@ -11,6 +11,8 @@
 
 @interface MessageCenterUserModel : CommonModel
 
+//主键
+@property (nonatomic, copy) NSString *mID;
 @property (nonatomic, copy) NSString *userId;
 @property (nonatomic, copy) NSString *personName;
 @property (nonatomic, copy) NSString *userRole;

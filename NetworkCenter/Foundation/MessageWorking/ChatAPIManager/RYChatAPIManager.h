@@ -146,7 +146,9 @@ typedef NS_ENUM(NSInteger, NotifyType){
      *  接收到消息群组client端展示推送
      */
     
-    NotifyTypeOnClientShow
+    NotifyTypeOnClientShow     = 7 << 3,
+    
+    NotifyTypeOnGroupAddUser   = 7 << 4
     
 };
 

@@ -135,7 +135,6 @@ static RYChatHandler *shareChatHandler = nil;
                     
                     NSMutableDictionary *groupInfo = [[NSMutableDictionary alloc] init];
                     
-                    [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"_id"]] forKey:@"MsgMetadataId"];
                     [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"createTime"]] forKey:@"CreateTime"];
                     [groupInfo setValue:[MessageTool token] forKey:@"AccountId"];
                     [groupInfo setValue:[NSString stringWithFormat:@"%@",tempDict[@"groupId"]] forKey:@"GroupId"];

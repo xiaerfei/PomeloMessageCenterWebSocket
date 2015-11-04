@@ -69,7 +69,6 @@ static RYNotifyHandler *shareHandler = nil;
                 //设置该消息发送或者是获取到的
                 NSMutableDictionary *tempDict = [[NSMutableDictionary alloc] initWithDictionary:arg];
             
-                [tempDict setValue:[NSString stringWithFormat:@"%@",tempDict[@"_id"]]     forKey:@"UserMessageId"];
                 [tempDict setValue:[NSString stringWithFormat:@"%@",tempDict[@"_id"]]     forKey:@"MessageId"];
                 [tempDict setValue:[NSString stringWithFormat:@"%@",tempDict[@"time"]]    forKey:@"CreateTime"];
                 [tempDict setValue:[NSString stringWithFormat:@"%@",tempDict[@"from"]]    forKey:@"UserId"];
