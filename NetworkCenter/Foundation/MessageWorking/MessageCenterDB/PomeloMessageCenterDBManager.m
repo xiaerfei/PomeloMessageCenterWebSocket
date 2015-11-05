@@ -554,6 +554,14 @@
         
     } Sql:SQLStr];
     
+    /*
+     
+     待测试
+     
+     */
+    
+    MessageCenterMetadataModel *isTopModel = nil;
+    
     int pos = -1;
     
     for (int i = 0 ; i < resultDatas.count ; i ++) {
@@ -561,14 +569,35 @@
         MessageCenterMetadataModel *model = resultDatas[i];
         
         if ([model.isTop isEqualToString:@"YES"]) {
+            isTopModel = model;
             pos = i;
             break;
         }
         
     }
     
-    if (-1 != pos) {
-        [resultDatas exchangeObjectAtIndex:0 withObjectAtIndex:pos];
+    if (isTopModel && pos != -1) {
+        
+        [resultDatas removeObjectAtIndex:pos];
+        
+        resultDatas = [[NSMutableArray alloc] initWithArray:[resultDatas sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            MessageCenterMetadataModel *obj1Model = (MessageCenterMetadataModel *)obj1;
+            MessageCenterMetadataModel *obj2Model = (MessageCenterMetadataModel *)obj2;
+            
+            return [obj1Model.unReadMsgCount intValue] - [obj2Model.unReadMsgCount intValue];
+        }]];
+        
+        [resultDatas insertObject:isTopModel atIndex:0];
+        
+    }else{
+        
+        resultDatas = [[NSMutableArray alloc] initWithArray:[resultDatas sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            MessageCenterMetadataModel *obj1Model = (MessageCenterMetadataModel *)obj1;
+            MessageCenterMetadataModel *obj2Model = (MessageCenterMetadataModel *)obj2;
+            
+            return [obj1Model.unReadMsgCount intValue] - [obj2Model.unReadMsgCount intValue];
+        }]];
+        
     }
     
     return resultDatas;
