@@ -202,7 +202,15 @@
     
     if (tableType == MessageCenterDBManagerTypeMESSAGE) {
         
-        SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@' and UserMessageId < '%@') limit %d,%d",conditionName,SQLvalue,messageModel.userMessageId,0,(int)number];
+        if (!messageModel) {
+            
+            SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@') limit %d,%d",conditionName,SQLvalue,0,(int)number];
+            
+        }else{
+            SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@' and UserMessageId < '%@') limit %d,%d",conditionName,SQLvalue,messageModel.userMessageId,0,(int)number];
+        }
+        
+        
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
