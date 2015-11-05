@@ -204,23 +204,21 @@
         
         if (!messageModel) {
             
-            SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@') limit %d,%d",conditionName,SQLvalue,0,(int)number];
+            SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,0,(int)number];
             
         }else{
-            SQLStr = [NSString stringWithFormat:@"select * from (select * from UserMessage where %@ = '%@' and UserMessageId < '%@') limit %d,%d",conditionName,SQLvalue,messageModel.userMessageId,0,(int)number];
+            SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' and UserMessageId < '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,messageModel.userMessageId,0,(int)number];
         }
-        
-        
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
             MessageCenterMessageModel *messageCenterMessageModel = [[MessageCenterMessageModel alloc] init];
             messageCenterMessageModel.userMessageId = [set stringForColumn:@"UserMessageId"];
-            messageCenterMessageModel.userId       = [set stringForColumn:@"UserId"];
-            messageCenterMessageModel.messageId    = [set stringForColumn:@"MessageId"];
-            messageCenterMessageModel.msgContent   = [set stringForColumn:@"MsgContent"];
-            messageCenterMessageModel.createTime   = [set stringForColumn:@"CreateTime"];
-            messageCenterMessageModel.Status       = [set stringForColumn:@"Status"];
+            messageCenterMessageModel.userId        = [set stringForColumn:@"UserId"];
+            messageCenterMessageModel.messageId     = [set stringForColumn:@"MessageId"];
+            messageCenterMessageModel.msgContent    = [set stringForColumn:@"MsgContent"];
+            messageCenterMessageModel.createTime    = [set stringForColumn:@"CreateTime"];
+            messageCenterMessageModel.Status        = [set stringForColumn:@"Status"];
             
             [resultDatas addObject:messageCenterMessageModel];
             

@@ -138,6 +138,8 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
 
 - (NSArray *)fetchGroupsWithGroupReadType:(GroupReadType)readType;
 
+- (void)deleteDataWithTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue;
+
 /*---------------------------------本地存储简化对外接口-------------------------------*/
 
 //存储用户信息   --- 对应User表操作
