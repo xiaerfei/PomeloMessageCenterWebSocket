@@ -202,13 +202,25 @@
     
     if (tableType == MessageCenterDBManagerTypeMESSAGE) {
         
-        if (!messageModel) {
+        NSArray *groupArr = [self fetchDataInfosWithType:MessageCenterDBManagerTypeMETADATA conditionName:conditionName SQLvalue:SQLvalue];
+        
+        MessageCenterMetadataModel *messageCenterMetadataModel = groupArr[0];
+        
+        if ([messageCenterMetadataModel.unReadMsgCount intValue] > number) {
             
-            SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,0,(int)number];
+            SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,0,(int)messageCenterMetadataModel.unReadMsgCount];
             
         }else{
-            SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' and UserMessageId < '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,messageModel.userMessageId,0,(int)number];
+            
+            if (!messageModel) {
+                
+                SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,0,(int)number];
+                
+            }else{
+                SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' and UserMessageId < '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,messageModel.userMessageId,0,(int)number];
+            }
         }
+        
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
@@ -408,7 +420,7 @@
         NSString *SQLStr = @"update MsgMetadata set isTop = 'NO'";
         [_dataBaseStore updateDataWithSql:SQLStr];
         
-        if (!SQLvalue) {
+        if (SQLvalue) {
             SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@' where GroupId = '%@'",@"YES",SQLvalue];
             [_dataBaseStore updateDataWithSql:SQLStr];
         }
@@ -469,6 +481,32 @@
     
 }
 
+- (void)deleteDataWithTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue {
+    
+    if (tableType == MessageCenterDBManagerTypeMETADATA) {
+        
+        NSString *SQLStr = [NSString stringWithFormat:@"delete from MsgMetadata where groupId = '%@'",SQLvalue];
+        
+        [_dataBaseStore updateDataWithSql:SQLStr];
+        
+    }
+    
+}
+
+- (NSArray *)deleteDataWithTableWithType:(MessageCenterDBManagerType)tableType groupReadType:(GroupReadType)readType  SQLvalue:(NSString *)SQLvalue {
+    
+    NSArray *newDataArr = [[NSArray alloc] init];
+
+    if (tableType == MessageCenterDBManagerTypeMETADATA) {
+        
+        [self deleteDataWithTableWithType:tableType SQLvalue:SQLvalue];
+        
+        newDataArr = [self fetchGroupsWithGroupReadType:readType];
+    }
+    
+    return newDataArr;
+}
+
 - (NSArray *)fetchGroupsWithGroupReadType:(GroupReadType)readType {
     
     NSString *SQLStr = @"";
@@ -516,6 +554,14 @@
         
     } Sql:SQLStr];
     
+    /*
+     
+     待测试
+     
+     */
+    
+    MessageCenterMetadataModel *isTopModel = nil;
+    
     int pos = -1;
     
     for (int i = 0 ; i < resultDatas.count ; i ++) {
@@ -523,14 +569,35 @@
         MessageCenterMetadataModel *model = resultDatas[i];
         
         if ([model.isTop isEqualToString:@"YES"]) {
+            isTopModel = model;
             pos = i;
             break;
         }
         
     }
     
-    if (-1 != pos) {
-        [resultDatas exchangeObjectAtIndex:0 withObjectAtIndex:pos];
+    if (isTopModel && pos != -1) {
+        
+        [resultDatas removeObjectAtIndex:pos];
+        
+        resultDatas = [[NSMutableArray alloc] initWithArray:[resultDatas sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            MessageCenterMetadataModel *obj1Model = (MessageCenterMetadataModel *)obj1;
+            MessageCenterMetadataModel *obj2Model = (MessageCenterMetadataModel *)obj2;
+            
+            return [obj1Model.unReadMsgCount intValue] - [obj2Model.unReadMsgCount intValue];
+        }]];
+        
+        [resultDatas insertObject:isTopModel atIndex:0];
+        
+    }else{
+        
+        resultDatas = [[NSMutableArray alloc] initWithArray:[resultDatas sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            MessageCenterMetadataModel *obj1Model = (MessageCenterMetadataModel *)obj1;
+            MessageCenterMetadataModel *obj2Model = (MessageCenterMetadataModel *)obj2;
+            
+            return [obj1Model.unReadMsgCount intValue] - [obj2Model.unReadMsgCount intValue];
+        }]];
+        
     }
     
     return resultDatas;

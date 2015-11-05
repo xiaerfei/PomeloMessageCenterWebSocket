@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "RYChatAPIManager.h"
 
-
 @class MessageCenterMessageModel;
 
 /*
@@ -138,7 +137,23 @@ typedef NS_ENUM(NSInteger, MessageCenterDBManagerType){
 
 - (NSArray *)fetchGroupsWithGroupReadType:(GroupReadType)readType;
 
+/**
+ *  简单组列表删除
+ *
+ *  @param tableType MessageCenterDBManagerType表类型
+ *  @param SQLvalue  SQLvalue需要拼合的sql字段
+ */
+
 - (void)deleteDataWithTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue;
+
+/**
+ *  组列表删除,附带返回删除后的数组
+ *
+ *  @param tableType MessageCenterDBManagerType表类型
+ *  @param SQLvalue  SQLvalue需要拼合的sql字段
+ */
+
+- (NSArray *)deleteDataWithTableWithType:(MessageCenterDBManagerType)tableType groupReadType:(GroupReadType)readType SQLvalue:(NSString *)SQLvalue;
 
 /*---------------------------------本地存储简化对外接口-------------------------------*/
 
