@@ -202,13 +202,25 @@
     
     if (tableType == MessageCenterDBManagerTypeMESSAGE) {
         
-        if (!messageModel) {
+        NSArray *groupArr = [self fetchDataInfosWithType:MessageCenterDBManagerTypeMETADATA conditionName:conditionName SQLvalue:SQLvalue];
+        
+        MessageCenterMetadataModel *messageCenterMetadataModel = groupArr[0];
+        
+        if ([messageCenterMetadataModel.unReadMsgCount intValue] > number) {
             
-            SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,0,(int)number];
+            SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,0,(int)messageCenterMetadataModel.unReadMsgCount];
             
         }else{
-            SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' and UserMessageId < '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,messageModel.userMessageId,0,(int)number];
+            
+            if (!messageModel) {
+                
+                SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,0,(int)number];
+                
+            }else{
+                SQLStr = [NSString stringWithFormat:@"select * from (select * from (select * from UserMessage where %@ = '%@' and UserMessageId < '%@' order by UserMessageId desc) limit %d,%d) order by UserMessageId",conditionName,SQLvalue,messageModel.userMessageId,0,(int)number];
+            }
         }
+        
         
         [_dataBaseStore getDataFromTableWithResultSet:^(FMResultSet *set) {
             
@@ -467,6 +479,32 @@
     
     [self updateDataTableWithType:tableType SQLvalue:SQLvalue parameters:parameters];
     
+}
+
+- (void)deleteDataWithTableWithType:(MessageCenterDBManagerType)tableType SQLvalue:(NSString *)SQLvalue {
+    
+    if (tableType == MessageCenterDBManagerTypeMETADATA) {
+        
+        NSString *SQLStr = [NSString stringWithFormat:@"delete from MsgMetadata where groupId = '%@'",SQLvalue];
+        
+        [_dataBaseStore updateDataWithSql:SQLStr];
+        
+    }
+    
+}
+
+- (NSArray *)deleteDataWithTableWithType:(MessageCenterDBManagerType)tableType groupReadType:(GroupReadType)readType  SQLvalue:(NSString *)SQLvalue {
+    
+    NSArray *newDataArr = [[NSArray alloc] init];
+
+    if (tableType == MessageCenterDBManagerTypeMETADATA) {
+        
+        [self deleteDataWithTableWithType:tableType SQLvalue:SQLvalue];
+        
+        newDataArr = [self fetchGroupsWithGroupReadType:readType];
+    }
+    
+    return newDataArr;
 }
 
 - (NSArray *)fetchGroupsWithGroupReadType:(GroupReadType)readType {
