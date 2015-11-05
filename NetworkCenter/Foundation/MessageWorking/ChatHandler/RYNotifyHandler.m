@@ -61,7 +61,6 @@ static RYNotifyHandler *shareHandler = nil;
         
         [connectToServer.chatClient onRoute:[RYChatAPIManager notifyWithType:self.notifyType] withCallback:^(id arg) {
             
-            [[NSNotificationCenter defaultCenter] postNotificationName:[MessageTool PushGlobalNotificationStr] object:arg userInfo:nil];
             
             if ([arg[@"__route__"] isEqualToString:[RYChatAPIManager routeWithType:RouteChatTypeSend]]) {
                 
@@ -146,6 +145,8 @@ static RYNotifyHandler *shareHandler = nil;
                     [MessageTool setDisturbed:@"NO"];
                 }
             }
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:[MessageTool PushGlobalNotificationStr] object:arg userInfo:nil];
             
         }];
     }

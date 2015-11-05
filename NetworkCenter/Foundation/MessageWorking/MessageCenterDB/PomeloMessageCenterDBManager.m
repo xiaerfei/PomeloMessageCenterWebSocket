@@ -420,7 +420,7 @@
         NSString *SQLStr = @"update MsgMetadata set isTop = 'NO'";
         [_dataBaseStore updateDataWithSql:SQLStr];
         
-        if (!SQLvalue) {
+        if (SQLvalue) {
             SQLStr = [NSString stringWithFormat:@"update MsgMetadata set isTop = '%@' where GroupId = '%@'",@"YES",SQLvalue];
             [_dataBaseStore updateDataWithSql:SQLStr];
         }
